@@ -14,7 +14,8 @@ class ProjectCreator
 
     env.plugins "node_modules", paths.npm
     env.lookup '*:*'
-    env.run "steroids:app #{targetDirectory}", {"skip-install": "nobodychecksthisvalue"}, deferred.resolve
+    #env.run "steroids:app #{targetDirectory}", {"skip-install": "nobodychecksthisvalue"}, deferred.resolve
+    env.run "devroids:app #{targetDirectory}", {"skip-install": "nobodychecksthisvalue"}, deferred.resolve
 
     return deferred.promise
 

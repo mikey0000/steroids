@@ -11,6 +11,8 @@ Server = require "./steroids/Server"
 Ripple = require "./steroids/Ripple"
 PortChecker = require "./steroids/PortChecker"
 
+DolanDB = require "./steroids/DolanDB"
+
 util = require "util"
 Version = require "./steroids/Version"
 paths = require "./steroids/paths"
@@ -103,6 +105,42 @@ class Steroids
         process.exit 1
 
     switch firstOption
+
+      when "dolandb"
+        dolandb = new DolanDB
+
+        command = otherOptions[0]
+
+        unless command
+          console.log "Usage: steroids dolandb [init|resource|browser]"
+
+          process.exit(1)
+
+        if command=='init'
+          dolandb.initialize()
+
+        if command=='sync'
+          dolandb.create_or_update()
+
+        if command=='browser'
+          dolandb.open()
+
+        if command=='drop'
+          dolandb.drop()
+
+        # change these under generate
+        if command=='resource'
+          otherOptions.shift()
+          dolandb.resource(otherOptions)
+
+        if command=='scaffold'
+          otherOptions.shift()
+          dolandb.scaffold(otherOptions)
+
+        if command=='test'
+          otherOptions.shift()
+          dolandb.test(otherOptions)
+
       when "version"
         updater = new Updater
           verbose: false
@@ -126,20 +164,8 @@ class Steroids
         projectCreator = new ProjectCreator
           debug: @options.debug
 
-        projectCreator.generate(folder).then(
-          ->
-            Npm = require "./steroids/Npm"
-            npm = new Npm()
-            npm.install()
-        ).then(
-          ->
-            Bower = require "./steroids/Bower"
-            bower = new Bower()
-            bower.install()
-        ).then(
-          ->
-            Help.projectCreated(folder)
-        )
+        projectCreator.generate(folder)
+
 
       when "push"
         project = new Project

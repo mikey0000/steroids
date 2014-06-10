@@ -1,0 +1,158 @@
+#%RAML 0.8
+title: Steroids Data
+mediaType: application/json
+baseUri: <%=base_url%>
+
+traits:
+  - securedBySteroidsApiKey:
+      headers:
+        steroidsApiKey:
+          type: string
+          example: identificationhashgoeshere
+          default: <%=apikey%>
+        steroidsAppId:
+          type: integer
+          example: 1234
+          default: 11638
+        BucketId:
+          type: integer
+          example: 1234
+          default: <%=bucket_id%>
+
+schemas:
+
+<% resources.forEach( function(resource) { %> <% resource_name = Object.keys(resource)[0] %>
+  - <%=resource_name%>s: '
+{
+  "$schema":"http://json-schema.org/schema",
+    "title":"<%=resource_name%> collection",
+    "type":"object",
+    "properties":{
+      "object":{
+        "type":"array",
+        "items":{
+          "$schema":"http://json-schema.org/schema",
+          "type":"object",
+          "description":"The canonical <%=resource_name%> representation",
+          "properties":{
+            <% Object.keys(resource[resource_name]).forEach( function(key) {%>"<%= key %>":{"type":"<%=resource[resource_name][key]%>"},
+            <% }) %>"_id":{"type":"string"},
+            "_version":{"type":"string"}
+          },
+          "required":[]
+        }
+      }
+    }
+}
+'
+  - <%=resource_name%>: '
+{
+  "$schema":"http://json-schema.org/schema",
+  "type":"object",
+  "description":"The canonical <%=resource_name%> representation",
+  "properties":{
+    "object":{
+      "type":"object",
+      "properties":{
+        <% Object.keys(resource[resource_name]).forEach( function(key) {%>"<%= key %>":{"type":"<%=resource[resource_name][key]%>"},
+        <% }) %>"_id":{"type":"string"},
+        "_version":{"type":"string"}
+      },
+      "required":[]
+    }
+  }
+}
+'
+<% }) %>
+
+resourceTypes:
+  - dolan_db_collection:
+      usage: This resourceType should be used for any collection of items
+      is: [ securedBySteroidsApiKey ]
+      get:
+        description: |
+          {
+            "action": "collection"
+          }
+        responses:
+          200:
+            description: |
+              {
+                "rootKey": "objects"
+              }
+            body:
+              application/json:
+                schema: <<resourcePathName>> # e.g cars
+      post:
+        description: |
+          {
+            "action": "create",
+            "rootKey": "object"
+          }
+        body:
+          application/json:
+            schema: <<resourcePathName | !singularize>>
+        responses:
+          200:
+            description: |
+              {
+                "rootKey": "object"
+              }
+            body:
+              application/json:
+                schema: <<resourcePathName | !singularize>> # e.g. car
+
+  - dolan_db_member:
+      usage: This resourceType should be used for any built.io item
+      is: [ securedBySteroidsApiKey ]
+      get:
+        description: |
+          {
+            "action": "find"
+          }
+        responses:
+          200:
+            description: |
+              {
+                "rootKey": "object"
+              }
+            body:
+              application/json:
+                schema: <<resourcePathName>> # e.g. car
+      put:
+        description: |
+          {
+            "action": "update",
+            "rootKey": "object"
+          }
+        body:
+          application/json:
+            schema: <<resourcePathName | !singularize>>
+        responses:
+          200:
+            description: |
+              {
+                "rootKey": "object"
+              }
+            body:
+              application/json:
+                schema: <<resourcePathName>>
+      delete:
+        description: |
+          {
+            "action": "destroy"
+          }
+        responses:
+          200:
+
+
+<% resources.forEach( function(resource) { %>
+/<%=Object.keys(resource)[0]%>:
+  description: |
+    {
+      "resourceName": "<%=Object.keys(resource)[0]%>"
+    }
+  type: dolan_db_collection
+  /{id}:
+    type: dolan_db_member
+<% }) %>
