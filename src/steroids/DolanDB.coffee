@@ -15,10 +15,10 @@ env = require("yeoman-generator")()
 
 data_definition_path = "config/dolandb.yaml"
 
-dolan_db_url = 'http://datastorage-api.devgyver.com/v1/datastorage'
-#dolan_db_url = "http://datastorage-api.local.devgyver.com:3000/v1/datastorage"
-#db_browser_url = 'http://localhost:2999'
-#db_browser_url = 'http://appgyver-dolandb-browser.herokuapp.com/'
+#dolan_db_base_url = "http://datastorage-api.local.devgyver.com:3000/"
+dolan_db_base_url = 'http://datastorage-api.devgyver.com'
+dolan_db_url = "#{dolan_db_base_url}/v1/datastorage"
+
 db_browser_url = 'http://dolandb-browser.devgyver.com'
 
 ###
@@ -33,13 +33,8 @@ DbBrowser = request.newClient(db_browser_url)
 
 class DolanDB
   constructor: (@options={}) ->
-    ## will not be needed soon...
-    @client = restify.createJsonClient
-      url: 'http://anka.testgyver.com'
-    @client.basicAuth Login.currentAccessToken(), 'X'
-
     @dolandbCredentialApi = restify.createJsonClient
-      url: 'http://datastorage-api.devgyver.com'
+      url: dolan_db_base_url
     @dolandbCredentialApi.basicAuth Login.currentAccessToken(), 'X'
 
   test: (params) =>
@@ -279,56 +274,6 @@ class DolanDB
           deferred.resolve()
         )
       )
-    return deferred.promise
-
-  # soon to be deprecated
-  createBucketWithCredentials2: (name) =>
-    deferred = q.defer()
-
-    @createBucket(name)
-    .then(
-      (id) =>
-        @createCredentials(id)
-    )
-    .then(
-      (data) =>
-        deferred.resolve(data)
-    )
-
-    return deferred.promise
-
-  # soon to be deprecated
-  createBucket: (name) =>
-    deferred = q.defer()
-
-    @client.post "/studio_api/datastore_buckets", {name: name}, (err, req, res, obj) =>
-      if res.statusCode==422
-        if nameTakenError(err)
-          @client.get "/studio_api/datastore_buckets", (err, req, res, obj) ->
-            deferred.resolve(obj[0].id)
-        else
-          response = JSON.parse(err.message)
-          response.in = "creating bucket"
-          deferred.reject(response)
-      else
-        deferred.resolve(obj.id)
-
-    return deferred.promise
-
-  # soon to be deprecated
-  createCredentials: (id) =>
-    deferred = q.defer()
-
-    data =
-      datastore_credential:
-        datastore_bucket_id: id
-        application_id: 12165
-        #5281
-
-    @client.post "/studio_api/datastore_credentials", data, (err, req, res, obj) =>
-      deferred.resolve(obj)
-      @client.close
-
     return deferred.promise
 
 module.exports = DolanDB
