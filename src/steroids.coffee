@@ -122,6 +122,9 @@ class Steroids
         if command=='sync'
           dolandb.create_or_update()
 
+        if command=='create'
+          dolandb.create_or_update()
+
         if command=='browser'
           dolandb.open()
 

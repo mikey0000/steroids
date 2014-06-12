@@ -176,16 +176,14 @@ class DolanDB
     deferred = q.defer()
 
     data =
-      apiKey: Login.currentAccessToken()
       dbName: name
       appId: 12165  ## get this from confs
+      #apiKey: Login.currentAccessToken()
 
     @dolandbCredentialApi.post('/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
       if obj.code==201
         deferred.resolve(obj.body)
       else
-        console.log "here"
-        console.log obj
         deferred.reject(obj)
     )
 
