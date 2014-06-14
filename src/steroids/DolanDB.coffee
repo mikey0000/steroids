@@ -13,14 +13,16 @@ ejs = require('ejs')
 paths = require "./paths"
 env = require("yeoman-generator")()
 
-data_definition_path = "config/dolandb.yaml"
+data_definition_path = 'config/dolandb.yaml'
+raml_path            = 'www/local.raml'
 
 #dolan_db_base_url = "http://datastorage-api.local.devgyver.com:3000/"
-dolan_db_base_url = 'http://datastorage-api.devgyver.com'
-dolan_db_url = "#{dolan_db_base_url}/v1/datastorage"
-
-db_browser_url = 'http://dolandb-browser.devgyver.com'
 #db_browser_url = 'http://localhost:3001'
+
+dolan_db_base_url    = 'http://datastorage-api.devgyver.com'
+dolan_db_url         = "#{dolan_db_base_url}/v1/datastorage"
+db_browser_url       = 'http://dolandb-browser.devgyver.com'
+configapi_url        = 'http://config-api.local.testgyver.com:3000'
 
 ###
 
@@ -37,6 +39,7 @@ class DolanDB
     5951
     #12165
     # replace this with the real thing
+    # getFromCloudJson('id')
 
   constructor: (@options={}) ->
     @dolandbCredentialApi = restify.createJsonClient
@@ -44,9 +47,35 @@ class DolanDB
     @dolandbCredentialApi.basicAuth Login.currentAccessToken(), 'X'
 
     @composer = restify.createJsonClient
-      url: 'http://config-api.local.testgyver.com:3000'
+      url: configapi_url
     @composer.headers["Authorization"] = Login.currentAccessToken()
 
+  getConfig = () ->
+    yaml.safeLoad readConfigFromFile()
+
+  readConfigFromFile = () ->
+    try return fs.readFileSync(data_definition_path, 'utf8')
+    catch e
+      console.log "you must first init dolandb with command 'steroids dolandb init'"
+      process.exit 1
+
+  noServiceProvider = (err) ->
+    return false unless err?
+    JSON.parse(err.message).error == 'service provider not found'
+
+  getIdentificationHash = ->
+    getFromCloudJson('identification_hash')
+
+  getFromCloudJson = (param) ->
+    cloud_json_path = "config/cloud.json"
+
+    unless fs.existsSync(cloud_json_path)
+      console.log "application needs to be deployed before provisioning a dolandb, please run steroids deploy"
+      process.exit 1
+
+    cloud_json = fs.readFileSync(cloud_json_path, 'utf8')
+    cloud_obj = JSON.parse(cloud_json)
+    return cloud_obj[param]
 
   test: (params) =>
     ###
@@ -68,15 +97,6 @@ class DolanDB
 
     com = params.shift()
 
-    getConfig = () ->
-      yaml.safeLoad readConfigFromFile()
-
-    readConfigFromFile = () ->
-      try return fs.readFileSync(data_definition_path, 'utf8')
-      catch e
-        console.log "you must first init dolandb with command 'steroids dolandb init'"
-        process.exit 1
-
     if com=='provision'
 
       config = getConfig()
@@ -93,17 +113,15 @@ class DolanDB
           steroids_api_key: config['apikey']
 
       @composer.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
-        config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
+        #config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
+        # exists already? next line not needed
+        #congig = getConfig()
         config.resourceProviderUid = obj['uid']
 
         fs.writeFile(data_definition_path, yaml.safeDump(config), (err,data) ->
           console.log 'dolandb resource provider created'
         )
       )
-
-    noServiceProvider = (err) ->
-      return false unless err?
-      JSON.parse(err.message).error == 'service provider not found'
 
     if com=="resource"
       resource_name = params.shift()
@@ -137,27 +155,19 @@ class DolanDB
 
     if com=="raml"
       @composer.headers["Accept"] = "text/yaml"
-      identification_hash = '74d6cf00e52215801b6f9968e916c4558da4a79fd4026268b3e5f2cb12e7e90f'
-      url = "/app/#{@getAppId()}/raml?identification_hash=#{identification_hash}"
+      url = "/app/#{@getAppId()}/raml?identification_hash=#{getIdentificationHash()}"
 
       @composer.get(url, (err, req, res, obj) =>
         raml_file_content = res['body']
-
         console.log raml_file_content
-
-        fs.writeFile('www/local.raml', raml_file_content, (err,data) ->
+        @composer.close()
+        fs.writeFile(raml_path, raml_file_content, (err,data) ->
           console.log 'raml saved'
         )
-
-        #stream = fs.createWriteStream('www/local.raml')
-        #stream.once('open', (fd) ->
-        #  stream.write raml_file_content
-        #  stream.end()
-        #)
       )
 
     if com=='sync'
-      raml = fs.readFileSync('www/local.raml', 'utf8')
+      raml = fs.readFileSync(raml_path, 'utf8')
 
       config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
       if doc.browser_id?
@@ -289,7 +299,7 @@ class DolanDB
       console.log "file #{data_definition_path} exists!"
       return
 
-    name = "db#{@getApplicationId()}"
+    name = "db#{@getAppId()}"
 
     @createBucketWithCredentials(name)
     .then(
@@ -424,17 +434,6 @@ class DolanDB
     )
     return deferred.promise
 
-  getApplicationId: () =>
-    cloud_json_path = "config/cloud.json"
-
-    unless fs.existsSync(cloud_json_path)
-      console.log "application needs to be deployed before provisioning a dolandb, please run steroids deploy"
-      process.exit 1
-
-    d = fs.readFileSync(cloud_json_path, 'utf8')
-    obj = JSON.parse(d)
-    return obj.id
-
   create_yo_generator_args_for = (resource) ->
     name = Object.keys(resource)[0]
     properties = resource[name]
@@ -453,7 +452,7 @@ class DolanDB
     raml_template = fs.readFileSync(__dirname + '/_raml.ejs', 'utf8');
     raml_file_content = ejs.render(raml_template, doc)
 
-    stream = fs.createWriteStream('www/local.raml')
+    stream = fs.createWriteStream(raml_path)
     stream.once('open', (fd) ->
       stream.write raml_file_content
       stream.end()
@@ -469,7 +468,7 @@ class DolanDB
 
   uploadRamlToBrowser: () =>
     deferred = q.defer()
-    raml = fs.readFileSync('www/local.raml', 'utf8')
+    raml = fs.readFileSync(raml_path, 'utf8')
 
     doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
     if doc.browser_id?
