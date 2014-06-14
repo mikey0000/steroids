@@ -152,10 +152,12 @@ class DolanDB
 
         update application.coffee to point to created resources
 
-        other:
+      other:
 
         test resources
             lists your defined resources
+        test remove_resouce <name>
+            removes the resource
         test scaffold
             shows commands to scaffold code templates
         test my
@@ -193,6 +195,9 @@ class DolanDB
 
         @composer.close()
       )
+
+    if com=="remove_resource"
+      console.log 'tbc'
 
     if com=="resource"
       resource_name = params.shift()
@@ -375,20 +380,6 @@ class DolanDB
 
 ## old ->
 
-  test3: (params) =>
-    @createBucketWithCredentials(params[0])
-    .then(
-      (data) =>
-        console.log data
-        console.log "u:  "+data.body.login
-        console.log "pw: "+data.body.password
-        console.log "id: "+data.body.datastore_bucket_id
-      , (err) =>
-        console.log '.'
-        console.log err
-        console.log JSON.stringify(err.body)
-    )
-
   test2: () =>
     env.plugins "node_modules", paths.npm
     env.lookup '*:*'
@@ -401,133 +392,6 @@ class DolanDB
       # destroy db credentials
       console.log 'database dropped'
     )
-
-
-  resourcexx: (params) =>
-    resource_name = params.shift()
-
-    doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
-
-    properties = {}
-    params.forEach (param) ->
-      [k, v] = param.split(':')
-      properties[k] = v
-
-    res = {}
-    res[resource_name]  = properties
-
-    doc.resources.push res
-
-    fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) ->
-      console.log 'resource created'
-    )
-
-  scaffoldxxx: (resources) =>
-    doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
-    doc.resources.forEach( (resource) =>
-      @run_scaffold_for(resource) if resources.length==0 or Object.keys(resource)[0] in resources
-    )
-
-  create_or_updatexx: () =>
-    @generate_raml_file()
-    .then => @uploadRamlToBrowser()
-    .then => @openRamlBrowser()
-
-  openxxx: (options = {}) =>
-    console.log 'open'
-    unless fs.existsSync(data_definition_path)
-      console.log "intialize the database first with 'steroids dolandb init'"
-      console.log "... define resources with 'steroids dolandb resource'"
-      console.log "... and create the database using 'steroids create"
-      return
-
-    doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
-    unless (doc.browser_id)
-      console.log "run first 'steroids create"
-      return
-
-    @openRamlBrowser()
-
-  ## helpers
-
-  run_scaffold_forxx: (resource) =>
-    args = create_yo_generator_args_for(resource)
-    name = Object.keys(resource)[0]
-
-    console.log "running:"
-    console.log "  yo devroids:dolan-res #{args}"
-    console.log ""
-
-    env.plugins "node_modules", paths.npm
-    env.lookup '*:*'
-    env.run "devroids:dolan-res #{args}", () ->
-      console.log "=============="
-      console.log 'you'
-      console.log "resource will be located in 'http://localhost/views/#{name}/index.html' "
-    #exec("yo devroids:dolan-res #{args}", (error, stdout, stderr) ->
-    #)
-
-  nameTakenErrorxx = (err) ->
-    response = JSON.parse(err.message)
-    return false if response.errors.name==undefined
-    'has already been taken' in response.errors.name
-
-  create_yo_generator_args_forxx = (resource) ->
-    name = Object.keys(resource)[0]
-    properties = resource[name]
-    resourceString = name
-
-    for prop in Object.keys properties
-      resourceString += " #{prop}"
-
-    return resourceString
-
-  generate_raml_filexx: () =>
-    deferred = q.defer()
-    doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
-    doc.base_url = "#{dolan_db_url}/#{doc.bucket}"
-
-    raml_template = fs.readFileSync(__dirname + '/_raml.ejs', 'utf8');
-    raml_file_content = ejs.render(raml_template, doc)
-
-    stream = fs.createWriteStream(raml_path)
-    stream.once('open', (fd) ->
-      stream.write raml_file_content
-      stream.end()
-      deferred.resolve()
-    )
-
-
-    return deferred.promise
-
-  openRamlBrowserxx: () =>
-    doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
-    open URL.format("#{db_browser_url}/#browser/#{doc.browser_id}")
-
-  uploadRamlToBrowserxx: () =>
-    deferred = q.defer()
-    raml = fs.readFileSync(raml_path, 'utf8')
-
-    doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
-    if doc.browser_id?
-      # browser instance exists
-      DbBrowser.put("ramls/#{doc.browser_id}", {raml:{content:raml} }, (err, res, body) =>
-        deferred.resolve()
-      )
-    else
-      # create a new broser instance
-      post_data =
-        content: raml
-        bucket_id: doc.bucket_id
-        application_name: 'myapp'
-
-      DbBrowser.post('ramls', { raml:post_data }, (err, res, body) =>
-        doc.browser_id = body.id
-        fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) =>
-          deferred.resolve()
-        )
-      )
-    return deferred.promise
 
 module.exports = DolanDB
 
