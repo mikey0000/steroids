@@ -68,7 +68,10 @@ class DolanDB
 
     com = params.shift()
 
-    readConfig = () ->
+    getConfig = () ->
+      yaml.safeLoad readConfigFromFile()
+
+    readConfigFromFile = () ->
       try return fs.readFileSync(data_definition_path, 'utf8')
       catch e
         console.log "you must first init dolandb with command 'steroids dolandb init'"
@@ -76,7 +79,7 @@ class DolanDB
 
     if com=='provision'
 
-      config = yaml.safeLoad(readConfig())
+      config = getConfig()
 
       if config.resourceProviderUid?
         console.log 'dolanddb provider exists already'
@@ -93,7 +96,6 @@ class DolanDB
         config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
         config.resourceProviderUid = obj['uid']
 
-        fs = require('fs')
         fs.writeFile(data_definition_path, yaml.safeDump(config), (err,data) ->
           console.log 'dolandb resource provider created'
         )
@@ -106,7 +108,8 @@ class DolanDB
     if com=="resource"
       resource_name = params.shift()
 
-      config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
+      config = getConfig()
+
       provider = config.resourceProviderUid
       bucket = config.bucket
 
@@ -134,25 +137,29 @@ class DolanDB
 
     if com=="raml"
       @composer.headers["Accept"] = "text/yaml"
-      url = "/app/#{@getAppId()}/raml?identification_hash=74d6cf00e52215801b6f9968e916c4558da4a79fd4026268b3e5f2cb12e7e90f"
+      identification_hash = '74d6cf00e52215801b6f9968e916c4558da4a79fd4026268b3e5f2cb12e7e90f'
+      url = "/app/#{@getAppId()}/raml?identification_hash=#{identification_hash}"
+
       @composer.get(url, (err, req, res, obj) =>
         raml_file_content = res['body']
 
         console.log raml_file_content
 
-        stream = fs.createWriteStream('www/local.raml')
-        stream.once('open', (fd) ->
-          stream.write raml_file_content
-          stream.end()
+        fs.writeFile('www/local.raml', raml_file_content, (err,data) ->
+          console.log 'raml saved'
         )
+
+        #stream = fs.createWriteStream('www/local.raml')
+        #stream.once('open', (fd) ->
+        #  stream.write raml_file_content
+        #  stream.end()
+        #)
       )
 
     if com=='sync'
       raml = fs.readFileSync('www/local.raml', 'utf8')
 
-      console.log raml
-
-      doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
+      config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
       if doc.browser_id?
         # browser instance exists
         DbBrowser.put("ramls/#{doc.browser_id}", {raml:{content:raml} }, (err, res, body) =>
@@ -166,10 +173,9 @@ class DolanDB
           application_name: 'myapp'
 
         DbBrowser.post('ramls', { raml:post_data }, (err, res, body) =>
-          doc.browser_id = body.id
+          config.browser_id = body.id
           open URL.format("#{db_browser_url}/#browser/#{doc.browser_id}")
-          fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) =>
-          )
+          fs.writeFileSync(data_definition_path, yaml.safeDump(config))
         )
 
     if com=='all'
@@ -315,7 +321,6 @@ class DolanDB
 
     doc.resources.push res
 
-    fs = require('fs')
     fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) ->
       console.log 'resource created'
     )
@@ -454,6 +459,7 @@ class DolanDB
       stream.end()
       deferred.resolve()
     )
+
 
     return deferred.promise
 
