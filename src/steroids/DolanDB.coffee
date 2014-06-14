@@ -92,25 +92,39 @@ class DolanDB
 
         dolandb init (provisions a db using dolan provision api)
 
-        test provision (initializes a provider in config-api)
-        test resource beer name:string brewery:string (inits a resource in config-api)
-        test raml (gets a raml and writes it to www/local.raml)
+        test provider
+            initializes a dolan db-provider in config-api
+        test resource beer name:string brewery:string
+            initializes a resource in config-api
+        test raml
+            gets a raml and writes it to www/local.raml
 
-        test sync (opens dolandb browser)
+        test sync
+            opens (and syncs) dolandb browser
 
-        yo devroids:dolan-res beer name brewery alcohol (generates crud app)
+        yo devroids:dolan-res beer name brewery alcohol
+          generates a crud app
 
         update application.coffee to point to created resources
+
+        other:
+
+        test resources    lists your defined resources
+        test scaffold     shows commands to scaffold code templates
+        test my           shows defined providers
+        test remote <id>  removes provider with <id>
+        test all          show all existing providers
+
     ###
 
     com = params.shift()
 
-    if com=='provision'
+    if com=='provider'
 
       config = getConfig()
 
       if config.resourceProviderUid?
-        console.log 'dolanddb provider exists already'
+        console.log 'doland db provider exists already'
         process.exit 1
 
       data =
@@ -121,7 +135,6 @@ class DolanDB
           steroids_api_key: config['apikey']
 
       @composer.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
-        #config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
         # exists already? next line not needed
         #congig = getConfig()
         config.resourceProviderUid = obj['uid']
@@ -178,7 +191,6 @@ class DolanDB
       raml = getLocalRaml()
 
       config = getConfig()
-      #yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
 
       if config.browser_id?
         # browser instance exists
@@ -225,17 +237,40 @@ class DolanDB
         @composer.close()
       )
 
+    if com=='loll'
+      config = getConfig()
+      id = config.resourceProviderUid
+
+      @composer.get("/app/#{@getAppId()}/service_providers/#{id}/resources.json", (err, req, res, obj) =>
+        console.log err
+        console.log obj
+        @composer.close()
+      )
+
     if com=='resources'
-      # does not work?
       config = getConfig()
       provider = config.resourceProviderUid
 
-      url = "app/#{@getAppId()}/service_providers/#{provider}/resources.json"
+      @composer.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+        obj.forEach (resource) ->
+          console.log resource.name
+          resource.columns.forEach (column) ->
+            console.log " #{column.name}:#{column.type}"
 
-      console.log url
+        @composer.close()
+      )
 
-      @composer.get(url, (err, req, res, obj) =>
-        console.log JSON.stringify(obj)
+    if com=='scaffold'
+      config = getConfig()
+      provider = config.resourceProviderUid
+
+      @composer.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+        console.log "you can scaffold code skeletons by running"
+        obj.forEach (resource) ->
+          columns = resource.columns.map (column) -> column.name
+          arg = "#{resource.name} #{columns.join(' ')}"
+          console.log "yo devroids:dolan-res #{arg}"
+
         @composer.close()
       )
 
