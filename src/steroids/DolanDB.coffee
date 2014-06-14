@@ -126,7 +126,9 @@ class DolanDB
           console.log "service provider is not defined"
           console.log "run first 'devroids dolandb test provision'"
         else
-          console.log "dolandb service provider defined"
+          console.log "resource #{resource_name} defined"
+          scaffold = "you can scaffold code skeleton by running 'yo devroids:dolan-res #{resource_name} #{params.join(' ')} defined'"
+          console.log scaffold
         @composer.close()
       )
 
