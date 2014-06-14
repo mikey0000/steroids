@@ -20,6 +20,7 @@ dolan_db_base_url = 'http://datastorage-api.devgyver.com'
 dolan_db_url = "#{dolan_db_base_url}/v1/datastorage"
 
 db_browser_url = 'http://dolandb-browser.devgyver.com'
+#db_browser_url = 'http://localhost:3001'
 
 ###
 
@@ -32,12 +33,221 @@ db_browser_url = 'http://dolandb-browser.devgyver.com'
 DbBrowser = request.newClient(db_browser_url)
 
 class DolanDB
+  getAppId: () =>
+    5951
+    #12165
+    # replace this with the real thing
+
   constructor: (@options={}) ->
     @dolandbCredentialApi = restify.createJsonClient
       url: dolan_db_base_url
     @dolandbCredentialApi.basicAuth Login.currentAccessToken(), 'X'
 
+    @composer = restify.createJsonClient
+      url: 'http://config-api.local.testgyver.com:3000'
+    @composer.headers["Authorization"] = Login.currentAccessToken()
+
+
   test: (params) =>
+    ###
+      workflow:
+        ensure that a uniq appid in cloud.json
+
+        dolandb init (provisions a db using dolan provision api)
+
+        test provision (initializes a provider in config-api)
+        test resource beer name:string brewery:string (inits a resource in config-api)
+        test raml (gets a raml and writes it to www/local.raml)
+
+        test sync (opens dolandb browser)
+
+        yo devroids:dolan-res beer name brewery alcohol (generates crud app)
+
+        update application.coffee to point to created resources
+    ###
+
+    com = params.shift()
+
+    readConfig = () ->
+      try return fs.readFileSync(data_definition_path, 'utf8')
+      catch e
+        console.log "you must first init dolandb with command 'steroids dolandb init'"
+        process.exit 1
+
+    if com=='provision'
+
+      config = yaml.safeLoad(readConfig())
+
+      if config.resourceProviderUid?
+        console.log 'dolanddb provider exists already'
+        process.exit 1
+
+      data =
+        providerTypeId: 6,
+        name: config['bucket']
+        configurationKeys:
+          bucket_id: config['bucket_id']
+          steroids_api_key: config['apikey']
+
+      @composer.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
+        config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
+        config.resourceProviderUid = obj['uid']
+
+        fs = require('fs')
+        fs.writeFile(data_definition_path, yaml.safeDump(config), (err,data) ->
+          console.log 'dolandb resource provider created'
+        )
+      )
+
+    noServiceProvider = (err) ->
+      return false unless err?
+      JSON.parse(err.message).error == 'service provider not found'
+
+    if com=="resource"
+      resource_name = params.shift()
+
+      config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
+      provider = config.resourceProviderUid
+      bucket = config.bucket
+
+      url = "/app/#{@getAppId()}/service_providers/#{provider}/resources.json"
+
+      data =
+        name: resource_name
+        path: bucket+'/'+resource_name
+        columns: []
+
+      params.forEach (param) ->
+        [k, v] = param.split(':')
+        data.columns.push { name:k, type:v}
+
+      @composer.post(url, data, (err, req, res, obj) =>
+        if noServiceProvider(err)
+          console.log "service provider is not defined"
+          console.log "run first 'devroids dolandb test provision'"
+        else
+          console.log "dolandb service provider defined"
+        @composer.close()
+      )
+
+    if com=="raml"
+      @composer.headers["Accept"] = "text/yaml"
+      url = "/app/#{@getAppId()}/raml?identification_hash=74d6cf00e52215801b6f9968e916c4558da4a79fd4026268b3e5f2cb12e7e90f"
+      @composer.get(url, (err, req, res, obj) =>
+        raml_file_content = res['body']
+
+        console.log raml_file_content
+
+        stream = fs.createWriteStream('www/local.raml')
+        stream.once('open', (fd) ->
+          stream.write raml_file_content
+          stream.end()
+        )
+      )
+
+    if com=='sync'
+      raml = fs.readFileSync('www/local.raml', 'utf8')
+
+      console.log raml
+
+      doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
+      if doc.browser_id?
+        # browser instance exists
+        DbBrowser.put("ramls/#{doc.browser_id}", {raml:{content:raml} }, (err, res, body) =>
+          open URL.format("#{db_browser_url}/#browser/#{doc.browser_id}")
+        )
+      else
+        # create a new broser instance
+        post_data =
+          content: raml
+          bucket_id: doc.bucket_id
+          application_name: 'myapp'
+
+        DbBrowser.post('ramls', { raml:post_data }, (err, res, body) =>
+          doc.browser_id = body.id
+          open URL.format("#{db_browser_url}/#browser/#{doc.browser_id}")
+          fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) =>
+          )
+        )
+
+    if com=='all'
+      @composer.get('/available_service_providers.json', (err, req, res, obj) =>
+        console.log obj
+        @composer.close()
+      )
+
+    if com=='my'
+      @composer.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
+        if obj.length==0
+          console.log 'no providers defined'
+        else
+          console.log obj
+        @composer.close()
+      )
+
+    if com=='delete'
+      id = params.shift()
+
+      @composer.del("/app/#{@getAppId()}/service_providers/#{id}.json", data, (err, req, res, obj) =>
+        console.log obj
+      )
+
+    if com=='resources'
+      provider = 'fc697f9c-f132-46b0-a058-de2bc4936266'
+      url = "app/#{@getAppId}/service_providers/#{provider}/resources.json"
+
+      @composer.get(url, (err, req, res, obj) =>
+        console.log JSON.stringify(obj)
+      )
+
+    if com=="raml"
+      @composer.headers["Accept"] = "text/yaml"
+      url = "/app/#{@getAppId()}/raml?identification_hash=74d6cf00e52215801b6f9968e916c4558da4a79fd4026268b3e5f2cb12e7e90f"
+      @composer.get(url, (err, req, res, obj) =>
+        console.log res['body']
+      )
+
+    # legacy
+    if com=='createxxxxx'
+      data = {
+        providerTypeId: 6,
+        name: "dolandb",
+        configurationKeys: {
+          bucket_id: 270
+          steroids_api_key: 'ca334e0207276b3113e5fa0e6d3009779c8b409d3208a963e856e7f793681579'
+        }
+      }
+
+      @composer.post('/app/12165/service_providers.json', data, (err, req, res, obj) =>
+        console.log obj
+      )
+
+    # legacy
+    if com=='resource_c'
+      provider = '20ddc522-b107-41c7-86a9-d1cc4c7c5efd'
+      url = "/app/12165/service_providers/#{provider}/resources.json"
+
+      resource = params.shift()
+
+      column = { name:'name', type:'string'}
+      column2 = { name:'brewery', type:'string'}
+
+      data =
+        {
+          name: resource,
+          path: 'db93999/'+resource
+          columns: [ column, column2 ]
+        }
+
+      console.log data
+
+      #@composer.post(url, data, (err, req, res, obj) =>
+      #  console.log err
+      #  console.log obj
+      #)
+
+
+  test3: (params) =>
     @createBucketWithCredentials(params[0])
     .then(
       (data) =>
@@ -84,7 +294,7 @@ class DolanDB
         console.log "  steroids dolandb resource beer name:string brewery:string alcohol:integer drinkable:boolean"
         @dolandbCredentialApi.close()
       , (err) ->
-        console.log err
+        console.log JSON.stringify err
         @dolandbCredentialApi.close()
     )
 
