@@ -150,6 +150,7 @@ class DolanDB
           console.log "resource #{resource_name} defined"
           scaffold = "you can scaffold code skeleton by running 'yo devroids:dolan-res #{resource_name} #{params.join(' ')} defined'"
           console.log scaffold
+          ## perhaps raml should be synched???
         @composer.close()
       )
 
@@ -159,7 +160,6 @@ class DolanDB
 
       @composer.get(url, (err, req, res, obj) =>
         raml_file_content = res['body']
-        console.log raml_file_content
         @composer.close()
         fs.writeFile(raml_path, raml_file_content, (err,data) ->
           console.log 'raml saved'
@@ -203,67 +203,29 @@ class DolanDB
         @composer.close()
       )
 
-    if com=='delete'
+    if com=='remove_provider'
       id = params.shift()
 
       @composer.del("/app/#{@getAppId()}/service_providers/#{id}.json", data, (err, req, res, obj) =>
-        console.log obj
+        console.log 'provider removed'
+        @composer.close()
       )
 
     if com=='resources'
-      provider = 'fc697f9c-f132-46b0-a058-de2bc4936266'
-      url = "app/#{@getAppId}/service_providers/#{provider}/resources.json"
+      # does not work?
+      config = getConfig()
+      provider = config.resourceProviderUid
+
+      url = "app/#{@getAppId()}/service_providers/#{provider}/resources.json"
+
+      console.log url
 
       @composer.get(url, (err, req, res, obj) =>
         console.log JSON.stringify(obj)
+        @composer.close()
       )
 
-    if com=="raml"
-      @composer.headers["Accept"] = "text/yaml"
-      url = "/app/#{@getAppId()}/raml?identification_hash=74d6cf00e52215801b6f9968e916c4558da4a79fd4026268b3e5f2cb12e7e90f"
-      @composer.get(url, (err, req, res, obj) =>
-        console.log res['body']
-      )
-
-    # legacy
-    if com=='createxxxxx'
-      data = {
-        providerTypeId: 6,
-        name: "dolandb",
-        configurationKeys: {
-          bucket_id: 270
-          steroids_api_key: 'ca334e0207276b3113e5fa0e6d3009779c8b409d3208a963e856e7f793681579'
-        }
-      }
-
-      @composer.post('/app/12165/service_providers.json', data, (err, req, res, obj) =>
-        console.log obj
-      )
-
-    # legacy
-    if com=='resource_c'
-      provider = '20ddc522-b107-41c7-86a9-d1cc4c7c5efd'
-      url = "/app/12165/service_providers/#{provider}/resources.json"
-
-      resource = params.shift()
-
-      column = { name:'name', type:'string'}
-      column2 = { name:'brewery', type:'string'}
-
-      data =
-        {
-          name: resource,
-          path: 'db93999/'+resource
-          columns: [ column, column2 ]
-        }
-
-      console.log data
-
-      #@composer.post(url, data, (err, req, res, obj) =>
-      #  console.log err
-      #  console.log obj
-      #)
-
+  ## old ->
 
   test3: (params) =>
     @createBucketWithCredentials(params[0])
