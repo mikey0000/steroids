@@ -14,6 +14,7 @@ env = require("yeoman-generator")()
 
 data_definition_path = 'config/dolandb.yaml'
 raml_path            = 'www/local.raml'
+cloud_json_path      = 'config/cloud.json'
 
 #dolan_db_base_url = "http://datastorage-api.local.devgyver.com:3000/"
 #db_browser_url = 'http://localhost:3001'
@@ -35,18 +36,26 @@ configapi_url        = 'http://config-api.local.testgyver.com:3000'
 request = require('request-json')
 DbBrowser = request.newClient(db_browser_url)
 
+#
+# TODO:
+#   add REMOVE RESOURCE
+#
+
 class DolanDB
+  getAppName: () =>
+    "my awesome app"
+
   getAppId: () =>
-    5951
+    5281
+    #5951
     #12165
     # replace this with the real thing
     # getFromCloudJson('id')
 
   constructor: (@options={}) ->
-    ## deprecated?
-    @dolandbCredentialApi = restify.createJsonClient
+    @dolandbProvisionApi = restify.createJsonClient
       url: dolan_db_base_url
-    @dolandbCredentialApi.basicAuth Login.currentAccessToken(), 'X'
+    @dolandbProvisionApi.basicAuth Login.currentAccessToken(), 'X'
 
     @composer = restify.createJsonClient
       url: configapi_url
@@ -85,6 +94,42 @@ class DolanDB
   getLocalRaml = ->
     fs.readFileSync(raml_path, 'utf8')
 
+  saveRamlLocally = (raml_file_content, cb) ->
+    fs.writeFile(raml_path, raml_file_content, (err,data) ->
+      cb()
+    )
+
+  validateName = (string) ->
+    valid = /^[a-z_]*$/
+    return true if string.match valid
+
+    console.log "only lowcase alphabeths and underscore allowed: '#{string}'"
+    process.exit 1
+
+  validateColumn = (string) ->
+    parts = string.split(':')
+    unless parts.length==2
+      console.log "column definition illegal: '#{string}'"
+      process.exit 1
+    validateName parts[0]
+    validateType parts[1]
+
+  validateType = (string) ->
+    allowed = ["string", "integer", "boolean", "number", "date"]
+    return true if string in allowed
+
+    console.log "type '#{string}' not within allowed: #{allowed.join(', ')}"
+    process.exit 1
+
+  saveConfig = (config, cb) ->
+    fs.writeFile(data_definition_path, yaml.safeDump(config), (err,data) =>
+      cb()
+    )
+
+  updateConfig = (config) ->
+    fs.writeFileSync(data_definition_path, yaml.safeDump(config))
+
+
   test: (params) =>
     ###
       workflow:
@@ -109,11 +154,16 @@ class DolanDB
 
         other:
 
-        test resources    lists your defined resources
-        test scaffold     shows commands to scaffold code templates
-        test my           shows defined providers
-        test remote <id>  removes provider with <id>
-        test all          show all existing providers
+        test resources
+            lists your defined resources
+        test scaffold
+            shows commands to scaffold code templates
+        test my
+            shows defined providers
+        test remove_provider <id>
+            removes provider with <id>
+        test all
+            show all existing providers
 
     ###
 
@@ -135,33 +185,35 @@ class DolanDB
           steroids_api_key: config['apikey']
 
       @composer.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
-        # exists already? next line not needed
-        #congig = getConfig()
         config.resourceProviderUid = obj['uid']
 
-        fs.writeFile(data_definition_path, yaml.safeDump(config), (err,data) ->
+        saveConfig(config, () ->
           console.log 'dolandb resource provider created'
         )
+
+        @composer.close()
       )
 
     if com=="resource"
       resource_name = params.shift()
+      validateName(resource_name)
 
       config = getConfig()
 
       provider = config.resourceProviderUid
       bucket = config.bucket
 
-      url = "/app/#{@getAppId()}/service_providers/#{provider}/resources.json"
-
       data =
         name: resource_name
         path: bucket+'/'+resource_name
         columns: []
 
-      params.forEach (param) ->
-        [k, v] = param.split(':')
-        data.columns.push { name:k, type:v}
+      params.forEach (column) ->
+        validateColumn(column)
+        [_name, _type] = column.split(':')
+        data.columns.push { name:_name, type:_type}
+
+      url = "/app/#{@getAppId()}/service_providers/#{provider}/resources.json"
 
       @composer.post(url, data, (err, req, res, obj) =>
         if noServiceProvider(err)
@@ -169,7 +221,7 @@ class DolanDB
           console.log "run first 'devroids dolandb test provision'"
         else
           console.log "resource #{resource_name} defined"
-          scaffold = "you can scaffold code skeleton by running 'yo devroids:dolan-res #{resource_name} #{params.join(' ')} defined'"
+          scaffold = "you can scaffold code skeleton by running 'yo devroids:dolan-res #{resource_name} #{params.join(' ')}'"
           console.log scaffold
           ## perhaps raml should be synched???
         @composer.close()
@@ -180,16 +232,14 @@ class DolanDB
       url = "/app/#{@getAppId()}/raml?identification_hash=#{getIdentificationHash()}"
 
       @composer.get(url, (err, req, res, obj) =>
-        raml_file_content = res['body']
         @composer.close()
-        fs.writeFile(raml_path, raml_file_content, (err,data) ->
+
+        saveRamlLocally res['body'], ->
           console.log 'raml saved'
-        )
       )
 
     if com=='sync'
       raml = getLocalRaml()
-
       config = getConfig()
 
       if config.browser_id?
@@ -204,14 +254,14 @@ class DolanDB
         post_data =
           content: raml
           bucket_id: config.bucket_id
-          application_name: 'my great app'
+          application_name: @getAppName()
 
         @db_browser.post('/ramls', { raml: post_data }, (err, req, res, obj) =>
           @db_browser.close()
 
           config.browser_id = obj.id
           open URL.format("#{db_browser_url}/#browser/#{config.browser_id}")
-          fs.writeFileSync(data_definition_path, yaml.safeDump(config))
+          updateConfig(config)
         )
 
     if com=='all'
@@ -237,16 +287,6 @@ class DolanDB
         @composer.close()
       )
 
-    if com=='loll'
-      config = getConfig()
-      id = config.resourceProviderUid
-
-      @composer.get("/app/#{@getAppId()}/service_providers/#{id}/resources.json", (err, req, res, obj) =>
-        console.log err
-        console.log obj
-        @composer.close()
-      )
-
     if com=='resources'
       config = getConfig()
       provider = config.resourceProviderUid
@@ -269,12 +309,71 @@ class DolanDB
         obj.forEach (resource) ->
           columns = resource.columns.map (column) -> column.name
           arg = "#{resource.name} #{columns.join(' ')}"
-          console.log "yo devroids:dolan-res #{arg}"
+          console.log " yo devroids:dolan-res #{arg}"
 
         @composer.close()
       )
 
-  ## old ->
+  initialize: (options={}) =>
+    console.log 'initializing DolanDB...'
+
+    unless fs.existsSync(cloud_json_path)
+      console.log "you should deploy the project first by giving command 'steroids deploy'"
+      return
+
+    if fs.existsSync(data_definition_path)
+      console.log "file #{data_definition_path} exists!"
+      return
+
+    name = "db#{@getAppId()}"
+
+    @createBucketWithCredentials(name)
+    .then(
+      (bucket) =>
+        @createDolandbConfig("#{bucket.login}#{bucket.password}", name, bucket.datastore_bucket_id)
+    ).then(
+      () =>
+        console.log "dolandb initialized"
+        console.log "continue with defining provider and resources..."
+        @dolandbProvisionApi.close()
+      , (err) ->
+        # better error?
+        console.log JSON.stringify err
+        @dolandbProvisionApi.close()
+    )
+
+  createBucketWithCredentials: (name) =>
+    deferred = q.defer()
+
+    data =
+      dbName: name
+      appId: @getAppId()
+
+    @dolandbProvisionApi.post('/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
+      if obj.code==201
+        deferred.resolve(obj.body)
+      else
+        deferred.reject(obj)
+    )
+
+    return deferred.promise
+
+  createDolandbConfig: (apikey, database, bucket_id) =>
+    deferred = q.defer()
+
+    doc =
+      name: @getAppName()
+      apikey: apikey
+      bucket: database
+      bucket_id: bucket_id
+      resources: []
+
+    fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) ->
+      deferred.resolve()
+    )
+    return deferred.promise
+
+## old ->
 
   test3: (params) =>
     @createBucketWithCredentials(params[0])
@@ -303,31 +402,8 @@ class DolanDB
       console.log 'database dropped'
     )
 
-  initialize: (options={}) =>
-    console.log 'initializing DolanDB...'
 
-    if fs.existsSync(data_definition_path)
-      console.log "file #{data_definition_path} exists!"
-      return
-
-    name = "db#{@getAppId()}"
-
-    @createBucketWithCredentials(name)
-    .then(
-      (bucket) =>
-        @createDolandbConfig("#{bucket.login}#{bucket.password}", name, bucket.datastore_bucket_id)
-    ).then(
-      () =>
-        console.log "dolandb initialized"
-        console.log "create resources with 'steroids dolandb resource', eg:"
-        console.log "  steroids dolandb resource beer name:string brewery:string alcohol:integer drinkable:boolean"
-        @dolandbCredentialApi.close()
-      , (err) ->
-        console.log JSON.stringify err
-        @dolandbCredentialApi.close()
-    )
-
-  resource: (params) =>
+  resourcexx: (params) =>
     resource_name = params.shift()
 
     doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
@@ -346,18 +422,18 @@ class DolanDB
       console.log 'resource created'
     )
 
-  scaffold: (resources) =>
+  scaffoldxxx: (resources) =>
     doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
     doc.resources.forEach( (resource) =>
       @run_scaffold_for(resource) if resources.length==0 or Object.keys(resource)[0] in resources
     )
 
-  create_or_update: () =>
+  create_or_updatexx: () =>
     @generate_raml_file()
     .then => @uploadRamlToBrowser()
     .then => @openRamlBrowser()
 
-  open: (options = {}) =>
+  openxxx: (options = {}) =>
     console.log 'open'
     unless fs.existsSync(data_definition_path)
       console.log "intialize the database first with 'steroids dolandb init'"
@@ -374,7 +450,7 @@ class DolanDB
 
   ## helpers
 
-  run_scaffold_for: (resource) =>
+  run_scaffold_forxx: (resource) =>
     args = create_yo_generator_args_for(resource)
     name = Object.keys(resource)[0]
 
@@ -391,61 +467,12 @@ class DolanDB
     #exec("yo devroids:dolan-res #{args}", (error, stdout, stderr) ->
     #)
 
-  validateName = (string) =>
-    valid = /^[a-z_]*$/
-    return true if string.match valid
-
-    console.log "only lowcase alphabeths and underscore allowed: '#{string}'"
-    process.exit 1
-
-  validateType = (string) =>
-    allowed = ["string", "integer", "boolean", "number", "date"]
-    return true if string in allowed
-
-    console.log "type '#{string}' not within allowed: #{allowed.join(', ')}"
-    process.exit 1
-
-  nameTakenError = (err) ->
+  nameTakenErrorxx = (err) ->
     response = JSON.parse(err.message)
     return false if response.errors.name==undefined
     'has already been taken' in response.errors.name
 
-  createBucketWithCredentials: (name) =>
-    deferred = q.defer()
-
-    data =
-      dbName: name
-      appId: 12165  ## get this from confs
-      #apiKey: Login.currentAccessToken()
-
-    @dolandbCredentialApi.post('/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
-      if obj.code==201
-        deferred.resolve(obj.body)
-      else
-        deferred.reject(obj)
-    )
-
-    return deferred.promise
-
-  createDolandbConfig: (apikey, database, bucket_id) =>
-    deferred = q.defer()
-
-    name = 'name of the app'
-
-    doc =
-      name: name
-      apikey: apikey
-      bucket: database
-      bucket_id: bucket_id
-      resources: []
-
-    fs = require('fs')
-    fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) ->
-      deferred.resolve()
-    )
-    return deferred.promise
-
-  create_yo_generator_args_for = (resource) ->
+  create_yo_generator_args_forxx = (resource) ->
     name = Object.keys(resource)[0]
     properties = resource[name]
     resourceString = name
@@ -455,7 +482,7 @@ class DolanDB
 
     return resourceString
 
-  generate_raml_file: () =>
+  generate_raml_filexx: () =>
     deferred = q.defer()
     doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
     doc.base_url = "#{dolan_db_url}/#{doc.bucket}"
@@ -473,11 +500,11 @@ class DolanDB
 
     return deferred.promise
 
-  openRamlBrowser: () =>
+  openRamlBrowserxx: () =>
     doc = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
     open URL.format("#{db_browser_url}/#browser/#{doc.browser_id}")
 
-  uploadRamlToBrowser: () =>
+  uploadRamlToBrowserxx: () =>
     deferred = q.defer()
     raml = fs.readFileSync(raml_path, 'utf8')
 
