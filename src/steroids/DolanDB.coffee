@@ -7,7 +7,6 @@ fs = require "fs"
 URL = require "url"
 http = require 'http'
 open = require "open"
-request = require('request-json')
 exec = require('child_process').exec
 ejs = require('ejs')
 paths = require "./paths"
@@ -32,6 +31,8 @@ configapi_url        = 'http://config-api.local.testgyver.com:3000'
 
 ###
 
+# not needed anymore
+request = require('request-json')
 DbBrowser = request.newClient(db_browser_url)
 
 class DolanDB
@@ -42,6 +43,7 @@ class DolanDB
     # getFromCloudJson('id')
 
   constructor: (@options={}) ->
+    ## deprecated?
     @dolandbCredentialApi = restify.createJsonClient
       url: dolan_db_base_url
     @dolandbCredentialApi.basicAuth Login.currentAccessToken(), 'X'
@@ -49,6 +51,9 @@ class DolanDB
     @composer = restify.createJsonClient
       url: configapi_url
     @composer.headers["Authorization"] = Login.currentAccessToken()
+
+    @db_browser = restify.createJsonClient
+      url: db_browser_url
 
   getConfig = () ->
     yaml.safeLoad readConfigFromFile()
@@ -76,6 +81,9 @@ class DolanDB
     cloud_json = fs.readFileSync(cloud_json_path, 'utf8')
     cloud_obj = JSON.parse(cloud_json)
     return cloud_obj[param]
+
+  getLocalRaml = ->
+    fs.readFileSync(raml_path, 'utf8')
 
   test: (params) =>
     ###
@@ -167,24 +175,30 @@ class DolanDB
       )
 
     if com=='sync'
-      raml = fs.readFileSync(raml_path, 'utf8')
+      raml = getLocalRaml()
 
-      config = yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
-      if doc.browser_id?
+      config = getConfig()
+      #yaml.safeLoad(fs.readFileSync(data_definition_path, 'utf8'))
+
+      if config.browser_id?
         # browser instance exists
-        DbBrowser.put("ramls/#{doc.browser_id}", {raml:{content:raml} }, (err, res, body) =>
-          open URL.format("#{db_browser_url}/#browser/#{doc.browser_id}")
+        @db_browser.put("/ramls/#{config.browser_id}", { raml: { content:raml } }, (err, req, res, obj) =>
+          @db_browser.close()
+          open URL.format("#{db_browser_url}/#browser/#{config.browser_id}")
         )
+
       else
-        # create a new broser instance
+        # create a new browser instance
         post_data =
           content: raml
-          bucket_id: doc.bucket_id
-          application_name: 'myapp'
+          bucket_id: config.bucket_id
+          application_name: 'my great app'
 
-        DbBrowser.post('ramls', { raml:post_data }, (err, res, body) =>
-          config.browser_id = body.id
-          open URL.format("#{db_browser_url}/#browser/#{doc.browser_id}")
+        @db_browser.post('/ramls', { raml: post_data }, (err, req, res, obj) =>
+          @db_browser.close()
+
+          config.browser_id = obj.id
+          open URL.format("#{db_browser_url}/#browser/#{config.browser_id}")
           fs.writeFileSync(data_definition_path, yaml.safeDump(config))
         )
 
