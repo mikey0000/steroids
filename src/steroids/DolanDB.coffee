@@ -16,13 +16,13 @@ data_definition_path = 'config/dolandb.yaml'
 raml_path            = 'www/local.raml'
 cloud_json_path      = 'config/cloud.json'
 
-#dolan_db_base_url = "http://datastorage-api.local.devgyver.com:3000/"
-#db_browser_url = 'http://localhost:3001'
-
 dolan_db_base_url    = 'http://datastorage-api.devgyver.com'
 dolan_db_url         = "#{dolan_db_base_url}/v1/datastorage"
 db_browser_url       = 'http://dolandb-browser.devgyver.com'
 configapi_url        = 'http://config-api.local.testgyver.com:3000'
+
+#dolan_db_base_url = "http://datastorage-api.local.devgyver.com:3001/"
+#db_browser_url = 'http://localhost:3001'
 
 ###
 
@@ -46,11 +46,13 @@ class DolanDB
     "my awesome app"
 
   getAppId: () =>
-    5281
+    getFromCloudJson('id')
+    #5425
+    #5413
+    #5282
+    #5281
     #5951
     #12165
-    # replace this with the real thing
-    # getFromCloudJson('id')
 
   constructor: (@options={}) ->
     @dolandbProvisionApi = restify.createJsonClient
@@ -130,21 +132,21 @@ class DolanDB
     fs.writeFileSync(data_definition_path, yaml.safeDump(config))
 
 
-  test: (params) =>
+  provider: (params) =>
     ###
       workflow:
         ensure that a uniq appid in cloud.json
 
         dolandb init (provisions a db using dolan provision api)
 
-        test provider
+        provider initialize
             initializes a dolan db-provider in config-api
-        test resource beer name:string brewery:string
+        provider resource beer name:string brewery:string
             initializes a resource in config-api
-        test raml
+        provider raml
             gets a raml and writes it to www/local.raml
 
-        test sync
+        provider sync
             opens (and syncs) dolandb browser
 
         yo devroids:dolan-res beer name brewery alcohol
@@ -154,24 +156,24 @@ class DolanDB
 
       other:
 
-        test resources
+        provider resources
             lists your defined resources
-        test remove_resouce <name>
+        provider remove_resouce <name>
             removes the resource
-        test scaffold
+        provider scaffold
             shows commands to scaffold code templates
-        test my
+        provider my
             shows defined providers
-        test remove_provider <id>
+        provider remove_provider <id>
             removes provider with <id>
-        test all
+        provider all
             show all existing providers
 
     ###
 
     com = params.shift()
 
-    if com=='provider'
+    if com=='initialize'
 
       config = getConfig()
 
@@ -197,7 +199,24 @@ class DolanDB
       )
 
     if com=="remove_resource"
-      console.log 'tbc'
+      resource_to_be_removed = params.shift()
+
+      config = getConfig()
+      provider = config.resourceProviderUid
+
+      @composer.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+        @composer.close()
+        obj.forEach (resource) =>
+          if resource.name == resource_to_be_removed
+            @composer.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
+              console.log "#{resource_to_be_removed} removed"
+              @composer.close()
+            )
+      )
+
+      url = "/app/#{@getAppId()}/service_providers/#{provider}/resources.json"
+
+
 
     if com=="resource"
       resource_name = params.shift()
@@ -213,6 +232,10 @@ class DolanDB
         path: bucket+'/'+resource_name
         columns: []
 
+      if params.length==0
+        console.log "resource should have at least one column"
+        process.exit 1
+
       params.forEach (column) ->
         validateColumn(column)
         [_name, _type] = column.split(':')
@@ -221,7 +244,10 @@ class DolanDB
       url = "/app/#{@getAppId()}/service_providers/#{provider}/resources.json"
 
       @composer.post(url, data, (err, req, res, obj) =>
-        if noServiceProvider(err)
+        if err?
+          JSON.parse(err.message).forEach (message) ->
+            console.log
+        else if noServiceProvider(err)
           console.log "service provider is not defined"
           console.log "run first 'devroids dolandb test provision'"
         else
@@ -330,12 +356,10 @@ class DolanDB
       console.log "file #{data_definition_path} exists!"
       return
 
-    name = "db#{@getAppId()}"
-
-    @createBucketWithCredentials(name)
+    @createBucketWithCredentials()
     .then(
       (bucket) =>
-        @createDolandbConfig("#{bucket.login}#{bucket.password}", name, bucket.datastore_bucket_id)
+        @createDolandbConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
     ).then(
       () =>
         console.log "dolandb initialized"
@@ -347,11 +371,10 @@ class DolanDB
         @dolandbProvisionApi.close()
     )
 
-  createBucketWithCredentials: (name) =>
+  createBucketWithCredentials: () =>
     deferred = q.defer()
 
     data =
-      dbName: name
       appId: @getAppId()
 
     @dolandbProvisionApi.post('/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
@@ -371,7 +394,6 @@ class DolanDB
       apikey: apikey
       bucket: database
       bucket_id: bucket_id
-      resources: []
 
     fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) ->
       deferred.resolve()

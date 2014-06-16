@@ -112,37 +112,17 @@ class Steroids
         command = otherOptions[0]
 
         unless command
-          console.log "Usage: steroids dolandb [init|resource|browser]"
-
+          console.log "Usage: steroids dolandb [init|provider]"
           process.exit(1)
 
         if command=='init'
           dolandb.initialize()
 
-        if command=='sync'
-          dolandb.create_or_update()
-
-        if command=='create'
-          dolandb.create_or_update()
-
-        if command=='browser'
-          dolandb.open()
-
-        if command=='drop'
-          dolandb.drop()
-
         # change these under generate
-        if command=='resource'
+        if command=='provider'
           otherOptions.shift()
-          dolandb.resource(otherOptions)
+          dolandb.provider(otherOptions)
 
-        if command=='scaffold'
-          otherOptions.shift()
-          dolandb.scaffold(otherOptions)
-
-        if command=='test'
-          otherOptions.shift()
-          dolandb.test(otherOptions)
 
       when "version"
         updater = new Updater
