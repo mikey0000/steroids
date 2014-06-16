@@ -111,22 +111,44 @@ class Providers
     )
 
   removeResource: (resource_to_be_removed) =>
-    resource_to_be_removed
+    #should loop through all providers
+    @getProviderByName('appgyver_sandbox').then (provider) =>
 
-    config = getConfig()
-    provider = getProviderByName('appgyver_sandbox')
+      console.log "removing #{resource_to_be_removed}"
 
-    console.log "removing #{resource_to_be_removed}"
+      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
 
-    @composer.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
-      @composer.close()
-      obj.forEach (resource) =>
-        if resource.name == resource_to_be_removed
-          @composer.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
-            console.log "done"
-            @composer.close()
-          )
-    )
+        obj.forEach (resource) =>
+          if resource.name == resource_to_be_removed
+            console.log "/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json"
+            @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
+              console.log "done"
+              @config_api.close()
+            )
+
+        @config_api.close()
+      )
+
+  removeResource2: (resource_to_be_removed) =>
+    #should loop through all providers
+    @getProviderByName('appgyver_sandbox').then (provider) =>
+
+      console.log "removing #{resource_to_be_removed}"
+
+      console.log "/app/#{@getAppId()}/service_providers/#{provider}/resources.json"
+
+      @composer.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+        @composer.close()
+
+        console.log '1'
+
+        obj.forEach (resource) =>
+          if resource.name == resource_to_be_removed
+            @composer.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
+              console.log "done"
+              @composer.close()
+            )
+      )
 
   resources2: () =>
     config = getConfig()
@@ -148,9 +170,8 @@ class Providers
 
 
   resources: () =>
-
+    #should loop through all providers
     @getProviderByName('appgyver_sandbox').then (provider) =>
-      console.log provider
       console.log 'Listing all resources...'
 
       @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
