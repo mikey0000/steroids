@@ -8,7 +8,6 @@ URL = require "url"
 http = require 'http'
 open = require "open"
 exec = require('child_process').exec
-ejs = require('ejs')
 paths = require "./paths"
 env = require("yeoman-generator")()
 
@@ -173,6 +172,7 @@ class DolanDB
 
     com = params.shift()
 
+    ## DONE
     if com=='initialize'
 
       config = getConfig()
@@ -216,8 +216,7 @@ class DolanDB
 
       url = "/app/#{@getAppId()}/service_providers/#{provider}/resources.json"
 
-
-
+    ## DONE
     if com=="resource"
       resource_name = params.shift()
       validateName(resource_name)
@@ -258,6 +257,7 @@ class DolanDB
         @composer.close()
       )
 
+    ## DONE
     if com=="raml"
       @composer.headers["Accept"] = "text/yaml"
       url = "/app/#{@getAppId()}/raml?identification_hash=#{getIdentificationHash()}"
@@ -295,12 +295,14 @@ class DolanDB
           updateConfig(config)
         )
 
+    ## DONE
     if com=='all'
       @composer.get('/available_service_providers.json', (err, req, res, obj) =>
         console.log obj
         @composer.close()
       )
 
+    ## save for debug
     if com=='my'
       @composer.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
         if obj.length==0
@@ -310,6 +312,7 @@ class DolanDB
         @composer.close()
       )
 
+    ## save for debug
     if com=='remove_provider'
       id = params.shift()
 
@@ -318,6 +321,7 @@ class DolanDB
         @composer.close()
       )
 
+    ## DONE
     if com=='resources'
       config = getConfig()
       provider = config.resourceProviderUid
@@ -344,6 +348,9 @@ class DolanDB
 
         @composer.close()
       )
+
+  provision: (options={}) =>
+    console.log "a"
 
   initialize: (options={}) =>
     console.log 'initializing DolanDB...'
@@ -399,21 +406,6 @@ class DolanDB
       deferred.resolve()
     )
     return deferred.promise
-
-## old ->
-
-  test2: () =>
-    env.plugins "node_modules", paths.npm
-    env.lookup '*:*'
-    env.run "devroids:dolan-res", () ->
-    #env.run "devroids:app lol", () ->
-      console.log 'ME'
-
-  drop: () =>
-    fs.unlink(data_definition_path, () ->
-      # destroy db credentials
-      console.log 'database dropped'
-    )
 
 module.exports = DolanDB
 

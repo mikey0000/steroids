@@ -12,6 +12,7 @@ Ripple = require "./steroids/Ripple"
 PortChecker = require "./steroids/PortChecker"
 
 DolanDB = require "./steroids/DolanDB"
+Providers = require "./steroids/Providers"
 
 util = require "util"
 Version = require "./steroids/Version"
@@ -105,6 +106,38 @@ class Steroids
         process.exit 1
 
     switch firstOption
+
+      when "providers"
+        providers = new Providers
+        providers.all()
+
+      when "providers:add"
+        unless argv.provider
+          console.log 'provider should be specified'
+          process.exit 1
+
+        providers = new Providers
+        providers.addProvider(argv.provider)
+
+      when "resources:init"
+        unless argv.provider
+          console.log 'provider should be specified'
+          process.exit 1
+
+        providers = new Providers
+        providers.initResourceProvider(argv.provider)
+
+      when "resources"
+        providers = new Providers
+        providers.resources()
+
+      when "resources:add"
+        unless argv.provider
+          console.log 'provider should be specified'
+          process.exit 1
+
+        providers = new Providers
+        providers.addResource( argv.provider, otherOptions)
 
       when "dolandb"
         dolandb = new DolanDB
