@@ -112,12 +112,12 @@ class Steroids
         providers.all()
 
       when "providers:add"
-        unless argv.provider
+        if otherOptions.length==0
           console.log 'provider should be specified'
           process.exit 1
 
         providers = new Providers
-        providers.addProvider(argv.provider)
+        providers.addProvider(otherOptions[0])
 
       when "resources:init"
         unless argv.provider

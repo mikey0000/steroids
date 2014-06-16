@@ -34,7 +34,7 @@ class Providers
       console.log ''
     )
 
-  addProvider: (provider_name) =>
+  addProvider2: (provider_name) =>
     if provider_name? and provider_name != 'appgyver_sandbox'
       console.log "Only supported provider 'appgyver_sandbox'"
       process.exit(1)
@@ -52,6 +52,7 @@ class Providers
     @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
 
       if obj['uid']
+        # not needed?
         config = {}
         config.resourceProviderUid = obj['uid']
         saveConfig(config, () ->
@@ -63,13 +64,46 @@ class Providers
       @config_api.close()
     )
 
-  initResourceProvider: (provider_name) =>
+  addProvider: (provider_name) =>
+    if provider_name? and provider_name != 'appgyver_sandbox'
+      console.log "Only supported provider 'appgyver_sandbox'"
+      process.exit 1
+
+    @getProviderByName(provider_name).then (provider) =>
+
+      if provider?
+        console.log "Provider '#{provider_name}' is already defined"
+        process.exit 1
+
+      data =
+        providerTypeId: 6
+        name: 'my dolandb'
+
+      console.log "Adding provider '#{provider_name}' to your app"
+
+      @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
+
+        if obj['uid']
+          # not needed?
+          #config = {}
+          #config.resourceProviderUid = obj['uid']
+          #saveConfig(config, () ->
+          console.log 'done'
+          #)
+        else
+          console.log err
+
+        @config_api.close()
+      )
+
+  initResourceProvider2: (provider_name) =>
 
     unless provider_name?
       console.log "resource provider not specified"
       process.exit(1)
 
     pid = getProviderByName(provider_name)
+
     unless pid?
       console.log "add first provider with command 'steroids providers:add #{provider_name}'"
       process.exit(1)
@@ -88,7 +122,35 @@ class Providers
         @updateProviderInfo(pid)
     )
 
-  updateProviderInfo: (pid) =>
+  initResourceProvider: (provider_name) =>
+
+    unless provider_name?
+      console.log "resource provider not specified"
+      process.exit(1)
+
+    @getProviderByName(provider_name).then (provider) =>
+
+      unless provider?
+        console.log "add first provider with command 'steroids providers:add #{provider_name}'"
+        process.exit(1)
+
+      if resourceProviderInitialized(provider_name)
+        console.log "resource provider '#{provider_name}' already initialized"
+        process.exit(1)
+
+      console.log "provisioning database from #{provider_name}"
+
+      dolandb = new DolanDB
+      dolandb.createBucketWithCredentials().then(
+        (bucket) =>
+          console.log "done"
+          dolandb.createDolandbConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
+      ).then(
+        (data) =>
+          @updateProviderInfo(provider)
+      )
+
+  updateProviderInfo: (provider) =>
     config = getConfig()
 
     data =
@@ -100,16 +162,14 @@ class Providers
 
     console.log "updating resource provider information..."
 
-    @config_api.put("/app/#{@getAppId()}/service_providers/#{pid}.json", data, (err, req, res, obj) =>
+    @config_api.put("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
       @config_api.close()
-
-      config.resourceProviderUid = obj['uid']
-      saveConfig(config, () ->
-        console.log 'done'
-      )
-
+      console.log 'done'
+      # restify does not close...
+      process.exit 1
     )
 
+  # for a unknown reason following does not work...
   removeResource: (resource_to_be_removed) =>
     #should loop through all providers
     @getProviderByName('appgyver_sandbox').then (provider) =>
@@ -128,46 +188,6 @@ class Providers
 
         @config_api.close()
       )
-
-  removeResource2: (resource_to_be_removed) =>
-    #should loop through all providers
-    @getProviderByName('appgyver_sandbox').then (provider) =>
-
-      console.log "removing #{resource_to_be_removed}"
-
-      console.log "/app/#{@getAppId()}/service_providers/#{provider}/resources.json"
-
-      @composer.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
-        @composer.close()
-
-        console.log '1'
-
-        obj.forEach (resource) =>
-          if resource.name == resource_to_be_removed
-            @composer.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
-              console.log "done"
-              @composer.close()
-            )
-      )
-
-  resources2: () =>
-    config = getConfig()
-    provider = getProviderByName('appgyver_sandbox')
-
-    console.log 'Listing all resources...'
-
-    @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
-      console.log '\nProvider: appgyver_sandbox'
-
-      obj.forEach (resource) ->
-        console.log "  #{resource.name}"
-        resource.columns.forEach (column) ->
-          console.log "    #{column.name}:#{column.type}"
-
-      console.log ''
-      @config_api.close()
-    )
-
 
   resources: () =>
     #should loop through all providers
@@ -254,7 +274,8 @@ class Providers
     else
       false
 
-  providerInitialized = (name) ->
+  resourceProviderInitialized = (name) ->
+    return false unless fs.existsSync(data_definition_path)
     config = getConfig()
     config.bucket_id?
 
