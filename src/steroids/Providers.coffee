@@ -34,98 +34,6 @@ class Providers
       console.log ''
     )
 
-  # deprekoituu
-  ###
-  add: (provider_name) =>
-    if provider_name? and provider_name!='appgyver_sandbox'
-      console.log "Only supported provider 'appgyver_sandbox'"
-      process.exit(1)
-
-    config = getConfig()
-
-    if config.resourceProviderUid?
-      console.log 'doland db provider exists already'
-      process.exit 1
-
-    data =
-      providerTypeId: 6,
-      name: config['bucket']
-      configurationKeys:
-        bucket_id: config['bucket_id']
-        steroids_api_key: config['apikey']
-
-    console.log "Adding provider '#{provider_name}'' to your app"
-
-    @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
-
-      config.resourceProviderUid = obj['uid']
-      saveConfig(config, () ->
-        console.log 'done'
-      )
-
-      @config_api.close()
-    )
-
-  addWas: (provider_name) =>
-    if provider_name? and provider_name!='appgyver_sandbox'
-      console.log "Only supported provider 'appgyver_sandbox'"
-      process.exit(1)
-
-    config = getConfig()
-
-    if config.resourceProviderUid?
-      console.log 'doland db provider exists already'
-      process.exit 1
-
-    data =
-      providerTypeId: 6,
-      name: config['bucket']
-      configurationKeys:
-        bucket_id: config['bucket_id']
-        steroids_api_key: config['apikey']
-
-    console.log "Adding provider '#{provider_name}' to your app"
-
-    @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
-      console.log err
-
-      config.resourceProviderUid = obj['uid']
-      saveConfig(config, () ->
-        console.log 'done'
-      )
-
-      @config_api.close()
-    )
-
-  init: (provider_name) =>
-    if provider_name? and provider_name!='appgyver_sandbox'
-      console.log "Only supported provider 'appgyver_sandbox'"
-      process.exit(1)
-
-    pid = getProviderByName(provider_name)
-    unless pid?
-      console.log "add first provider with command 'steroids providers:add #{provider_name}'"
-      process.exit(1)
-
-    config = getConfig()
-
-    data =
-      providerTypeId: 6,
-      name: config['bucket']
-      configurationKeys:
-        bucket_id: config['bucket_id']
-        steroids_api_key: config['apikey']
-
-    @config_api.put("/app/#{@getAppId()}/service_providers/#{pid}.json", data, (err, req, res, obj) =>
-
-      config.resourceProviderUid = obj['uid']
-      saveConfig(config, () ->
-        console.log 'done'
-      )
-
-      @config_api.close()
-    )
-###
   addProvider: (provider_name) =>
     if provider_name? and provider_name != 'appgyver_sandbox'
       console.log "Only supported provider 'appgyver_sandbox'"
@@ -170,10 +78,6 @@ class Providers
       console.log "provider '#{provider_name}' already initialized"
       process.exit(1)
 
-    console.log providerInitialized(provider_name)
-
-    process.exit 1
-
     dolandb = new DolanDB
     dolandb.createBucketWithCredentials().then(
       (bucket) =>
@@ -185,7 +89,6 @@ class Providers
     )
 
   updateProviderInfo: (pid) =>
-
     config = getConfig()
 
     data =
@@ -207,12 +110,27 @@ class Providers
 
     )
 
-  remove: (provider_name) =>
-    # TODO
+  removeResource: (resource_to_be_removed) =>
+    resource_to_be_removed
 
-  resources: () =>
     config = getConfig()
-    provider = config.resourceProviderUid
+    provider = getProviderByName('appgyver_sandbox')
+
+    console.log "removing #{resource_to_be_removed}"
+
+    @composer.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+      @composer.close()
+      obj.forEach (resource) =>
+        if resource.name == resource_to_be_removed
+          @composer.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
+            console.log "done"
+            @composer.close()
+          )
+    )
+
+  resources2: () =>
+    config = getConfig()
+    provider = getProviderByName('appgyver_sandbox')
 
     console.log 'Listing all resources...'
 
@@ -228,20 +146,40 @@ class Providers
       @config_api.close()
     )
 
+
+  resources: () =>
+
+    @getProviderByName('appgyver_sandbox').then (provider) =>
+      console.log provider
+      console.log 'Listing all resources...'
+
+      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+        console.log '\nProvider: appgyver_sandbox'
+
+        obj.forEach (resource) ->
+          console.log "  #{resource.name}"
+          resource.columns.forEach (column) ->
+            console.log "    #{column.name}:#{column.type}"
+
+        console.log ''
+        @config_api.close()
+      )
+
   addResource: (provider_name, params) =>
-    provider = getProviderByName(provider_name)
-    resource_name = params.shift()
+    @getProviderByName(provider_name).then (provider) =>
+      resource_name = params.shift()
 
-    console.log "Adding resource '#{resource_name}' to provider '#{provider_name}'..."
+      console.log "Adding resource '#{resource_name}' to provider '#{provider_name}'..."
 
-    postData = createPostData(provider_name, resource_name, params)
+      postData = createPostData(provider_name, resource_name, params)
 
-    @askConfigApiToCreateResource(provider, postData).then(
-      () =>
-        @saveRamlToFile()
-      , (error) ->
-        console.log error
-    )
+      @askConfigApiToCreateResource(provider, postData).then(
+        () =>
+          @saveRamlToFile()
+        , (error) ->
+          console.log error
+      )
+
 
   # helpers
 
@@ -298,6 +236,18 @@ class Providers
   providerInitialized = (name) ->
     config = getConfig()
     config.bucket_id?
+
+  getProviderByName: (name) ->
+    deferred = q.defer()
+    @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
+      @config_api.close()
+      obj.forEach (provider) ->
+        if (name== "appgyver_sandbox" and provider.providerTypeId==6)
+          deferred.resolve(provider.uid)
+      deferred.resolve(null)
+
+    )
+    return deferred.promise
 
   getProviderByName = (name) ->
     # fetch from config api

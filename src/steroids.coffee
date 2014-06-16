@@ -139,6 +139,10 @@ class Steroids
         providers = new Providers
         providers.addResource( argv.provider, otherOptions)
 
+      when "resources:add"
+        providers = new Providers
+        providers.removeResource(otherOptions)
+
       when "dolandb"
         dolandb = new DolanDB
 
