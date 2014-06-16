@@ -26,7 +26,7 @@ class Providers
     @db_browser = restify.createJsonClient
       url: db_browser_url
 
-  all: () =>
+  listProviders: () =>
     console.log 'Fetching all providers...'
     @config_api.get('/available_service_providers.json', (err, req, res, obj) =>
       console.log 'Available providers:\n'
@@ -34,36 +34,6 @@ class Providers
         console.log "  #{provider['human_name']}"
       @config_api.close()
       console.log ''
-    )
-
-  addProvider2: (provider_name) =>
-    if provider_name? and provider_name != 'appgyver_sandbox'
-      console.log "Only supported provider 'appgyver_sandbox'"
-      process.exit(1)
-
-    if providerExists(provider_name)
-      console.log "Provider '#{provider_name}' is already defined"
-      process.exit 1
-
-    data =
-      providerTypeId: 6
-      name: 'my dolandb'
-
-    console.log "Adding provider '#{provider_name}' to your app"
-
-    @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
-
-      if obj['uid']
-        # not needed?
-        config = {}
-        config.resourceProviderUid = obj['uid']
-        saveConfig(config, () ->
-          console.log 'done'
-        )
-      else
-        console.log err
-
-      @config_api.close()
     )
 
   addProvider: (provider_name) =>
@@ -98,31 +68,14 @@ class Providers
         @config_api.close()
       )
 
-  initResourceProvider2: (provider_name) =>
+  removeProvider: (provider_name) =>
+    @getProviderByName(provider_name).then (provider) =>
 
-    unless provider_name?
-      console.log "resource provider not specified"
-      process.exit(1)
-
-    pid = getProviderByName(provider_name)
-
-    unless pid?
-      console.log "add first provider with command 'steroids providers:add #{provider_name}'"
-      process.exit(1)
-
-    if providerInitialized(provider_name)
-      console.log "provider '#{provider_name}' already initialized"
-      process.exit(1)
-
-    dolandb = new DolanDB
-    dolandb.createBucketWithCredentials().then(
-      (bucket) =>
-        dolandb.createDolandbConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
-    ).then(
-      (data) =>
-        console.log "updating ..."
-        @updateProviderInfo(pid)
-    )
+      console.log "removing provider #{provider_name}"
+      @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
+        console.log 'done'
+        @config_api.close()
+      )
 
   initResourceProvider: (provider_name) =>
 
@@ -152,26 +105,6 @@ class Providers
           @updateProviderInfo(provider)
       )
 
-  updateProviderInfo: (provider) =>
-    config = getConfig()
-
-    data =
-      providerTypeId: 6,
-      name: config['bucket']
-      configurationKeys:
-        bucket_id: config['bucket_id']
-        steroids_api_key: config['apikey']
-
-    console.log "updating resource provider information..."
-
-    @config_api.put("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
-      @config_api.close()
-      console.log 'done'
-      # restify does not close...
-      process.exit 1
-    )
-
-  # for a unknown reason following does not work...
   removeResource: (resource_to_be_removed) =>
     #should loop through all providers
     @getProviderByName('appgyver_sandbox').then (provider) =>
@@ -179,16 +112,13 @@ class Providers
       console.log "removing #{resource_to_be_removed}"
 
       @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
-
+        @config_api.close()
         obj.forEach (resource) =>
           if resource.name == resource_to_be_removed
-            console.log "/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json"
             @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
               console.log "done"
               @config_api.close()
             )
-
-        @config_api.close()
       )
 
   resources: () =>
@@ -261,7 +191,28 @@ class Providers
 
         @config_api.close()
       )
+
+
   # helpers
+
+  updateProviderInfo: (provider) =>
+    config = getConfig()
+
+    data =
+      providerTypeId: 6,
+      name: config['bucket']
+      configurationKeys:
+        bucket_id: config['bucket_id']
+        steroids_api_key: config['apikey']
+
+    console.log "updating resource provider information..."
+
+    @config_api.put("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
+      @config_api.close()
+      console.log 'done'
+      # restify does not close...
+      process.exit 1
+    )
 
   saveRamlToFile: () =>
     @config_api.headers["Accept"] = "text/yaml"

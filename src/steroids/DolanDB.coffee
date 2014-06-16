@@ -199,10 +199,12 @@ class DolanDB
       )
 
     if com=="remove_resource"
+      console.log 'remove'
       resource_to_be_removed = params.shift()
 
       config = getConfig()
-      provider = config.resourceProviderUid
+      provider = '4e6f9f9e-2d0f-46d0-8b0c-575d448fa37b'
+      #config.resourceProviderUid
 
       @composer.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
         @composer.close()
@@ -269,6 +271,7 @@ class DolanDB
           console.log 'raml saved'
       )
 
+    ## DONE
     if com=='sync'
       raml = getLocalRaml()
       config = getConfig()
@@ -335,6 +338,8 @@ class DolanDB
         @composer.close()
       )
 
+
+    ## done
     if com=='scaffold'
       config = getConfig()
       provider = config.resourceProviderUid
@@ -349,8 +354,6 @@ class DolanDB
         @composer.close()
       )
 
-  provision: (options={}) =>
-    console.log "a"
 
   initialize: (options={}) =>
     console.log 'initializing DolanDB...'

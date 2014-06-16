@@ -109,7 +109,7 @@ class Steroids
 
       when "providers"
         providers = new Providers
-        providers.all()
+        providers.listProviders()
 
       when "providers:add"
         if otherOptions.length==0
@@ -118,6 +118,14 @@ class Steroids
 
         providers = new Providers
         providers.addProvider(otherOptions[0])
+
+      when "providers:remove"
+        if otherOptions.length==0
+          console.log 'provider should be specified'
+          process.exit 1
+
+        providers = new Providers
+        providers.removeProvider(otherOptions[0])
 
       when "resources:init"
         unless argv.provider
