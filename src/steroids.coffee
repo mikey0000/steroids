@@ -143,6 +143,14 @@ class Steroids
         providers = new Providers
         providers.removeResource(otherOptions[0])
 
+      when "resources:browse"
+        providers = new Providers
+        providers.browseResoures()
+
+      when "resources:scaffold"
+        providers = new Providers
+        providers.scaffoldResoures()
+
       when "dolandb"
         dolandb = new DolanDB
 

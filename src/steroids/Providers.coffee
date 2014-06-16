@@ -23,6 +23,8 @@ class Providers
     @config_api = restify.createJsonClient
       url: configapi_url
     @config_api.headers["Authorization"] = Login.currentAccessToken()
+    @db_browser = restify.createJsonClient
+      url: db_browser_url
 
   all: () =>
     console.log 'Fetching all providers...'
@@ -221,7 +223,44 @@ class Providers
           console.log error
       )
 
+  browseResoures: (provider_name, params) =>
+    raml = getLocalRaml()
+    config = getConfig()
 
+    if config.browser_id?
+      # browser instance exists
+      @db_browser.put("/ramls/#{config.browser_id}", { raml: { content:raml } }, (err, req, res, obj) =>
+        @db_browser.close()
+        open URL.format("#{db_browser_url}/#browser/#{config.browser_id}")
+      )
+    else
+      # create a new browser instance
+      post_data =
+        content: raml
+        bucket_id: config.bucket_id
+        application_name: @getAppName()
+
+      @db_browser.post('/ramls', { raml: post_data }, (err, req, res, obj) =>
+        @db_browser.close()
+
+        config.browser_id = obj.id
+        open URL.format("#{db_browser_url}/#browser/#{config.browser_id}")
+        updateConfig(config)
+      )
+
+  scaffoldResoures: () =>
+    # should iterate over providers
+    @getProviderByName('appgyver_sandbox').then (provider) =>
+
+      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+        console.log "you can scaffold code skeletons by running"
+        obj.forEach (resource) ->
+          columns = resource.columns.map (column) -> column.name
+          arg = "#{resource.name} #{columns.join(' ')}"
+          console.log " yo devroids:dolan-res #{arg}"
+
+        @config_api.close()
+      )
   # helpers
 
   saveRamlToFile: () =>
@@ -274,10 +313,16 @@ class Providers
     else
       false
 
+  updateConfig = (config) ->
+    fs.writeFileSync(data_definition_path, yaml.safeDump(config))
+
   resourceProviderInitialized = (name) ->
     return false unless fs.existsSync(data_definition_path)
     config = getConfig()
     config.bucket_id?
+
+  getLocalRaml = ->
+    fs.readFileSync(raml_path, 'utf8')
 
   getProviderByName: (name) ->
     deferred = q.defer()
