@@ -16,7 +16,10 @@ raml_path            = 'www/local.raml'
 cloud_json_path      = 'config/cloud.json'
 
 db_browser_url       = 'http://dolandb-browser.devgyver.com'
-configapi_url        = 'http://config-api.local.testgyver.com:3000'
+configapi_url        = 'http://config-api.testgyver.com'
+
+#configapi_url        = 'http://config-api.local.testgyver.com:3000'
+#db_browser_url       = 'http://localhost:3001'
 
 class Providers
   constructor: (@options={}) ->
@@ -56,12 +59,7 @@ class Providers
       @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
 
         if obj['uid']
-          # not needed?
-          #config = {}
-          #config.resourceProviderUid = obj['uid']
-          #saveConfig(config, () ->
           console.log 'done'
-          #)
         else
           console.log err
 
@@ -111,6 +109,8 @@ class Providers
 
       console.log "removing #{resource_to_be_removed}"
 
+      console.log resource_to_be_removed
+
       @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
         @config_api.close()
         obj.forEach (resource) =>
@@ -154,21 +154,27 @@ class Providers
       )
 
   browseResoures: (provider_name, params) =>
-    raml = getLocalRaml()
     config = getConfig()
 
+    ramlUrl = "#{configapi_url}/app/#{@getAppId()}/raml?identification_hash=#{getIdentificationHash()}"
+
     if config.browser_id?
+      console.log "put"
       # browser instance exists
-      @db_browser.put("/ramls/#{config.browser_id}", { raml: { content:raml } }, (err, req, res, obj) =>
+      updated_data =
+        url: ramlUrl
+
+      @db_browser.put("/ramls/#{config.browser_id}", { raml: updated_data }, (err, req, res, obj) =>
         @db_browser.close()
         open URL.format("#{db_browser_url}/#browser/#{config.browser_id}")
       )
     else
+      console.log "post"
       # create a new browser instance
       post_data =
-        content: raml
         bucket_id: config.bucket_id
         application_name: @getAppName()
+        url: ramlUrl
 
       @db_browser.post('/ramls', { raml: post_data }, (err, req, res, obj) =>
         @db_browser.close()
@@ -251,6 +257,9 @@ class Providers
 
   getAppId: () =>
     getFromCloudJson('id')
+    #used:
+    #5859
+    #5843
     #5425
     #5413
     #5282
