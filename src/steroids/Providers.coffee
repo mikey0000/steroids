@@ -15,11 +15,11 @@ data_definition_path = 'config/dolandb.yaml'
 raml_path            = 'www/local.raml'
 cloud_json_path      = 'config/cloud.json'
 
-#db_browser_url       = 'http://sandboxdb.testgyver.com/browser/projects/'
-#configapi_url        = 'http://config-api.testgyver.com'
+db_browser_url       = 'http://sandboxdb.testgyver.com/browser/projects/'
+configapi_url        = 'http://config-api.testgyver.com'
 
-configapi_url        = 'http://config-api.local.testgyver.com:3000'
-db_browser_url       = 'http://sandboxdb.local.testgyver.com:3000/browser/projects/'
+#configapi_url        = 'http://config-api.local.testgyver.com:3000'
+#db_browser_url       = 'http://sandboxdb.local.testgyver.com:3000/browser/projects/'
 
 class Providers
   constructor: (@options={}) ->
@@ -149,24 +149,6 @@ class Providers
         )
     )
 
-  ## remove
-  resources2: () =>
-    #should loop through all _my_ providers
-    @getProviderByName('appgyver_sandbox').then (provider) =>
-      console.log 'Listing all resources...'
-
-      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
-        console.log '\nProvider: appgyver_sandbox'
-
-        obj.forEach (resource) ->
-          console.log "  #{resource.name}"
-          resource.columns.forEach (column) ->
-            console.log "    #{column.name}:#{column.type}"
-
-        console.log ''
-        @config_api.close()
-      )
-
   addResource: (provider_name, params) =>
     @getProviderByName(provider_name).then (provider) =>
       resource_name = params.shift()
@@ -183,40 +165,7 @@ class Providers
       )
 
   browseResoures: (provider_name, params) =>
-    console.log "#{db_browser_url}#{@getAppId()}"
     open URL.format("#{db_browser_url}#{@getAppId()}")
-
-  #deprecated
-  browseResoures2: (provider_name, params) =>
-    config = getConfig()
-
-    ramlUrl = "#{configapi_url}/app/#{@getAppId()}/raml?identification_hash=#{getIdentificationHash()}"
-
-    if config.browser_id?
-      console.log "put"
-      # browser instance exists
-      updated_data =
-        url: ramlUrl
-
-      @db_browser.put("/ramls/#{config.browser_id}", { raml: updated_data }, (err, req, res, obj) =>
-        @db_browser.close()
-        open URL.format("#{db_browser_url}/#browser/#{config.browser_id}")
-      )
-    else
-      console.log "post"
-      # create a new browser instance
-      post_data =
-        bucket_id: config.bucket_id
-        application_name: @getAppName()
-        url: ramlUrl
-
-      @db_browser.post('/ramls', { raml: post_data }, (err, req, res, obj) =>
-        @db_browser.close()
-
-        config.browser_id = obj.id
-        open URL.format("#{db_browser_url}/#browser/#{config.browser_id}")
-        updateConfig(config)
-      )
 
   scaffoldResoures: () =>
     # should iterate over providers
@@ -231,7 +180,6 @@ class Providers
 
         @config_api.close()
       )
-
 
   # helpers
 

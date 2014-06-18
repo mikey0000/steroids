@@ -23,14 +23,6 @@ class DolanDB
 
   getAppId: () =>
     getFromCloudJson('id')
-    #used:
-    #5843
-    #5425
-    #5413
-    #5282
-    #5281
-    #5951
-    #12165
 
   constructor: (@options={}) ->
     @dolandbProvisionApi = restify.createJsonClient
@@ -69,7 +61,6 @@ class DolanDB
       appId: @getAppId()
 
     @dolandbProvisionApi.post('/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
-      console.log '-'
       if obj.code==201
         deferred.resolve(obj.body)
       else
