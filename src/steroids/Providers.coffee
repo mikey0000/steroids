@@ -51,7 +51,7 @@ class Providers
         process.exit 1
 
       data =
-        providerTypeId: 6
+        providerTypeId: 6    # appgyver_sandbox id specified in config api
         name: provider_name
 
       console.log "Adding provider '#{provider_name}' to your app"
@@ -78,17 +78,17 @@ class Providers
   initResourceProvider: (provider_name) =>
     unless provider_name?
       console.log "resource provider not specified"
-      process.exit(1)
+      process.exit 1
 
     @getProviderByName(provider_name).then (provider) =>
 
       unless provider?
         console.log "add first provider with command 'steroids providers:add #{provider_name}'"
-        process.exit(1)
+        process.exit 1
 
       if resourceProviderInitialized(provider_name)
         console.log "resource provider '#{provider_name}' already initialized"
-        process.exit(1)
+        process.exit 1
 
       console.log "provisioning database from #{provider_name}"
 
@@ -99,6 +99,7 @@ class Providers
           dolandb.createDolandbConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
       ).then(
         (data) =>
+          console.log data
           @updateProviderInfo(provider)
       )
 
@@ -119,17 +120,6 @@ class Providers
               @config_api.close()
             )
       )
-
-  listMyProviders: () =>
-    @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
-      if obj.length==0
-        console.log 'no providers defined'
-      else
-        obj.forEach (provider) ->
-          console.log provider.name
-          console.log provider
-      @config_api.close()
-    )
 
   resources: () =>
     @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
@@ -180,6 +170,17 @@ class Providers
 
         @config_api.close()
       )
+
+  # mostly for debugging
+  listMyProviders: () =>
+    @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
+      if obj.length==0
+        console.log 'no providers defined'
+      else
+        obj.forEach (provider) ->
+          console.log provider
+      @config_api.close()
+    )
 
   # helpers
 
@@ -233,22 +234,8 @@ class Providers
 
     return deferred.promise
 
-  getAppName: () =>
-    "my awesome app"
-    # read from file
-
   getAppId: () =>
     getFromCloudJson('id')
-    #used:
-    #5888
-    #5859
-    #5843
-    #5425
-    #5413
-    #5282
-    #5281
-    #5951
-    #12165
 
   providerExists = (name) ->
     if fs.existsSync(data_definition_path)
