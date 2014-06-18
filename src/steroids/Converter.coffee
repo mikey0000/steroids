@@ -39,6 +39,7 @@ class Converter
     ankaLikeJSON.archives = []
 
     ankaLikeJSON.bottom_bars = @tabsObject(configObject)
+    ankaLikeJSON.copyToUserFiles = @copyToUserFilesObject(configObject)
 
     # legacy stuff
     ankaLikeJSON.authentication = @legacyAuthenticationObject()
@@ -153,6 +154,9 @@ class Converter
 
   initialViewObject: (config)->
     return config.initialView || null # runtime crashes with empty object
+
+  copyToUserFilesObject: (config)->
+    return config.copyToUserFiles || null
 
   legacyAuthenticationObject: ->
     return {

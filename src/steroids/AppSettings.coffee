@@ -9,6 +9,7 @@ class AppSettings
     "preloads"
     "drawers"
     "initialView"
+    "copyToUserFiles"
   ]
 
   constructor: ->
