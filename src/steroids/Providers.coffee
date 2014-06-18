@@ -15,11 +15,11 @@ data_definition_path = 'config/dolandb.yaml'
 raml_path            = 'www/local.raml'
 cloud_json_path      = 'config/cloud.json'
 
-db_browser_url       = 'http://dolandb-browser.devgyver.com'
-configapi_url        = 'http://config-api.testgyver.com'
+#db_browser_url       = 'http://sandboxdb.testgyver.com/browser/projects/'
+#configapi_url        = 'http://config-api.testgyver.com'
 
-#configapi_url        = 'http://config-api.local.testgyver.com:3000'
-#db_browser_url       = 'http://localhost:3001'
+configapi_url        = 'http://config-api.local.testgyver.com:3000'
+db_browser_url       = 'http://sandboxdb.local.testgyver.com:3000/browser/projects/'
 
 class Providers
   constructor: (@options={}) ->
@@ -52,7 +52,7 @@ class Providers
 
       data =
         providerTypeId: 6
-        name: 'my dolandb'
+        name: provider_name
 
       console.log "Adding provider '#{provider_name}' to your app"
 
@@ -76,7 +76,6 @@ class Providers
       )
 
   initResourceProvider: (provider_name) =>
-
     unless provider_name?
       console.log "resource provider not specified"
       process.exit(1)
@@ -121,8 +120,38 @@ class Providers
             )
       )
 
+  listMyProviders: () =>
+    @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
+      if obj.length==0
+        console.log 'no providers defined'
+      else
+        obj.forEach (provider) ->
+          console.log provider.name
+          console.log provider
+      @config_api.close()
+    )
+
   resources: () =>
-    #should loop through all providers
+    @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
+      obj.forEach (providerObject) =>
+        console.log 'Listing all resources...'
+
+        @config_api.get("/app/#{@getAppId()}/service_providers/#{providerObject.uid}/resources.json", (err, req, res, obj) =>
+          console.log "\nProvider: #{providerObject.name}"
+
+          obj.forEach (resource) ->
+            console.log "  #{resource.name}"
+            resource.columns.forEach (column) ->
+              console.log "    #{column.name}:#{column.type}"
+
+          console.log ''
+          @config_api.close()
+        )
+    )
+
+  ## remove
+  resources2: () =>
+    #should loop through all _my_ providers
     @getProviderByName('appgyver_sandbox').then (provider) =>
       console.log 'Listing all resources...'
 
@@ -154,6 +183,11 @@ class Providers
       )
 
   browseResoures: (provider_name, params) =>
+    console.log "#{db_browser_url}#{@getAppId()}"
+    open URL.format("#{db_browser_url}#{@getAppId()}")
+
+  #deprecated
+  browseResoures2: (provider_name, params) =>
     config = getConfig()
 
     ramlUrl = "#{configapi_url}/app/#{@getAppId()}/raml?identification_hash=#{getIdentificationHash()}"
@@ -206,7 +240,7 @@ class Providers
 
     data =
       providerTypeId: 6,
-      name: config['bucket']
+      name: 'appgyver_sandbox'
       configurationKeys:
         bucket_id: config['bucket_id']
         steroids_api_key: config['apikey']
@@ -241,7 +275,7 @@ class Providers
     @config_api.post(url, postData, (err, req, res, obj) =>
       @config_api.close()
       if err?
-        deferred.reject(JSON.parse(err.message).join(', '))
+        deferred.reject(err.message)
       else if noServiceProvider(err)
         deferred.reject(["service provider is not defined"])
       else
@@ -258,6 +292,7 @@ class Providers
   getAppId: () =>
     getFromCloudJson('id')
     #used:
+    #5888
     #5859
     #5843
     #5425
@@ -286,6 +321,7 @@ class Providers
 
   getProviderByName: (name) ->
     deferred = q.defer()
+
     @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
       @config_api.close()
       obj.forEach (provider) ->
@@ -294,20 +330,8 @@ class Providers
       deferred.resolve(null)
 
     )
+
     return deferred.promise
-
-  getProviderByName = (name) ->
-    # fetch from config api
-    unless name == "appgyver_sandbox"
-      console.log "provider not defined: '#{name}'"
-      process.exit 1
-
-    config = getConfig()
-    unless config.resourceProviderUid?
-      console.log "provider not defined: '#{name}'"
-      process.exit 1
-
-    config.resourceProviderUid
 
   createPostData = (provider_name, resource_name, params) ->
     config = getConfig()

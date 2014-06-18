@@ -111,6 +111,10 @@ class Steroids
         providers = new Providers
         providers.listProviders()
 
+      when "providers:my"
+        providers = new Providers
+        providers.listMyProviders()
+
       when "providers:add"
         if otherOptions.length==0
           console.log 'provider should be specified'
