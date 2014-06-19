@@ -99,7 +99,6 @@ class Providers
           dolandb.createDolandbConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
       ).then(
         (data) =>
-          console.log data
           @updateProviderInfo(provider)
       )
 
