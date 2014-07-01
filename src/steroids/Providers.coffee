@@ -160,19 +160,26 @@ class Providers
     )
 
   addResource: (provider_name, params) =>
-    @getProviderByName(provider_name).then (provider) =>
-      resource_name = params.shift()
+    @getProviderByName(provider_name).then(
+      (provider) =>
+        resource_name = params.shift()
 
-      console.log "Adding resource '#{resource_name}' to provider '#{provider_name}'..."
+        console.log "Adding resource '#{resource_name}' to provider '#{provider_name}'..."
 
-      postData = createPostData(provider_name, resource_name, params)
+        postData = createPostData(provider_name, resource_name, params)
 
-      @askConfigApiToCreateResource(provider, postData).then(
-        () =>
-          @saveRamlToFile()
-        , (error) ->
-          console.log error
-      )
+        @askConfigApiToCreateResource(provider, postData).then(
+          () =>
+            @saveRamlToFile()
+          , (error) ->
+            console.log error
+        )
+      (error) =>
+        errorObject = JSON.parse(error)
+        Help.error()
+        console.log "\nCould not add resource: #{errorObject.error}"
+    )
+
 
   browseResoures: (provider_name, params) =>
     open URL.format("#{db_browser_url}#{@getAppId()}")
@@ -279,11 +286,13 @@ class Providers
 
     @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
       @config_api.close()
-      obj.forEach (provider) ->
-        if (name== "appgyver_sandbox" and provider.providerTypeId==6)
-          deferred.resolve(provider.uid)
-      deferred.resolve(null)
-
+      if err?
+        deferred.reject(err.message)
+      else
+        obj.forEach (provider) ->
+          if (name == "appgyver_sandbox" and provider.providerTypeId==6)
+            deferred.resolve(provider.uid)
+        deferred.resolve(null)
     )
 
     return deferred.promise
@@ -326,7 +335,7 @@ class Providers
     cloud_json_path = "config/cloud.json"
 
     unless fs.existsSync(cloud_json_path)
-      console.log "application needs to be deployed before provisioning a dolandb, please run steroids deploy"
+      Help.deployRequiredForDolanDBProvisioning()
       process.exit 1
 
     cloud_json = fs.readFileSync(cloud_json_path, 'utf8')
