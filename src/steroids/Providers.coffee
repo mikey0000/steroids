@@ -10,6 +10,8 @@ http = require 'http'
 open = require "open"
 paths = require "./paths"
 env = require("yeoman-generator")()
+Help = require "./Help"
+chalk = require "chalk"
 
 data_definition_path = 'config/dolandb.yaml'
 raml_path            = 'www/local.raml'
@@ -30,13 +32,27 @@ class Providers
       url: db_browser_url
 
   listProviders: () =>
-    console.log 'Fetching all providers...'
+    console.log "Fetching all providers...\n"
     @config_api.get('/available_service_providers.json', (err, req, res, obj) =>
-      console.log 'Available providers:\n'
-      obj.forEach (provider) ->
-        console.log "  #{provider['human_name']}"
+      if err?
+        Help.error()
+        console.log(
+          """
+          Could not get list of available providers. Please check your
+          Internet connection.
+
+          In case of a service outage, more information is available at
+
+            #{chalk.underline('http://status.appgyver.com')}
+
+          """
+          )
+      else
+        console.log "Available providers:\n"
+        obj.forEach (provider) ->
+          console.log "  #{provider.human_name}"
+        console.log ""
       @config_api.close()
-      console.log ''
     )
 
   addProvider: (provider_name) =>
