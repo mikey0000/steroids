@@ -60,27 +60,32 @@ class Providers
       console.log "Only supported provider 'appgyver_sandbox'"
       process.exit 1
 
-    @getProviderByName(provider_name).then (provider) =>
+    @getProviderByName(provider_name).then(
+      (provider) =>
+        if provider?
+          console.log "Provider '#{provider_name}' is already defined"
+          process.exit 1
 
-      if provider?
-        console.log "Provider '#{provider_name}' is already defined"
-        process.exit 1
+        data =
+          providerTypeId: 6    # appgyver_sandbox id specified in config api
+          name: provider_name
 
-      data =
-        providerTypeId: 6    # appgyver_sandbox id specified in config api
-        name: provider_name
+        console.log "Adding provider '#{provider_name}' to your app"
 
-      console.log "Adding provider '#{provider_name}' to your app"
+        @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
 
-      @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
+          if obj['uid']
+            console.log 'done'
+          else
+            console.log err
 
-        if obj['uid']
-          console.log 'done'
-        else
-          console.log err
-
-        @config_api.close()
-      )
+          @config_api.close()
+        )
+      (error) =>
+        errorObject = JSON.parse(error)
+        Help.error()
+        console.log "\nCould not add provider: #{errorObject.error}"
+    )
 
   removeProvider: (provider_name) =>
     @getProviderByName(provider_name).then (provider) =>
