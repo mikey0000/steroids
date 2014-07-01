@@ -146,21 +146,30 @@ class Providers
       )
 
   resources: () =>
+    console.log "Listing all resources..."
     @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
-      obj.forEach (providerObject) =>
-        console.log 'Listing all resources...'
+      if err?
+        errorObject = JSON.parse(err)
+        Help.error()
+        console.log "Could not list resources. Error message: "
+      else if obj.length is 0
+        Help.error()
+        console.log "No providers found. Add a provider to list resources."
+        process.exit(1)
+      else
+        obj.forEach (providerObject) =>
 
-        @config_api.get("/app/#{@getAppId()}/service_providers/#{providerObject.uid}/resources.json", (err, req, res, obj) =>
-          console.log "\nProvider: #{providerObject.name}"
+          @config_api.get("/app/#{@getAppId()}/service_providers/#{providerObject.uid}/resources.json", (err, req, res, obj) =>
+            console.log "\nProvider: #{providerObject.name}"
 
-          obj.forEach (resource) ->
-            console.log "  #{resource.name}"
-            resource.columns.forEach (column) ->
-              console.log "    #{column.name}:#{column.type}"
+            obj.forEach (resource) ->
+              console.log "  #{resource.name}"
+              resource.columns.forEach (column) ->
+                console.log "    #{column.name}:#{column.type}"
 
-          console.log ''
-          @config_api.close()
-        )
+            console.log ''
+            @config_api.close()
+          )
     )
 
   addResource: (provider_name, params) =>
