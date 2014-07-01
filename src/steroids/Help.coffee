@@ -94,6 +94,20 @@ class Help
         """
       )
 
+  @deployRequiredForDolanDBProvisioning: ->
+    @error()
+    console.log(
+      """
+      Could not find file #{chalk.bold('config/cloud.json')}.
+
+      Your application needs to be deployed before provisioning
+      a DolanDB. Please run:
+
+        #{chalk.bold('$ steroids deploy')}
+
+      """
+    )
+
   @legacy:
     requiresDetected: ->
       Help.printBanner(paths.banners.legacy.requiresDetected, true)

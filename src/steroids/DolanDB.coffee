@@ -10,6 +10,8 @@ open = require "open"
 exec = require('child_process').exec
 paths = require "./paths"
 env = require("yeoman-generator")()
+Help = require "./Help"
+chalk = require "chalk"
 
 data_definition_path = 'config/dolandb.yaml'
 
@@ -48,9 +50,9 @@ class DolanDB
       bucket: database
       bucket_id: bucket_id
 
-    console.log 'updating config'
+    steroidsCli.debug "Updating DolanDB config..."
     fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) ->
-      console.log 'done update...'
+      steroidsCli.debug "Done updating DolanDB config."
       deferred.resolve()
     )
     return deferred.promise
@@ -59,7 +61,7 @@ class DolanDB
     cloud_json_path = "config/cloud.json"
 
     unless fs.existsSync(cloud_json_path)
-      console.log "application needs to be deployed before provisioning a dolandb, please run steroids deploy"
+      Help.deployRequiredForDolanDBProvisioning()
       process.exit 1
 
     cloud_json = fs.readFileSync(cloud_json_path, 'utf8')
