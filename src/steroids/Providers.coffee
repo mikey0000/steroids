@@ -57,12 +57,14 @@ class Providers
 
   addProvider: (provider_name) =>
     if provider_name? and provider_name != 'appgyver_sandbox'
-      console.log "Only supported provider 'appgyver_sandbox'"
+      Help.error()
+      console.log "Only supported provider is 'appgyver_sandbox'"
       process.exit 1
 
     @getProviderByName(provider_name).then(
       (provider) =>
         if provider?
+          Help.error()
           console.log "Provider '#{provider_name}' is already defined"
           process.exit 1
 
@@ -70,13 +72,15 @@ class Providers
           providerTypeId: 6    # appgyver_sandbox id specified in config api
           name: provider_name
 
-        console.log "Adding provider '#{provider_name}' to your app"
+        console.log "Adding provider '#{provider_name}' to your app..."
 
         @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
 
           if obj['uid']
-            console.log 'done'
+            Help.success()
+            console.log "Provider successfully added!"
           else
+            Help.error()
             console.log err
 
           @config_api.close()
