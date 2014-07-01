@@ -133,7 +133,8 @@ class Steroids
 
       when "resources:init"
         unless argv.provider
-          console.log 'provider should be specified'
+          Help.error()
+          console.log 'You should specify a provider.'
           process.exit 1
 
         providers = new Providers
@@ -145,7 +146,8 @@ class Steroids
 
       when "resources:add"
         unless argv.provider
-          console.log 'provider should be specified'
+          Help.error()
+          console.log 'You should specify a provider.'
           process.exit 1
 
         providers = new Providers

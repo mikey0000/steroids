@@ -108,11 +108,26 @@ class Providers
     @getProviderByName(provider_name).then (provider) =>
 
       unless provider?
-        console.log "add first provider with command 'steroids providers:add #{provider_name}'"
+        Help.error()
+        console.log(
+          """
+          Provider with name #{chalk.bold(provider_name)} not found.
+
+          You can list available providers with
+
+            #{chalk.bold("$ steroids providers")}
+
+          You can then add the provider for your app with the command
+
+            #{chalk.bold("$ steroids providers:add providerName")}
+
+          """
+        )
         process.exit 1
 
       if resourceProviderInitialized(provider_name)
-        console.log "resource provider '#{provider_name}' already initialized"
+        Help.error()
+        console.log "Resource provider '#{provider_name}' already initialized."
         process.exit 1
 
       console.log "provisioning database from #{provider_name}"
