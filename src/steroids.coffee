@@ -108,13 +108,18 @@ class Steroids
     switch firstOption
 
       when "resources:init"
-        unless argv.provider
-          Help.error()
-          console.log 'You should specify a provider.'
-          process.exit 1
-
         providers = new Providers
-        providers.initResourceProvider(argv.provider)
+        providers.ensureSandboxProvider().then( =>
+          providers.initResourceProvider("appgyver_sandbox")
+        ).fail (error) =>
+          Help.error()
+          console.log(
+            """
+            Could not initialize sandbox database for your app.
+
+            Error message: #{error}
+            """
+          )
 
       when "resources"
         providers = new Providers

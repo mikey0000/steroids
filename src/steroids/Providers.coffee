@@ -44,6 +44,31 @@ class Providers
       @config_api.close()
     )
 
+  ensureSandboxProvider: =>
+    deferred = q.defer()
+
+    console.log("Ensuring that your app has the sandbox data provider configured...")
+
+    @getProviderByName("appgyver_sandbox").then (provider) =>
+      if provider?
+        # provider exists, all good
+        deferred.resolve()
+      else
+        data =
+          providerTypeId: 6    # appgyver_sandbox id specified in config api
+          name: "appgyver_sandbox"
+
+      @config_api.post "/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
+        if obj['uid']
+          deferred.resolve()
+        else
+          deferred.reject JSON.stringify(err)
+
+        @config_api.close()
+
+    deferred.promise
+
+  # Should be used only when multiple providers are implemented
   addProvider: (provider_name) =>
     if provider_name? and provider_name != 'appgyver_sandbox'
       Help.error()
