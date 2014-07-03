@@ -108,53 +108,46 @@ class Providers
   removeProvider: (provider_name) =>
     @getProviderByName(provider_name).then (provider) =>
 
-      console.log "removing provider #{provider_name}"
+      console.log "Removing provider #{provider_name}..."
       @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
         console.log 'done'
         @config_api.close()
       )
 
   initResourceProvider: (provider_name) =>
+    deferred = q.defer()
+
+    console.log "Provisioning a sandbox database for your app..."
+
     unless provider_name?
-      console.log "resource provider not specified"
-      process.exit 1
+      deferred.reject "Resource provider not specified."
 
     @getProviderByName(provider_name).then (provider) =>
 
-      unless provider?
-        Help.error()
+      if resourceProviderInitialized(provider_name)
         console.log(
           """
-          Provider with name #{chalk.bold(provider_name)} not found.
+          Sandbox database already provisioned and configured at
 
-          You can list available providers with
+            #{chalk.bold("config/dolandb.yaml")}
 
-            #{chalk.bold("$ steroids providers")}
-
-          You can then add the provider for your app with the command
-
-            #{chalk.bold("$ steroids providers:add providerName")}
-
+          All good!
           """
         )
-        process.exit 1
+        deferred.resolve()
+      else
 
-      if resourceProviderInitialized(provider_name)
-        Help.error()
-        console.log "Resource provider '#{provider_name}' already initialized."
-        process.exit 1
-
-      console.log "provisioning database from #{provider_name}"
-
-      dolandb = new DolanDB
-      dolandb.createBucketWithCredentials().then(
-        (bucket) =>
-          console.log "done"
-          dolandb.createDolandbConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
-      ).then(
-        (data) =>
+        dolandb = new DolanDB
+        dolandb.createBucketWithCredentials().then(
+          (bucket) =>
+            console.log "Database provisioned, creating a local config file..."
+            dolandb.createDolandbConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
+        ).then (data) =>
+          console.log "Local config file created at #{chalk.bold("config/dolandb.yaml")}"
           @updateProviderInfo(provider)
-      )
+          deferred.resolve()
+
+    deferred.promise
 
   removeResource: (resource_to_be_removed) =>
     #should loop through all providers
