@@ -256,11 +256,11 @@ class Providers
         bucket_id: config['bucket_id']
         steroids_api_key: config['apikey']
 
-    console.log "updating resource provider information..."
+    console.log "Updating sandbox database provider information..."
 
     @config_api.put("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
       @config_api.close()
-      console.log 'done'
+      console.log 'Done, all good!'
       # restify does not close...
       process.exit 1
     )
@@ -327,7 +327,29 @@ class Providers
         obj.forEach (provider) ->
           if (name == "appgyver_sandbox" and provider.providerTypeId==6)
             deferred.resolve(provider.uid)
-        deferred.resolve(null)
+        # errorMsg =
+        #   """
+        #   Provider with name #{chalk.bold(provider_name)} not found.
+
+        #   You can list available providers with
+
+        #     #{chalk.bold("$ steroids providers")}
+
+        #   You can then add the provider for your app with the command
+
+        #     #{chalk.bold("$ steroids providers:add providerName")}
+
+        #   """
+        errorMsg =
+          """
+          Could not find the sandbox data provider for your app. Please run
+
+            #{chalk.bold("$ steroids resources:init")}
+
+          which will ensure the sandbox data provider is set up correctly.
+
+          """
+        deferred.reject errorMsg
     )
 
     return deferred.promise
