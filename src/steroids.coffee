@@ -121,13 +121,9 @@ class Steroids
         providers.resources()
 
       when "resources:add"
-        unless argv.provider
-          Help.error()
-          console.log 'You should specify a provider.'
-          process.exit 1
 
         providers = new Providers
-        providers.addResource( argv.provider, otherOptions)
+        providers.addResource("appgyver_sandbox", otherOptions)
 
       when "resources:remove"
         providers = new Providers
