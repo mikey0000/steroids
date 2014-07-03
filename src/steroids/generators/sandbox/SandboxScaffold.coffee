@@ -4,7 +4,7 @@ chalk = require "chalk"
 module.exports = class SandboxScaffold extends Base
 
   constructor: (@options) ->
-    @args = "steroids:sandbox-scaffold #{@options.name}"
+    @args = "steroids:sandbox-scaffold #{@options.args}"
     @opts = {}
 
   @usageParams: ->

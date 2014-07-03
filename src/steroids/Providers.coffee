@@ -173,7 +173,6 @@ class Providers
     console.log "Removing resource #{chalk.bold(resource_to_be_removed)}..."
     #should loop through all providers
     @getResourceObjectByName.then (resourceObject) =>
-      console.log "YAY"
       @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
         @config_api.close()
 
@@ -291,24 +290,15 @@ class Providers
 
 
   generateScaffoldForResource: (resource)->
-
     columns = resource.columns.map (column) -> column.name
-    arg = "#{resource.name} #{columns.join(' ')}"
-    console.log " yo steroids:ng-resource #{arg}"
+    args = "#{resource.name} #{columns.join(' ')}"
 
-    # generator = new SandboxScaffoldGenerator
+    generator = new SandboxScaffoldGenerator {args: args}
 
-
-
-    # try
-    #   generator.generate()
-    # catch error
-    #   throw error unless error.fromSteroids?
-
-    #   util.log "ERROR: #{error.message}"
-    #   process.exit 1
-
-
+    try
+      generator.generate()
+    catch error
+      throw error unless error.fromSteroids?
 
   # mostly for debugging
   listMyProviders: () =>
