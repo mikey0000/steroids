@@ -150,22 +150,36 @@ class Providers
     deferred.promise
 
   removeResource: (resource_to_be_removed) =>
+    deferred = q.defer()
+
+    console.log "Removing resource #{chalk.bold(resource_to_be_removed)}..."
     #should loop through all providers
     @getProviderByName('appgyver_sandbox').then (provider) =>
 
-      console.log "removing #{resource_to_be_removed}"
-
-      console.log resource_to_be_removed
-
       @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+
+        if err?
+          deferred.reject(err.message)
+
         @config_api.close()
-        obj.forEach (resource) =>
-          if resource.name == resource_to_be_removed
-            @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
-              console.log "done"
-              @config_api.close()
-            )
+
+        resource = null
+
+        obj.forEach (resourceFromBackend) =>
+          if resourceFromBackend.name == resource_to_be_removed
+            resource = resourceFromBackend
+
+        if resource?
+          @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
+            console.log "Done."
+            deferred.resolve()
+            @config_api.close()
+          )
+        else
+          deferred.reject("Could not find resource #{chalk.bold(resource_to_be_removed)}.")
       )
+
+    deferred.promise
 
   # Usable only after support for multiple providers per app
   resources: () =>
@@ -307,7 +321,7 @@ class Providers
     @config_api.headers["Accept"] = "text/yaml"
     url = "/app/#{@getAppId()}/raml?identification_hash=#{getIdentificationHash()}"
 
-    console.log 'Downloading new RAML and overwriting #{chalk.bold("config/sandboxdb.yaml")}...'
+    console.log "Downloading new RAML and overwriting #{chalk.bold("config/sandboxdb.yaml")}..."
 
     @config_api.get(url, (err, req, res, obj) =>
       @config_api.close()

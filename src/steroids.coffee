@@ -133,8 +133,14 @@ class Steroids
         providers.addResource("appgyver_sandbox", otherOptions)
 
       when "resources:remove"
+        unless otherOptions?.length is 1
+          console.log "Usage: steroids resources:remove <resourceName>"
+          process.exit 1
+
         providers = new Providers
-        providers.removeResource(otherOptions[0])
+        providers.removeResource(otherOptions[0]).fail (error)=>
+          Help.error()
+          console.log error
 
       when "resources:browse"
         providers = new Providers
