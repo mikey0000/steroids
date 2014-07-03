@@ -107,30 +107,6 @@ class Steroids
 
     switch firstOption
 
-      when "providers"
-        providers = new Providers
-        providers.listProviders()
-
-      when "providers:my"
-        providers = new Providers
-        providers.listMyProviders()
-
-      when "providers:add"
-        if otherOptions.length==0
-          console.log 'provider should be specified'
-          process.exit 1
-
-        providers = new Providers
-        providers.addProvider(otherOptions[0])
-
-      when "providers:remove"
-        if otherOptions.length==0
-          console.log 'provider should be specified'
-          process.exit 1
-
-        providers = new Providers
-        providers.removeProvider(otherOptions[0])
-
       when "resources:init"
         unless argv.provider
           Help.error()
