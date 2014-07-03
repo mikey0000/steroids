@@ -147,26 +147,12 @@ class Steroids
         providers.browseResoures()
 
       when "resources:scaffold"
+        unless otherOptions?.length is 1
+          console.log "Usage: steroids resources:scaffold <resourceName>"
+          process.exit 1
+
         providers = new Providers
-        providers.scaffoldResoures()
-
-      when "dolandb"
-        dolandb = new DolanDB
-
-        command = otherOptions[0]
-
-        unless command
-          console.log "Usage: steroids dolandb [init|provider]"
-          process.exit(1)
-
-        if command=='init'
-          dolandb.initialize()
-
-        # change these under generate
-        if command=='provider'
-          otherOptions.shift()
-          dolandb.provider(otherOptions)
-
+        providers.scaffoldResource(otherOptions[0])
 
       when "version"
         updater = new Updater

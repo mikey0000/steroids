@@ -3,6 +3,7 @@ util = require "util"
 yaml = require 'js-yaml'
 Login = require "./Login"
 SandboxDB = require "./SandboxDB"
+SandboxScaffoldGenerator = require "./generators/sandbox/SandboxScaffold"
 q = require "q"
 fs = require "fs"
 URL = require "url"
@@ -271,19 +272,31 @@ class Providers
   browseResoures: (provider_name, params) =>
     open URL.format("#{db_browser_url}#{@getAppId()}")
 
-  scaffoldResoures: () =>
+  scaffoldResource: (resource_name) =>
     # should iterate over providers
+    console.log "Creating a scaffold for resource #{chalk.bold(resource_name)}..."
     @getProviderByName('appgyver_sandbox').then (provider) =>
+      console.log "SCAFFOLDING"
 
-      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
-        console.log "you can scaffold code skeletons by running"
-        obj.forEach (resource) ->
-          columns = resource.columns.map (column) -> column.name
-          arg = "#{resource.name} #{columns.join(' ')}"
-          console.log " yo devroids:dolan-res #{arg}"
+  generateScaffoldForResource: (resource)->
 
-        @config_api.close()
-      )
+    columns = resource.columns.map (column) -> column.name
+    arg = "#{resource.name} #{columns.join(' ')}"
+    console.log " yo steroids:ng-resource #{arg}"
+
+    generator = new SandboxScaffoldGenerator
+
+
+
+    try
+      generator.generate()
+    catch error
+      throw error unless error.fromSteroids?
+
+      util.log "ERROR: #{error.message}"
+      process.exit 1
+
+
 
   # mostly for debugging
   listMyProviders: () =>
