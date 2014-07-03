@@ -230,13 +230,13 @@ class Providers
         @config_api.close()
       )
 
-
+  # only for SandboxDB
   addResource: (provider_name, params) =>
     @getProviderByName(provider_name).then(
       (provider) =>
         resource_name = params.shift()
 
-        console.log "Adding resource '#{resource_name}' to provider '#{provider_name}'..."
+        console.log "Adding resource #{chalk.bold(resource_name)} to SandboxDB..."
 
         postData = createPostData(provider_name, resource_name, params)
 
@@ -244,7 +244,8 @@ class Providers
           () =>
             @saveRamlToFile()
           , (error) ->
-            console.log error
+            Help.error()
+            console.log "Could not add resource #{chalk.bold(resource_name)}. Error: #{error}"
         )
       (error) =>
         errorObject = JSON.parse(error)
@@ -293,7 +294,7 @@ class Providers
         bucket_id: config['bucket_id']
         steroids_api_key: config['apikey']
 
-    console.log "Updating SandboxDB provider information..."
+    console.log "Updating SandboxDB data provider information..."
 
     @config_api.put("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
       @config_api.close()
@@ -306,13 +307,13 @@ class Providers
     @config_api.headers["Accept"] = "text/yaml"
     url = "/app/#{@getAppId()}/raml?identification_hash=#{getIdentificationHash()}"
 
-    console.log 'Downloading and overriding RAML from config-api...'
+    console.log 'Downloading new RAML and overwriting #{chalk.bold("config/sandboxdb.yaml")}...'
 
     @config_api.get(url, (err, req, res, obj) =>
       @config_api.close()
 
       saveRamlLocally res['body'], ->
-        console.log 'done'
+        console.log "Done."
     )
 
   askConfigApiToCreateResource: (provider, postData) =>
@@ -323,11 +324,11 @@ class Providers
     @config_api.post(url, postData, (err, req, res, obj) =>
       @config_api.close()
       if err?
-        deferred.reject(err.message)
+        deferred.reject(err.body[0])
       else if noServiceProvider(err)
-        deferred.reject(["service provider is not defined"])
+        deferred.reject("Service provider is not defined.")
       else
-        console.log "done"
+        console.log "Done."
         deferred.resolve()
     )
 
@@ -455,13 +456,21 @@ class Providers
     valid = /^[a-z_]*$/
     return true if string.match valid
 
-    console.log "only lowcase alphabeths and underscore allowed: '#{string}'"
+    Help.error()
+    console.log "Only lowcase alphabets and underscores allowed: '#{string}'"
     process.exit 1
 
   validateColumn = (string) ->
     parts = string.split(':')
     unless parts.length==2
-      console.log "column definition illegal: '#{string}'"
+      Help.error()
+      console.log(
+        """
+        Illegal column definition: #{chalk.bold(string)}
+
+        Columns must be of format: #{chalk.bold("columnName:columnType")}
+        """
+      )
       process.exit 1
     validateName parts[0]
     validateType parts[1]
@@ -470,7 +479,14 @@ class Providers
     allowed = ["string", "integer", "boolean", "number", "date"]
     return true if string in allowed
 
-    console.log "type '#{string}' not within allowed: #{allowed.join(', ')}"
+    Help.error()
+    console.log(
+      """
+      Invalid column type #{chalk.bold(string)}.
+
+      Allowed column types: #{allowed.join(', ')}
+      """
+    )
     process.exit 1
 
   noServiceProvider = (err) ->

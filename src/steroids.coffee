@@ -125,6 +125,9 @@ class Steroids
         providers.resourcesForSandbox()
 
       when "resources:add"
+        unless otherOptions?.length > 1
+          console.log "Usage: steroids resources:add <resourceName> <columnName>:<columnType>"
+          process.exit 1
 
         providers = new Providers
         providers.addResource("appgyver_sandbox", otherOptions)
