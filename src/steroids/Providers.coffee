@@ -50,22 +50,27 @@ class Providers
 
     console.log("Ensuring that your app has the SandboxDB data provider configured...")
 
-    @getProviderByName("appgyver_sandbox").then (provider) =>
-      if provider?
-        # provider exists, all good
-        deferred.resolve()
-      else
+    @getProviderByName("appgyver_sandbox").then(
+      (provider) =>
+        if provider?
+          # provider exists, all good
+          deferred.resolve()
+        else
+          deferred.reject "Got empty provider, something's wrong. :("
+      (error) =>
+        console.log "SandboxDB data provider not found, adding it for your app..."
         data =
           providerTypeId: 6    # appgyver_sandbox id specified in config api
           name: "appgyver_sandbox"
 
-      @config_api.post "/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
-        if obj['uid']
-          deferred.resolve()
-        else
-          deferred.reject JSON.stringify(err)
+        @config_api.post "/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
+          if obj['uid']
+            deferred.resolve "Provider successfully added!"
+          else
+            deferred.reject err
 
-        @config_api.close()
+          @config_api.close()
+    )
 
     deferred.promise
 
@@ -406,8 +411,8 @@ class Providers
         #   You can then add the provider for your app with the command
 
         #     #{chalk.bold("$ steroids providers:add providerName")}
-
         #   """
+
         errorMsg =
           """
           Could not find the sandbox data provider for your app. Please run
