@@ -167,6 +167,7 @@ class Providers
             )
       )
 
+  # Usable only after support for multiple providers per app
   resources: () =>
     console.log "Listing all resources..."
     @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
@@ -193,6 +194,42 @@ class Providers
             @config_api.close()
           )
     )
+
+  resourcesForSandbox: () =>
+    console.log "Fetching list of resources for your SandboxDB..."
+    @getProviderByName('appgyver_sandbox').then (providerUid) =>
+      @config_api.get("/app/#{@getAppId()}/service_providers/#{providerUid}/resources.json", (err, req, res, obj) =>
+        if err?
+          Help.error()
+          console.log(
+            """
+            Could not fetch list of resources for your SandboxDB. Ensure that
+            you've set up your SandboxDB for this app with
+
+              #{chalk.bold("$ steroids resources:init")}
+
+            """
+          )
+        else if obj.length is 0
+          Help.error()
+          console.log(
+            """
+            No resources found for your app. You can add resources
+            with the command:
+
+              #{chalk.bold("$ steroids resources:add resourceName")}
+
+            """
+          )
+        else
+          console.log "Resources for your app: \n\n"
+          obj.forEach (resource)->
+            console.log "  #{resource.name}"
+            resource.columns.forEach (column) ->
+              console.log "    #{column.name}:#{column.type}"
+        @config_api.close()
+      )
+
 
   addResource: (provider_name, params) =>
     @getProviderByName(provider_name).then(
@@ -256,7 +293,7 @@ class Providers
         bucket_id: config['bucket_id']
         steroids_api_key: config['apikey']
 
-    console.log "Updating sandbox database provider information..."
+    console.log "Updating SandboxDB provider information..."
 
     @config_api.put("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
       @config_api.close()
@@ -316,6 +353,7 @@ class Providers
   getLocalRaml = ->
     fs.readFileSync(raml_path, 'utf8')
 
+  # only gets appgyver_sandbox provider
   getProviderByName: (name) ->
     deferred = q.defer()
 
@@ -382,7 +420,16 @@ class Providers
   readConfigFromFile = () ->
     try return fs.readFileSync(data_definition_path, 'utf8')
     catch e
-      console.log "you must first init sandboxDB with command 'steroids sandboxdb init'"
+      Help.error()
+      console.log(
+        """
+        Could not read file #{chalk.bold("config/sandboxdb.yaml")}. You must
+        initialize your SandboxDB with
+
+          #{chalk.bold("$ steroids sandbox resources:init")}
+
+        """
+      )
       process.exit 1
 
   getIdentificationHash = ->

@@ -122,7 +122,7 @@ class Steroids
 
       when "resources"
         providers = new Providers
-        providers.resources()
+        providers.resourcesForSandbox()
 
       when "resources:add"
 
