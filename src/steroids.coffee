@@ -152,7 +152,9 @@ class Steroids
           process.exit 1
 
         providers = new Providers
-        providers.scaffoldResource(otherOptions[0])
+        providers.scaffoldResource(otherOptions[0]).fail (error)=>
+          Help.error()
+          console.log error
 
       when "version"
         updater = new Updater

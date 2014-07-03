@@ -150,35 +150,40 @@ class Providers
 
     deferred.promise
 
+  getResourceObjectByName: (resource_name) =>
+    deferred = q.defer()
+    @getProviderByName('appgyver_sandbox').then (provider) =>
+      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+        if err?
+          deferred.reject(err)
+
+        @config_api.close()
+        obj.forEach (resourceFromBackend) =>
+          if resourceFromBackend.name == resource_name
+            deferred.resolve resourceFromBackend
+
+        deferred.reject "Could not find resource #{chalk.bold(resource_name)} in your SandboxDB."
+      )
+
+    deferred.promise
+
   removeResource: (resource_to_be_removed) =>
     deferred = q.defer()
 
     console.log "Removing resource #{chalk.bold(resource_to_be_removed)}..."
     #should loop through all providers
-    @getProviderByName('appgyver_sandbox').then (provider) =>
-
-      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
-
-        if err?
-          deferred.reject(err.message)
-
+    @getResourceObjectByName.then (resourceObject) =>
+      console.log "YAY"
+      @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
         @config_api.close()
 
-        resource = null
+        if err?
+          deferred.reject "Could not remove resource #{resourceObject.name}"
 
-        obj.forEach (resourceFromBackend) =>
-          if resourceFromBackend.name == resource_to_be_removed
-            resource = resourceFromBackend
-
-        if resource?
-          @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
-            console.log "Done."
-            deferred.resolve()
-            @config_api.close()
-          )
-        else
-          deferred.reject("Could not find resource #{chalk.bold(resource_to_be_removed)}.")
-      )
+        console.log "Done."
+        deferred.resolve()
+      ).fail (error)=>
+        console.log error
 
     deferred.promise
 
@@ -273,10 +278,17 @@ class Providers
     open URL.format("#{db_browser_url}#{@getAppId()}")
 
   scaffoldResource: (resource_name) =>
-    # should iterate over providers
+    deferred = q.defer()
+
     console.log "Creating a scaffold for resource #{chalk.bold(resource_name)}..."
-    @getProviderByName('appgyver_sandbox').then (provider) =>
-      console.log "SCAFFOLDING"
+    @getResourceObjectByName(resource_name).then((resourceObject)=>
+      console.log "Got resource from backend..."
+      @generateScaffoldForResource resourceObject
+    ).fail (error)=>
+      deferred.reject(error)
+
+    deferred.promise
+
 
   generateScaffoldForResource: (resource)->
 
@@ -284,17 +296,17 @@ class Providers
     arg = "#{resource.name} #{columns.join(' ')}"
     console.log " yo steroids:ng-resource #{arg}"
 
-    generator = new SandboxScaffoldGenerator
+    # generator = new SandboxScaffoldGenerator
 
 
 
-    try
-      generator.generate()
-    catch error
-      throw error unless error.fromSteroids?
+    # try
+    #   generator.generate()
+    # catch error
+    #   throw error unless error.fromSteroids?
 
-      util.log "ERROR: #{error.message}"
-      process.exit 1
+    #   util.log "ERROR: #{error.message}"
+    #   process.exit 1
 
 
 
