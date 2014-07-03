@@ -11,7 +11,6 @@ Server = require "./steroids/Server"
 Ripple = require "./steroids/Ripple"
 PortChecker = require "./steroids/PortChecker"
 
-DolanDB = require "./steroids/DolanDB"
 Providers = require "./steroids/Providers"
 
 util = require "util"

@@ -13,27 +13,27 @@ env = require("yeoman-generator")()
 Help = require "./Help"
 chalk = require "chalk"
 
-data_definition_path = 'config/dolandb.yaml'
+data_definition_path = 'config/sandboxdb.yaml'
 
-dolan_db_base_url    = 'http://datastorage-api.devgyver.com'
-dolan_db_url         = "#{dolan_db_base_url}/v1/datastorage"
+sandbox_db_base_url    = 'http://datastorage-api.devgyver.com'
+sandbox_db_url         = "#{sandbox_db_base_url}/v1/datastorage"
 
-class DolanDB
+class SandboxDB
 
   getAppId: () =>
     getFromCloudJson('id')
 
   constructor: (@options={}) ->
-    @dolandbProvisionApi = restify.createJsonClient
-      url: dolan_db_base_url
-    @dolandbProvisionApi.basicAuth Login.currentAccessToken(), 'X'
+    @sandboxDBProvisionApi = restify.createJsonClient
+      url: sandbox_db_base_url
+    @sandboxDBProvisionApi.basicAuth Login.currentAccessToken(), 'X'
 
   createBucketWithCredentials: () =>
     deferred = q.defer()
     data =
       appId: @getAppId()
 
-    @dolandbProvisionApi.post('/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
+    @sandboxDBProvisionApi.post('/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
       if obj.code==201
         deferred.resolve(obj.body)
       else
@@ -42,7 +42,7 @@ class DolanDB
 
     return deferred.promise
 
-  createDolandbConfig: (apikey, database, bucket_id) =>
+  createSandboxDBConfig: (apikey, database, bucket_id) =>
     deferred = q.defer()
 
     doc =
@@ -50,9 +50,9 @@ class DolanDB
       bucket: database
       bucket_id: bucket_id
 
-    steroidsCli.debug "Updating DolanDB config..."
+    steroidsCli.debug "Updating SandboxDB config..."
     fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) ->
-      steroidsCli.debug "Done updating DolanDB config."
+      steroidsCli.debug "Done updating SandboxDB config."
       deferred.resolve()
     )
     return deferred.promise
@@ -61,12 +61,12 @@ class DolanDB
     cloud_json_path = "config/cloud.json"
 
     unless fs.existsSync(cloud_json_path)
-      Help.deployRequiredForDolanDBProvisioning()
+      Help.deployRequiredForSandboxDBProvisioning()
       process.exit 1
 
     cloud_json = fs.readFileSync(cloud_json_path, 'utf8')
     cloud_obj = JSON.parse(cloud_json)
     return cloud_obj[param]
 
-module.exports = DolanDB
+module.exports = SandboxDB
 

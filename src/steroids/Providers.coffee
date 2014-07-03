@@ -2,7 +2,7 @@ restify = require "restify"
 util = require "util"
 yaml = require 'js-yaml'
 Login = require "./Login"
-DolanDB = require "./DolanDB"
+SandboxDB = require "./SandboxDB"
 q = require "q"
 fs = require "fs"
 URL = require "url"
@@ -13,7 +13,7 @@ env = require("yeoman-generator")()
 Help = require "./Help"
 chalk = require "chalk"
 
-data_definition_path = 'config/dolandb.yaml'
+data_definition_path = 'config/sandboxdb.yaml'
 raml_path            = 'www/local.raml'
 cloud_json_path      = 'config/cloud.json'
 
@@ -47,7 +47,7 @@ class Providers
   ensureSandboxProvider: =>
     deferred = q.defer()
 
-    console.log("Ensuring that your app has the sandbox data provider configured...")
+    console.log("Ensuring that your app has the SandboxDB data provider configured...")
 
     @getProviderByName("appgyver_sandbox").then (provider) =>
       if provider?
@@ -117,7 +117,7 @@ class Providers
   initResourceProvider: (provider_name) =>
     deferred = q.defer()
 
-    console.log "Provisioning a sandbox database for your app..."
+    console.log "Provisioning a SandboxDB database for your app..."
 
     unless provider_name?
       deferred.reject "Resource provider not specified."
@@ -127,9 +127,9 @@ class Providers
       if resourceProviderInitialized(provider_name)
         console.log(
           """
-          Sandbox database already provisioned and configured at
+          SandboxDB database already provisioned and configured at
 
-            #{chalk.bold("config/dolandb.yaml")}
+            #{chalk.bold("config/sandboxdb.yaml")}
 
           All good!
           """
@@ -137,13 +137,13 @@ class Providers
         deferred.resolve()
       else
 
-        dolandb = new DolanDB
-        dolandb.createBucketWithCredentials().then(
+        sandboxDB = new SandboxDB
+        sandboxDB.createBucketWithCredentials().then(
           (bucket) =>
             console.log "Database provisioned, creating a local config file..."
-            dolandb.createDolandbConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
+            sandboxDB.createSandboxDBConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
         ).then (data) =>
-          console.log "Local config file created at #{chalk.bold("config/dolandb.yaml")}"
+          console.log "Local config file created at #{chalk.bold("config/sandboxdb.yaml")}"
           @updateProviderInfo(provider)
           deferred.resolve()
 
@@ -382,7 +382,7 @@ class Providers
   readConfigFromFile = () ->
     try return fs.readFileSync(data_definition_path, 'utf8')
     catch e
-      console.log "you must first init dolandb with command 'steroids dolandb init'"
+      console.log "you must first init sandboxDB with command 'steroids sandboxdb init'"
       process.exit 1
 
   getIdentificationHash = ->
@@ -392,7 +392,7 @@ class Providers
     cloud_json_path = "config/cloud.json"
 
     unless fs.existsSync(cloud_json_path)
-      Help.deployRequiredForDolanDBProvisioning()
+      Help.deployRequiredForSandboxDBProvisioning()
       process.exit 1
 
     cloud_json = fs.readFileSync(cloud_json_path, 'utf8')

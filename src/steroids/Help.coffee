@@ -94,14 +94,14 @@ class Help
         """
       )
 
-  @deployRequiredForDolanDBProvisioning: ->
+  @deployRequiredForSandboxDBProvisioning: ->
     @error()
     console.log(
       """
       Could not find file #{chalk.bold('config/cloud.json')}.
 
       Your application needs to be deployed before provisioning
-      a DolanDB. Please run:
+      a SandboxDB. Please run:
 
         #{chalk.bold('$ steroids deploy')}
 
