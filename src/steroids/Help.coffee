@@ -108,6 +108,20 @@ class Help
       """
     )
 
+  @connectError: (errorMessage)->
+    @error()
+    console.log(
+      """
+      #{errorMessage} Please check your
+      Internet connection.
+
+      In case of a service outage, more information is available at
+
+        #{chalk.underline('http://status.appgyver.com')}
+
+      """
+    )
+
   @legacy:
     requiresDetected: ->
       Help.printBanner(paths.banners.legacy.requiresDetected, true)

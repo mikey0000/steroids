@@ -35,18 +35,7 @@ class Providers
     console.log "Fetching all providers...\n"
     @config_api.get('/available_service_providers.json', (err, req, res, obj) =>
       if err?
-        Help.error()
-        console.log(
-          """
-          Could not get list of available providers. Please check your
-          Internet connection.
-
-          In case of a service outage, more information is available at
-
-            #{chalk.underline('http://status.appgyver.com')}
-
-          """
-          )
+        Help.connectError "Could not fetch list of available providers."
       else
         console.log "Available providers:\n"
         obj.forEach (provider) ->
