@@ -106,55 +106,72 @@ class Steroids
 
     switch firstOption
 
-      when "resources:init"
-        providers = new Providers
-        providers.ensureSandboxProvider().then( =>
-          providers.initResourceProvider("appgyver_sandbox")
-        ).fail (error) =>
-          Help.error()
-          console.log(
-            """
-            Could not initialize sandbox database for your app.
+      when "sandbox"
+        if otherOptions[0] is "database:init"
+          providers = new Providers
+          providers.ensureSandboxProvider().then( =>
+            providers.initResourceProvider("appgyver_sandbox")
+          ).fail (error) =>
+            Help.error()
+            console.log(
+              """
+              Could not initialize SandboxDB database for your app.
 
-            Error message: #{error}
-            """
-          )
+              Error message: #{error}
+              """
+            )
 
-      when "resources"
-        providers = new Providers
-        providers.resourcesForSandbox()
 
-      when "resources:add"
-        unless otherOptions?.length > 1
-          console.log "Usage: steroids resources:add <resourceName> <columnName>:<columnType>"
-          process.exit 1
+        else if otherOptions[0] is "resources:list"
+          providers = new Providers
+          providers.resourcesForSandbox()
 
-        providers = new Providers
-        providers.addResource("appgyver_sandbox", otherOptions)
+        else if otherOptions[0] is "resources:add"
+          otherOptions = otherOptions.slice(1)
+          console.log otherOptions
+          unless otherOptions?.length > 1
+            console.log "Usage: steroids sandbox resources:add <resourceName> <columnName>:<columnType>"
+            process.exit 1
 
-      when "resources:remove"
-        unless otherOptions?.length is 1
-          console.log "Usage: steroids resources:remove <resourceName>"
-          process.exit 1
+          providers = new Providers
+          providers.addResource("appgyver_sandbox", otherOptions).fail (error) =>
+            Help.error()
+            console.log(
+              """
+              Could not add resource.
 
-        providers = new Providers
-        providers.removeResource(otherOptions[0]).fail (error)=>
-          Help.error()
-          console.log error
+              Error message: #{error}
+              """
+            )
 
-      when "resources:browse"
-        providers = new Providers
-        providers.browseResoures()
+        else if otherOptions[0] is "resources:remove"
+          otherOptions = otherOptions.slice(1)
+          unless otherOptions?.length is 1
+            console.log "Usage: steroids sandbox resources:remove <resourceName>"
+            process.exit 1
 
-      when "resources:scaffold"
-        unless otherOptions?.length is 1
-          console.log "Usage: steroids resources:scaffold <resourceName>"
-          process.exit 1
+          providers = new Providers
+          providers.removeResource(otherOptions[0]).fail (error)=>
+            Help.error()
+            console.log error
 
-        providers = new Providers
-        providers.scaffoldResource(otherOptions[0]).fail (error)=>
-          Help.error()
-          console.log error
+        else if otherOptions[0] is "resources:browse"
+          providers = new Providers
+          providers.browseResoures()
+
+        else if otherOptions[0] is "resources:scaffold"
+          otherOptions = otherOptions.slice(1)
+          unless otherOptions?.length is 1
+            console.log "Usage: steroids sandbox resources:scaffold <resourceName>"
+            process.exit 1
+
+          providers = new Providers
+          providers.scaffoldResource(otherOptions[0]).fail (error)=>
+            Help.error()
+            console.log error
+
+        else
+          Help.usage()
 
       when "version"
         updater = new Updater
