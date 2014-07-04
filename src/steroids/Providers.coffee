@@ -177,7 +177,7 @@ class Providers
 
     console.log "Removing resource #{chalk.bold(resource_to_be_removed)}..."
     #should loop through all providers
-    @getResourceObjectByName.then (resourceObject) =>
+    @getResourceObjectByName().then (resourceObject) =>
       @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
         @config_api.close()
 
