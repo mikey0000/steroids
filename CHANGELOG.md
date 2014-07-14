@@ -1,3 +1,7 @@
+## 3.5.1 (2014-07-14)
+
+Updated Steroids.js default version in Steroids generator to v3.5.0 and bower version to v1.3.8.
+
 ## 3.5.0 (2014-07-14)
 
 Updated iOS Simulator runtime to v3.5.0 and Steroids generator to v0.3.7.
