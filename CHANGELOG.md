@@ -1,3 +1,7 @@
+## 3.5.2 (2014-07-14)
+
+Updated generator-steroids to v.0.3.10.
+
 ## 3.5.1 (2014-07-14)
 
 Updated Steroids.js default version in Steroids generator to v3.5.0 and bower version to v1.3.8.
