@@ -1,3 +1,7 @@
+## 3.5.0 (2014-07-14)
+
+Updated iOS Simulator runtime to v3.5.0 and Steroids generator to v0.3.7.
+
 ## 3.1.28 (2014-06-04)
 
 Updated iOS Simulator runtime, Simulator bugfixes.

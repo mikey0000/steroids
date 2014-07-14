@@ -1,6 +1,6 @@
 {
   "name": "steroids",
-  "version": "3.1.28",
+  "version": "3.5.0",
   "preferGlobal": "true",
   "license": "MIT",
   "author": "AppGyver <contact@appgyver.com>",
@@ -93,7 +93,7 @@
     "q": "0.9.7",
     "chalk": "0.3.0",
     "xml2js": "0.4.0",
-    "generator-steroids": "0.3.3",
+    "generator-steroids": "0.3.7",
     "karma-jasmine": "0.1.5",
     "karma-junit-reporter": "0.2.1"
   },
