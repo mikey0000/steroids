@@ -1,3 +1,10 @@
+## 3.5.4 (2014-07-15)
+
+Let application.coffee define a list of project files that will be copied to the writable
+UserFiles directory by the native client. On Fresh Android the application's project
+directory is read-only, so for example an SQLite database needs to be copied to the writable
+UserFiles directory.
+
 ## 3.5.0 - 3.5.3 (2014-07-14)
 
 Updated generator-steroids to v0.3.10, bower to v1.3.8 iOS Simulator runtime to v3.5.0 and Steroids generator to v0.3.7.
