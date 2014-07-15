@@ -52,6 +52,9 @@ class Config
     @watch =
       exclude: []
 
+    # Project files that will be copied to a writable UserFiles directory.
+    # File is copied only if it doesn't yet exist in the UserFiles directory.
+    @copyToUserFiles = []
 
   getCurrent: () ->
     # needs to use global, because application.coffee needs to stay require free
