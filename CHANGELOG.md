@@ -1,3 +1,7 @@
+## 3.5.5 (2014-07-18)
+
+Moved copy_to_user_files attribute in application.json to be under the configuration namespace.
+
 ## 3.5.4 (2014-07-15)
 
 Let application.coffee define a list of project files that will be copied to the writable

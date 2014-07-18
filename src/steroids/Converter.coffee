@@ -29,7 +29,6 @@ class Converter
     ankaLikeJSON.appearance = @appearanceObject(configObject)
     ankaLikeJSON.preloads = @preloadsObject(configObject)
     ankaLikeJSON.drawers = @drawersObject(configObject)
-    ankaLikeJSON.copy_to_user_files = @userFilesObject(configObject)
 
     # runtime crashes with empty initialView object
     initialViewObject = @initialViewObject(configObject)
@@ -102,6 +101,7 @@ class Converter
       wait_for_document_ready_before_open: "true"
       open_clicked_links_in_new_layer: "false"
       shake_gesture_enabled_during_development: "false"
+      copy_to_user_files: @userFilesObject(config)
     }
 
   appearanceObject: (config)->
