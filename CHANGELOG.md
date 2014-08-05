@@ -1,17 +1,21 @@
 ## 3.5.5 (2014-07-18)
 
-Moved copy_to_user_files attribute in application.json to be under the configuration namespace.
+Changes:
+- Internal, non-breaking changes to the "list of files to be copied to the User Files directory" feature introduced in v3.5.4.
 
 ## 3.5.4 (2014-07-15)
 
-Let application.coffee define a list of project files that will be copied to the writable
-UserFiles directory by the native client. On Fresh Android the application's project
-directory is read-only, so for example an SQLite database needs to be copied to the writable
-UserFiles directory.
+Features:
+- In `config/application.coffee`, you can now define a list of files that will be copied to the [User Files directory](https://academy.appgyver.com/categories/4-app-architecture/contents/43-app-structure-on-the-device).
 
 ## 3.5.0 - 3.5.3 (2014-07-14)
 
-Updated generator-steroids to v0.3.10, bower to v1.3.8 iOS Simulator runtime to v3.5.0 and Steroids generator to v0.3.7.
+Updated iOS Simulator runtime, updated dependencies.
+
+Changes:
+- Updated `generator-steroids` npm dependency to v0.3.10
+- Updated `bower` npm dependency to to v1.3.8
+- Updated iOS Simulator runtime to v3.5.0
 
 ## 3.1.28 (2014-06-04)
 
