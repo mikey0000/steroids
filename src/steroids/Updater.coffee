@@ -47,7 +47,7 @@ class Updater
 
     currentVersion = opts.version
 
-    endpointURL = "https://updates.appgyver.com/client/latest.json?platform=#{encodedPlatform}&version=#{encodedVersion}&os_version=#{encodedOsVersion}&device=#{encodedDevice}&simulator=#{simulator}&user_id=#{currentUserId}"
+    endpointURL = "https://updates.appgyver.com/v1/client/latest.json?platform=#{encodedPlatform}&version=#{encodedVersion}&os_version=#{encodedOsVersion}&device=#{encodedDevice}&simulator=#{simulator}&user_id=#{currentUserId}"
 
     @getFromEndpoint endpointURL, (latestVersion) =>
 
@@ -72,7 +72,7 @@ class Updater
     encodedOsType = encodeURIComponent(osType)
     encodedVersion = encodeURIComponent(currentVersion)
 
-    endpointURL = "https://updates.appgyver.com/steroids/latest.json?os=#{encodedOsType}&version=#{encodedVersion}&from=#{opts.from}&user_id=#{currentUserId}"
+    endpointURL = "https://updates.appgyver.com/v1/steroids/latest.json?os=#{encodedOsType}&version=#{encodedVersion}&from=#{opts.from}&user_id=#{currentUserId}"
 
     @getFromEndpoint endpointURL, (latestVersion) =>
 
