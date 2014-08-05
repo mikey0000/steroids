@@ -1,3 +1,22 @@
+## 3.5.5 (2014-07-18)
+
+Changes:
+- Internal, non-breaking changes to the "list of files to be copied to the User Files directory" feature introduced in v3.5.4.
+
+## 3.5.4 (2014-07-15)
+
+Features:
+- In `config/application.coffee`, you can now define a list of files that will be copied to the [User Files directory](https://academy.appgyver.com/categories/4-app-architecture/contents/43-app-structure-on-the-device).
+
+## 3.5.0 - 3.5.3 (2014-07-14)
+
+Updated iOS Simulator runtime, updated dependencies.
+
+Changes:
+- Updated `generator-steroids` npm dependency to v0.3.10
+- Updated `bower` npm dependency to to v1.3.8
+- Updated iOS Simulator runtime to v3.5.0
+
 ## 3.1.28 (2014-06-04)
 
 Updated iOS Simulator runtime, Simulator bugfixes.
@@ -10,7 +29,7 @@ Bugfixes:
 
 ## 3.1.27 (2014-05-21)
 
-Support for the [Initial View](http://academy.appgyver.com/guides/107/); iOS Simulator updated to use v3.1.6-p3 native runtime (with bugfixes); new projects install Steroids.js via Bowwer.
+Support for the [Initial View](http://academy.appgyver.com/guides/107/); iOS Simulator updated to use v3.1.6-p3 native runtime (with bugfixes); new projects install Steroids.js via Bower.
 
 Features:
   - Support for `steroids.config.initialView` in `config/application.coffee`to set an initial view that will be shown before the rest of the app is loaded.

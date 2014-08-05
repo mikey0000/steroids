@@ -4,3 +4,7 @@
 /testApp
 .DS_Store
 __test
+
+# WebStorm
+/.idea
+/*.iml

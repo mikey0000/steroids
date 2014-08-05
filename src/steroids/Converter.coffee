@@ -101,6 +101,7 @@ class Converter
       wait_for_document_ready_before_open: "true"
       open_clicked_links_in_new_layer: "false"
       shake_gesture_enabled_during_development: "false"
+      copy_to_user_files: @userFilesObject(config)
     }
 
   appearanceObject: (config)->
@@ -153,6 +154,14 @@ class Converter
 
   initialViewObject: (config)->
     return config.initialView || null # runtime crashes with empty object
+
+  userFilesObject: (config)->
+    userFilesObject = []
+
+    for file in config.copyToUserFiles
+      userFilesObject.push file
+
+    return userFilesObject
 
   legacyAuthenticationObject: ->
     return {
