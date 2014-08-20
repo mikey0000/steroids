@@ -6,38 +6,4 @@ categories: debugging
 platforms: Android
 ---
 
-You can also use Weinre to debug your Android application. See the [Debugging with Weinre][guide-debugging-weinre] guide for more information.
-
-Debugging WebViews on Android is somewhat limited at the moment, with no web inspector tools available that would work on the native level. However, you can still access all `console.log` output from your app via the Android Dev Tools.
-
-##Step 1: Install the Android Dev Tools Bundle
-
-To get started, download the [ADT Bundle from Google][adt-download]. Then, follow the instructions in the [Setting Up the ADT Bundle][adt-setup] page.
-
-After you have Eclipse open, select from the top menu bar *Window* > *Show View* > *Other...*. From the menu window that opens, open the *Android* folder and select *LogCat*.
-
-##Step 2: Enable your Android device for USB Debugging
-
-To get debug data from your Android phone, you need to enable it for USB debugging. Go to *Settings* > *Developer options* and check the *USB debugging* checkbox.
-
-Note that on Android 4.2 and newer, you need to go to *Settings* > *Phone details* (or *About phone* or similar) and tap the *Build Number* field seven (7) times to enable the *Developer options* menu.
-
-##Step 3: Create a filter
-
-Make sure your Android device is connected to your computer via an USB cable. LogCat should show a huge amount of log data.
-
-On the left side of the LogCat window, there is a *Saved Filters* section. Click the green plus icon to add a new filter. In the *Tag* field, type `Web Console` – this limits the filter to `console.log` output. In the *Application* field, type `com.appgyver.android` – this limits the filter to just AppGyver Scanner output. It's a good idea to create a new filter for any other applications you want to debug.
-
-By leaving the *Tag* field empty, you can see all the debug output from AppGyver Scanner. While we do get automatic crash reports and do our best to find the culprits, we're happy to help you hunt down reproducable bugs in your app that seem to come from the native side. Just drop us a mail at [support@appgyver.com](mailto:support@appgyver.com) and we'll get to work.
-
-##Step 4: Identify the origin WebView
-
-The debug output doesn't specify which WebView is responsible for each `console.log` line. If you have a complex app, it might be a good ide to use e.g. `window.location.href` to print out the filename of the HTML document that sent the error.
-
-See the [Debugging Best Practices][debugging-best-practices] guide for more tips and tricks.
-
-
-[debugging-best-practices]: /steroids/guides/debugging/best-practices/
-[guide-debugging-weinre]: /steroids/guides/debugging/weinre/
-[adt-download]: http://developer.android.com/sdk/index.html
-[adt-setup]: http://developer.android.com/sdk/installing/bundle.html
+This guide has been moved to AppGyver Academy, find it [here](https://academy.appgyver.com/categories/2-tooling/contents/57-console-output-with-android-developer-tools).

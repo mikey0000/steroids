@@ -6,6 +6,4 @@ categories: phonegap_on_steroids
 platforms: iOS
 ---
 
-**This guide has been deprecated.**
-
-The Steroids-supported way to use the Urban Airship plugin is to use [Steroids Add-ons](http://www.appgyver.com/steroids/addons). You can view our fork of the plugin [on GitHub](https://github.com/AppGyver/phonegap-ua-push), but note that we only offer support for users using the Urban Airship plugin via the Steroids Urban Airship Add-on.
+This guide has been moved to AppGyver Academy, find it [here](https://academy.appgyver.com/categories/16-steroids-addons/contents/139-urban-airship-addon-installation).

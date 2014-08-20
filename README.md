@@ -1,3 +1,5 @@
+# DEPRECATED, TO POST NEW CONTENT USE ACADEMY.APPGYVER.COM
+
 # Steroids Guides
 
 The home of [Steroids Guides](http://guides.appgyver.com/steroids). Take a look around, and don't hesitate to make a pull request!

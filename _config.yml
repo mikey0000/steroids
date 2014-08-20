@@ -1,3 +1,5 @@
+gems:
+ - jekyll-redirect-from
 name: Steroids Guides
 pygments: true
 baseurl: https://appgyver.github.io/steroids/

@@ -6,10 +6,4 @@ categories: steroids_npm
 platforms: Android, iOS
 ---
 
-Here is an ever-growing collection of advanced tips and tricks on getting the most out of Steroids CLI.
-
-## Bash auto-completion
-
-Check out this awesome little project for Steroids commands auto-completion: [https://github.com/mjleino/steroids-completion][steroids-completion]
-
-[steroids-completion]: https://github.com/mjleino/steroids-completion
+This guide has been moved to AppGyver Academy, find it [here](https://academy.appgyver.com/categories/2-tooling/contents/81-steroids-cli-pro-tips).

@@ -6,28 +6,4 @@ categories: phonegap_on_steroids
 platforms: iOS, Android
 ---
 
-## Related Guides
-* [Android Build Configuration][android-build-config]
-* [iOS Build Configuration][ios-build-config]
-
-By default, a Steroids project opened via the Scanner app runs in the portrait orientation only. To change this behavior, you need to create a custom build.
-
-## Custom Build
-
-When you use our [Build Service][build-service] to create an Ad Hoc or App Store build of your app, you can set default allowed rotations for all views. For testing and development, you can also build a custom Scanner app that supports the rotations.
-
-### Android
-In the [Android build configuration][android-build-config] page, the **Shared Settings** section allows you to set the orientation mode for your app. See the [official documentation][android-dev-orientation] for an explanation of the values.
-
-### iOS
-In the [iOS build configuration][ios-build-config] page, the **Shared Settings** section has checkboxes for allowed rotations in both iPhone and iPad separately.
-
-## Limiting allowed rotations via JavaScript (iOS)
-
-On iOS, the [steroids.view.setAllowedRotations][api-view-setAllowedRotations] API call allows you to override the default allowed device orientations, affecting the current view only. Note that this is only effective if you have built a custom build that has multiple orientations allowed – in effect, `setAllowedRotations` can only limit the set of orientations allowed during the build config phase.
-
-[android-build-config]: /steroids/guides/cloud_services/android-build-config/
-[ios-build-config]: /steroids/guides/cloud_services/ios-build-config/
-[api-view-setAllowedRotations]: http://docs.appgyver.com/en/edge/steroids_Steroids%20Native%20UI_steroids.view_view.setAllowedRotations.md.html#steroids.view.setAllowedRotationos
-[build-service]: http://cloud.appgyver.com
-[android-dev-orientation]: http://developer.android.com/reference/android/R.attr.html#screenOrientation
+This guide has been moved to AppGyver Academy, find it [here](https://academy.appgyver.com/categories/3-user-interface-and-design/contents/65-setting-allowed-device-orientations-).
