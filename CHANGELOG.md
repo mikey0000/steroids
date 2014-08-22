@@ -1,3 +1,7 @@
+## 3.5.6 (2014-08-22)
+
+Updated iOS Simulator runtime.
+
 ## 3.5.5 (2014-07-18)
 
 Changes:
