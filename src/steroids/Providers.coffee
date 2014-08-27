@@ -82,7 +82,7 @@ class Providers
 
     initResource = (provider)->
       self.initResourceProvider(provider).then( ->
-        deferred.resolve(provider)
+        deferred.resolve provider
       ).fail (err)->
         deferred.reject err
 
