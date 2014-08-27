@@ -183,33 +183,31 @@ class Providers
 
     console.log "Provisioning a SandboxDB database for your app..."
 
-    unless provider_name?
+    unless provider.name?
       deferred.reject "Resource provider not specified."
 
-    @getProviderByName(provider_name).then (provider) =>
+    if resourceProviderInitialized(provider_name)
+      console.log(
+        """
+        SandboxDB database already provisioned and configured at
 
-      if resourceProviderInitialized(provider_name)
-        console.log(
-          """
-          SandboxDB database already provisioned and configured at
+          #{chalk.bold("config/sandboxdb.yaml")}
 
-            #{chalk.bold("config/sandboxdb.yaml")}
+        All good!
+        """
+      )
+      deferred.resolve()
+    else
 
-          All good!
-          """
-        )
+      sandboxDB = new SandboxDB
+      sandboxDB.createBucketWithCredentials().then(
+        (bucket) =>
+          console.log "Database provisioned, creating a local config file..."
+          sandboxDB.createSandboxDBConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
+      ).then (data) =>
+        console.log "Local config file created at #{chalk.bold("config/sandboxdb.yaml")}"
+        @updateProviderInfo(provider)
         deferred.resolve()
-      else
-
-        sandboxDB = new SandboxDB
-        sandboxDB.createBucketWithCredentials().then(
-          (bucket) =>
-            console.log "Database provisioned, creating a local config file..."
-            sandboxDB.createSandboxDBConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
-        ).then (data) =>
-          console.log "Local config file created at #{chalk.bold("config/sandboxdb.yaml")}"
-          @updateProviderInfo(provider)
-          deferred.resolve()
 
     deferred.promise
 
