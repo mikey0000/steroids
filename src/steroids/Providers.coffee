@@ -80,22 +80,22 @@ class Providers
 
     self = this
 
-    # Hack
-    @removeProvider(provider_name).then ()->
-      @getProviderByName(provider_name).then(
-        (provider) =>
-          console.log "SandboxDB provider was already created"
-          deferred.resolve(provider)
-          # TODO: deside what to do with empty provider
-        (error) =>
-          self.addProvider(provider_name)
-          console.log "SandboxDB provider not found"
-          console.log error
-      )
+
+    @getProviderByName(provider_name).then(
+      (provider) =>
+        console.log "SandboxDB provider was already created"
+        deferred.resolve(provider)
+        # TODO: deside what to do with empty provider
+      (error) =>
+        console.log "SandboxDB provider not found"
+        # console.log error
+        self.addProvider(provider_name)
+    )
     deferred.promise
 
   # Should be used only when multiple providers are implemented
-  addProvider: (provider_name) =>
+  # TODO: Remove when not needed
+  addProviderOld: (provider_name) =>
     console.log 'Adding a provider'
     if provider_name? and provider_name != 'appgyver_sandbox'
       Help.error()
