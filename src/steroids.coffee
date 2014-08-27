@@ -125,6 +125,11 @@ class Steroids
           #     """
           #   )
 
+        # Temporary removing
+        else if otherOptions[0] is "provider:remove"
+          providers = new Providers
+          providers.removeProvider "appgyver_sandbox"
+
 
         else if otherOptions[0] is "resources:list"
           providers = new Providers
