@@ -80,7 +80,6 @@ class Providers
 
     self = this
 
-
     @getProviderByName(provider_name).then(
       (provider) =>
         console.log "SandboxDB provider was already created"
