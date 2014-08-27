@@ -208,8 +208,8 @@ class Providers
           sandboxDB.createSandboxDBConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
       ).then (data) =>
         console.log "Local config file created at #{chalk.bold("config/sandboxdb.yaml")}"
-        @updateProviderInfo(provider)
-        deferred.resolve()
+        @updateProviderInfo(provider).then ()->
+          deferred.resolve()
 
     deferred.promise
 
@@ -378,23 +378,28 @@ class Providers
   # helpers
 
   updateProviderInfo: (provider) =>
+    deferred = q.defer()
     config = getConfig()
 
-    data =
-      providerTypeId: 6,
-      name: 'appgyver_sandbox'
-      configurationKeys:
+    data = provider
+
+    unless data.configurationKeys?
+      data.configurationKeys =
         bucket_id: config['bucket_id']
         steroids_api_key: config['apikey']
 
     console.log "Updating SandboxDB data provider information..."
 
-    @config_api.put("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
+    @config_api.put("/app/#{@getAppId()}/service_providers/#{provider.uid}.json", data, (err, req, res, obj) =>
+      console.log 'SandboxDB data provider information was updated.'
+      deferred.resolve()
       @config_api.close()
-      console.log 'Done, all good!'
       # restify does not close...
-      process.exit 1
+      # TODO: dig into exiting process
+      #process.exit 1
     )
+
+    deferred.promise
 
   saveRamlToFile: () =>
     @config_api.headers["Accept"] = "text/yaml"
