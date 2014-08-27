@@ -124,10 +124,9 @@ class Steroids
             )
 
         # Temporary removing
-        else if otherOptions[0] is "provider:remove"
+        else if otherOptions[0] is "database:remove"
           providers = new Providers
-          providers.removeProvider "appgyver_sandbox"
-
+          providers.removeDatabase()
 
         else if otherOptions[0] is "resources:list"
           providers = new Providers

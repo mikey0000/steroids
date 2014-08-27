@@ -72,6 +72,12 @@ class Providers
     )
     deferred.promise
 
+  # Temporary method for removing the database
+  removeDatabase: ()->
+    console.log "Removing the database..."
+    @removeProvider "appgyver_sandbox"
+    removeConfig()
+
   addProvider: (provider_name, data) =>
     deferred = q.defer()
 
@@ -374,6 +380,9 @@ class Providers
 
   updateConfig = (config) ->
     fs.writeFileSync(data_definition_path, yaml.safeDump(config))
+
+  removeConfig = ()->
+    fs.unlinkSync(data_definition_path)
 
   resourceProviderInitialized = (name) ->
     return false unless fs.existsSync(data_definition_path)
