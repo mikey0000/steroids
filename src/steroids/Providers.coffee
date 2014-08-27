@@ -115,7 +115,7 @@ class Providers
     @getProviderByName(provider_name).then (provider) =>
 
       console.log "Removing provider #{provider_name}..."
-      @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}.json", data, (err, req, res, obj) =>
+      @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}.json", (err, req, res, obj) =>
         console.log 'done'
         @config_api.close()
       )
