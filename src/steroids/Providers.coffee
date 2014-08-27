@@ -93,9 +93,6 @@ class Providers
             deferred.resolve(provider)
           ).fail (err)->
             deferred.reject err
-          # TODO: remove the remove when finished
-          self.removeProvider("appgyver_sandbox").then (res)->
-            console.log 'pr removed'
         ).fail (err)->
           # What to do if adding a provider failed
           deferred.reject err
