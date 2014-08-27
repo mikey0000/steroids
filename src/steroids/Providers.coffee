@@ -106,8 +106,8 @@ class Providers
 
     @config_api.post "/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
       if obj['uid']
-        deferred.resolve "Provider successfully added!"
-        console.log(obj)
+        console.log "Provider successfully added!"
+        deferred.resolve obj
       else
         deferred.reject err
 
