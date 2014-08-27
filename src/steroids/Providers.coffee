@@ -89,8 +89,8 @@ class Providers
         console.log "SandboxDB provider not found"
         # console.log error
         self.addProvider(provider_name).then (provider)->
-          self.initResourceProvider(provider)
-          deferred.resolve(provider)
+          self.initResourceProvider(provider).then ()->
+            deferred.resolve(provider)
           # TODO: remove the remove when finished
           self.removeProvider("appgyver_sandbox").then (res)->
             console.log 'pr removed'
