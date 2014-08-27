@@ -109,17 +109,21 @@ class Steroids
       when "sandbox"
         if otherOptions[0] is "database:init"
           providers = new Providers
-          providers.ensureSandboxProvider().then( =>
-            providers.initResourceProvider("appgyver_sandbox")
-          ).fail (error) =>
-            Help.error()
-            console.log(
-              """
-              Could not initialize SandboxDB database for your app.
 
-              Error message: #{error}
-              """
-            )
+          providers.initDatabase().then (provider)->
+            console.log('Database was inited')
+
+          # providers.ensureSandboxProvider().then( =>
+          #   providers.initResourceProvider("appgyver_sandbox")
+          # ).fail (error) =>
+          #   Help.error()
+          #   console.log(
+          #     """
+          #     Could not initialize SandboxDB database for your app.
+          #
+          #     Error message: #{error}
+          #     """
+          #   )
 
 
         else if otherOptions[0] is "resources:list"
