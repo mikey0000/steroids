@@ -110,8 +110,18 @@ class Steroids
         if otherOptions[0] is "database:init"
           providers = new Providers
 
-          providers.initDatabase().then (provider)->
-            console.log('Database was inited')
+          providers.initDatabase().then( =>
+            # This method accepts provider if needed
+            console.log('Database was inited!')
+          ).fail (error)->
+            Help.error()
+            console.log(
+              """
+              Could not create and initialize SandboxDB for you app :-(
+
+              Error message: #{error}
+              """
+            )
 
           # providers.ensureSandboxProvider().then( =>
           #   providers.initResourceProvider("appgyver_sandbox")

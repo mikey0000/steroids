@@ -82,15 +82,16 @@ class Providers
 
     @getProviderByName(provider_name).then(
       (provider) =>
-        console.log "SandboxDB provider was already created"
+        console.log "SandboxDB provider was already created."
         deferred.resolve(provider)
         # TODO: deside what to do with empty provider
       (error) =>
-        console.log "SandboxDB provider not found"
-        # console.log error
+        console.log "SandboxDB provider not found."
         self.addProvider(provider_name).then (provider)->
-          self.initResourceProvider(provider).then ()->
+          self.initResourceProvider(provider).then( ->
             deferred.resolve(provider)
+          ).fail (err)->
+            deferred.reject err
           # TODO: remove the remove when finished
           self.removeProvider("appgyver_sandbox").then (res)->
             console.log 'pr removed'
@@ -168,7 +169,7 @@ class Providers
 
       console.log "Removing provider #{provider_name}..."
       @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}.json", (err, req, res, obj) =>
-        console.log 'done'
+        console.log 'Provider was successfully removed'
         @config_api.close()
         deferred.resolve()
       )
@@ -176,17 +177,14 @@ class Providers
 
   initResourceProvider: (provider) =>
 
-    # TODO: Refactor this method
-    provider_name = provider.name
-
     deferred = q.defer()
 
     console.log "Provisioning a SandboxDB database for your app..."
 
-    unless provider.name?
+    unless provider?
       deferred.reject "Resource provider not specified."
 
-    if resourceProviderInitialized(provider_name)
+    if resourceProviderInitialized(provider.name)
       console.log(
         """
         SandboxDB database already provisioned and configured at
