@@ -112,13 +112,17 @@ class Providers
     )
 
   removeProvider: (provider_name) =>
+    deferred = q.defer()
+
     @getProviderByName(provider_name).then (provider) =>
 
       console.log "Removing provider #{provider_name}..."
       @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}.json", (err, req, res, obj) =>
         console.log 'done'
         @config_api.close()
+        deferred.resolve()
       )
+    deferred.promise
 
   initResourceProvider: (provider_name) =>
     deferred = q.defer()
