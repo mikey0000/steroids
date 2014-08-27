@@ -87,7 +87,8 @@ class Providers
         # TODO: deside what to do with empty provider
       (error) =>
         console.log "SandboxDB provider not found."
-        self.addProvider(provider_name).then (provider)->
+        self.addProvider(provider_name).then( (provider)->
+          # What to do when successfully added
           self.initResourceProvider(provider).then( ->
             deferred.resolve(provider)
           ).fail (err)->
@@ -95,13 +96,16 @@ class Providers
           # TODO: remove the remove when finished
           self.removeProvider("appgyver_sandbox").then (res)->
             console.log 'pr removed'
+        ).fail (err)->
+          # What to do if adding a provider failed
+          deferred.reject err
     )
     deferred.promise
 
   addProvider: (provider_name, data) =>
     deferred = q.defer()
 
-    console.log "Adding a provider"
+    console.log "Adding a provider..."
 
     data = data || @_getDefaultProviderData(provider_name)
 
