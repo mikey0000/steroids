@@ -89,9 +89,39 @@ class Providers
       (error) =>
         console.log "SandboxDB provider not found"
         # console.log error
-        self.addProvider(provider_name)
+        self.addProvider(provider_name).then (val)->
+          console.log "pr added"
+          deferred.resolve(val)
+          # TODO: remove the remove when finished
+          self.removeProvider("appgyver_sandbox").then (res)->
+            console.log 'pr removed'
     )
     deferred.promise
+
+  addProvider: (provider_name, data) =>
+    deferred = q.defer()
+
+    console.log "Adding a provider"
+
+    data = data || @_getDefaultProviderData(provider_name)
+
+    @config_api.post "/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
+      if obj['uid']
+        deferred.resolve "Provider successfully added!"
+        console.log(obj)
+      else
+        deferred.reject err
+
+      @config_api.close()
+
+    deferred.promise
+
+
+  _getDefaultProviderData: (provider_name) =>
+    return {
+      providerTypeId: 6    # appgyver_sandbox id specified in config api
+      name: provider_name
+    }
 
   # Should be used only when multiple providers are implemented
   # TODO: Remove when not needed
