@@ -80,19 +80,22 @@ class Providers
 
     self = this
 
+    initResource = (provider)->
+      self.initResourceProvider(provider).then( ->
+        deferred.resolve(provider)
+      ).fail (err)->
+        deferred.reject err
+
     @getProviderByName(provider_name).then(
       (provider) =>
         console.log "SandboxDB provider was already created."
-        deferred.resolve(provider)
+        initResource(provider)
         # TODO: deside what to do with empty provider
       (error) =>
         console.log "SandboxDB provider not found."
         self.addProvider(provider_name).then( (provider)->
           # What to do when successfully added
-          self.initResourceProvider(provider).then( ->
-            deferred.resolve(provider)
-          ).fail (err)->
-            deferred.reject err
+          initResource(provider)
         ).fail (err)->
           # What to do if adding a provider failed
           deferred.reject err
