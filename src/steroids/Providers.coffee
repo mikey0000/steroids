@@ -174,7 +174,11 @@ class Providers
       )
     deferred.promise
 
-  initResourceProvider: (provider_name) =>
+  initResourceProvider: (provider) =>
+
+    # TODO: Refactor this method
+    provider_name = provider.name
+
     deferred = q.defer()
 
     console.log "Provisioning a SandboxDB database for your app..."
