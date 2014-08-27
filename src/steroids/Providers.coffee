@@ -140,7 +140,7 @@ class Providers
       (provider) =>
         if provider?
           Help.error()
-          console.log "Provider '#{provider_name}' is already defined"
+          console.log "Provider '#{provider.name}' is already defined"
           process.exit 1
 
         data =
@@ -171,8 +171,8 @@ class Providers
 
     @getProviderByName(provider_name).then (provider) =>
 
-      console.log "Removing provider #{provider_name}..."
-      @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}.json", (err, req, res, obj) =>
+      console.log "Removing provider #{provider.name}..."
+      @config_api.del("/app/#{@getAppId()}/service_providers/#{provider.uid}.json", (err, req, res, obj) =>
         console.log 'Provider was successfully removed'
         @config_api.close()
         deferred.resolve()
@@ -279,8 +279,8 @@ class Providers
 
   resourcesForSandbox: () =>
     console.log "Fetching list of resources for your SandboxDB..."
-    @getProviderByName('appgyver_sandbox').then (providerUid) =>
-      @config_api.get("/app/#{@getAppId()}/service_providers/#{providerUid}/resources.json", (err, req, res, obj) =>
+    @getProviderByName('appgyver_sandbox').then (provider) =>
+      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider.uid}/resources.json", (err, req, res, obj) =>
         if err?
           Help.error()
           console.log(
@@ -322,7 +322,8 @@ class Providers
 
         postData = createPostData(provider_name, resource_name, params)
 
-        @askConfigApiToCreateResource(provider, postData).then(
+        # TODO: Check that the method accepts provider.iud
+        @askConfigApiToCreateResource(provider.uid, postData).then(
           () =>
             @saveRamlToFile()
           , (error) ->
@@ -457,7 +458,7 @@ class Providers
       else
         obj.forEach (provider) ->
           if (name == "appgyver_sandbox" and provider.providerTypeId==6)
-            deferred.resolve(provider.uid)
+            deferred.resolve provider
         # errorMsg =
         #   """
         #   Provider with name #{chalk.bold(provider_name)} not found.
