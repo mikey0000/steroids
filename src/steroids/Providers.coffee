@@ -45,36 +45,6 @@ class Providers
       @config_api.close()
     )
 
-  ensureSandboxProvider: =>
-    deferred = q.defer()
-
-    console.log("Ensuring that your app has the SandboxDB data provider configured...")
-
-    @getProviderByName("appgyver_sandbox").then(
-      (provider) =>
-        if provider?
-          # provider exists, all good
-          deferred.resolve()
-        else
-          deferred.reject "Got empty provider, something's wrong. :("
-      (error) =>
-        console.log "SandboxDB data provider not found, adding it for your app..."
-        data =
-          providerTypeId: 6    # appgyver_sandbox id specified in config api
-          name: "appgyver_sandbox"
-
-        @config_api.post "/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
-          if obj['uid']
-            deferred.resolve "Provider successfully added!"
-          else
-            deferred.reject err
-
-          @config_api.close()
-    )
-
-    deferred.promise
-
-  # new method
   initDatabase: (provider_name = 'appgyver_sandbox') =>
     deferred = q.defer()
 
@@ -126,45 +96,6 @@ class Providers
       providerTypeId: 6    # appgyver_sandbox id specified in config api
       name: provider_name
     }
-
-  # Should be used only when multiple providers are implemented
-  # TODO: Remove when not needed
-  addProviderOld: (provider_name) =>
-    console.log 'Adding a provider'
-    if provider_name? and provider_name != 'appgyver_sandbox'
-      Help.error()
-      console.log "Only supported provider is 'appgyver_sandbox'"
-      process.exit 1
-
-    @getProviderByName(provider_name).then(
-      (provider) =>
-        if provider?
-          Help.error()
-          console.log "Provider '#{provider.name}' is already defined"
-          process.exit 1
-
-        data =
-          providerTypeId: 6    # appgyver_sandbox id specified in config api
-          name: provider_name
-
-        console.log "Adding provider '#{provider_name}' to your app..."
-
-        @config_api.post("/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
-
-          if obj['uid']
-            Help.success()
-            console.log "Provider successfully added!"
-          else
-            Help.error()
-            console.log err
-
-          @config_api.close()
-        )
-      (error) =>
-        errorObject = JSON.parse(error)
-        Help.error()
-        console.log "\nCould not add provider: #{errorObject.error}"
-    )
 
   removeProvider: (provider_name) =>
     deferred = q.defer()

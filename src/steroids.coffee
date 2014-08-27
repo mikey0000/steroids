@@ -123,18 +123,6 @@ class Steroids
               """
             )
 
-          # providers.ensureSandboxProvider().then( =>
-          #   providers.initResourceProvider("appgyver_sandbox")
-          # ).fail (error) =>
-          #   Help.error()
-          #   console.log(
-          #     """
-          #     Could not initialize SandboxDB database for your app.
-          #
-          #     Error message: #{error}
-          #     """
-          #   )
-
         # Temporary removing
         else if otherOptions[0] is "provider:remove"
           providers = new Providers
