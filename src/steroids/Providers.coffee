@@ -153,11 +153,12 @@ class Providers
   getResourceObjectByName: (resource_name) =>
     deferred = q.defer()
     @getProviderByName('appgyver_sandbox').then (provider) =>
-      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider}/resources.json", (err, req, res, obj) =>
+      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider.uid}/resources.json", (err, req, res, obj) =>
         if err?
           deferred.reject(err)
 
         @config_api.close()
+
         obj.forEach (resourceFromBackend) =>
           if resourceFromBackend.name == resource_name
             deferred.resolve resourceFromBackend
@@ -171,9 +172,11 @@ class Providers
     deferred = q.defer()
 
     console.log "Removing resource #{chalk.bold(resource_to_be_removed)}..."
-    #should loop through all providers
-    @getResourceObjectByName().then (resourceObject) =>
-      @config_api.del("/app/#{@getAppId()}/service_providers/#{provider}/resources/#{resource.uid}.json", (err, req, res, obj) =>
+    # should loop through all providers?
+    @getResourceObjectByName(resource_to_be_removed).then( (resourceObject) =>
+      console.log resourceObject
+      url = "/app/#{@getAppId()}/service_providers/#{resourceObject.serviceProviderUid}/resources/#{resourceObject.uid}.json"
+      @config_api.del(url, (err, req, res, obj) =>
         @config_api.close()
 
         if err?
@@ -183,6 +186,9 @@ class Providers
         deferred.resolve()
       ).fail (error)=>
         console.log error
+    ).fail (error)=>
+      Help.error()
+      console.log error
 
     deferred.promise
 
