@@ -127,7 +127,7 @@ class Steroids
             process.exit 1
 
           providers = new Providers
-          providers.addResource("appgyver_sandbox", otherOptions).fail (error) =>
+          providers.addResource(otherOptions).fail (error) =>
             Help.error()
             console.log(
               """

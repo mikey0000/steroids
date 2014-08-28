@@ -250,8 +250,10 @@ class Providers
         @config_api.close()
       )
 
-  # only for SandboxDB
-  addResource: (provider_name, params) =>
+  # only for SandboxDB, hardcoded provider_name
+  addResource: (params) =>
+    provider_name = "appgyver_sandbox"
+
     @getProviderByName(provider_name).then(
       (provider) =>
         resource_name = params.shift()
