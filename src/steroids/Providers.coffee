@@ -192,34 +192,6 @@ class Providers
 
     deferred.promise
 
-  # Usable only after support for multiple providers per app
-  resources: () =>
-    console.log "Listing all resources..."
-    @config_api.get("/app/#{dataHelpers.getAppId()}/service_providers.json", (err, req, res, obj) =>
-      if err?
-        errorObject = JSON.parse(err)
-        Help.error()
-        console.log "Could not list resources. Error message: "
-      else if obj.length is 0
-        Help.error()
-        console.log "No providers found. Add a provider to list resources."
-        process.exit(1)
-      else
-        obj.forEach (providerObject) =>
-
-          @config_api.get("/app/#{dataHelpers.getAppId()}/service_providers/#{providerObject.uid}/resources.json", (err, req, res, obj) =>
-            console.log "\nProvider: #{providerObject.name}"
-
-            obj.forEach (resource) ->
-              console.log "  #{resource.name}"
-              resource.columns.forEach (column) ->
-                console.log "    #{column.name}:#{column.type}"
-
-            console.log ''
-            @config_api.close()
-          )
-    )
-
   resourcesForSandbox: () =>
     console.log "Fetching list of resources for your SandboxDB..."
     @getProviderByName('appgyver_sandbox').then (provider) =>
