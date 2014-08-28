@@ -146,7 +146,7 @@
     #cyan[resources:list]
       Lists all resources defined in your app's SandboxDB
 
-    #cyan[resources:scaffold resourceName]
+    #cyan[scaffold resourceName]
       Generates a show-and-create scaffold for the given resource name.
       The scaffold is linked to actual data in your app's SandboxDB
 
