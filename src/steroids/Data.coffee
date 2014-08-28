@@ -5,8 +5,9 @@ URL = require "url"
 Providers = require "./Providers"
 chalk = require "chalk"
 Help = require "./Help"
+dataHelpers = require "./dataHelpers"
 
-data_manager_url = "http://sandboxdb.testgyver.com/browser/projects"
+data_manager_url = "http://composer.testgyver.com/data/browser/projects"
 
 class Data
 
