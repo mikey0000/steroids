@@ -36,6 +36,26 @@ class Bower
 
     return deferred.promise
 
+  installPackage: (packageName)->
+    deferred = Q.defer()
+
+    console.log(
+      """
+      Running #{chalk.bold("bower install #{packageName} --save")}...
+      """
+    )
+
+    bowerRun = sbawn
+      cmd: paths.bower
+      args: ["install", packageName, "--save"]
+      stdout: true
+      stderr: true
+
+    bowerRun.on "exit", =>
+      deferred.resolve()
+
+    deferred.promise
+
   update: ->
     ensureConfigurationExists ->
 

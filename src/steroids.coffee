@@ -12,6 +12,7 @@ Ripple = require "./steroids/Ripple"
 PortChecker = require "./steroids/PortChecker"
 
 Providers = require "./steroids/Providers"
+Data = require "./steroids/Data"
 
 util = require "util"
 Version = require "./steroids/Version"
@@ -106,25 +107,12 @@ class Steroids
 
     switch firstOption
 
-      when "sandbox"
-        if otherOptions[0] is "database:init"
-          providers = new Providers
+      when "data"
+        if otherOptions[0] is "init"
+          data = new Data
+          data.init()
 
-          providers.initDatabase().then( =>
-            # This method accepts provider if needed
-            console.log('Database was inited!')
-          ).fail (error)->
-            Help.error()
-            console.log(
-              """
-              Could not create and initialize SandboxDB for you app :-(
-
-              Error message: #{error}
-              """
-            )
-
-        # Temporary removing
-        else if otherOptions[0] is "database:remove"
+        else if otherOptions[0] is "db:remove"
           providers = new Providers
           providers.removeDatabase()
 
@@ -134,9 +122,8 @@ class Steroids
 
         else if otherOptions[0] is "resources:add"
           otherOptions = otherOptions.slice(1)
-          console.log otherOptions
           unless otherOptions?.length > 1
-            console.log "Usage: steroids sandbox resources:add <resourceName> <columnName>:<columnType>"
+            console.log "Usage: steroids data resources:add <resourceName> <columnName>:<columnType>"
             process.exit 1
 
           providers = new Providers
@@ -153,7 +140,7 @@ class Steroids
         else if otherOptions[0] is "resources:remove"
           otherOptions = otherOptions.slice(1)
           unless otherOptions?.length is 1
-            console.log "Usage: steroids sandbox resources:remove <resourceName>"
+            console.log "Usage: steroids data resources:remove <resourceName>"
             process.exit 1
 
           providers = new Providers
@@ -161,14 +148,14 @@ class Steroids
             Help.error()
             console.log error
 
-        else if otherOptions[0] is "resources:browse"
-          providers = new Providers
-          providers.browseResoures()
+        else if otherOptions[0] is "manage"
+          data = new Data
+          data.manage()
 
-        else if otherOptions[0] is "resources:scaffold"
+        else if otherOptions[0] is "scaffold"
           otherOptions = otherOptions.slice(1)
           unless otherOptions?.length is 1
-            console.log "Usage: steroids sandbox resources:scaffold <resourceName>"
+            console.log "Usage: steroids data scaffold <resourceName>"
             process.exit 1
 
           providers = new Providers
