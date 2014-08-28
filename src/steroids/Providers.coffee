@@ -177,18 +177,15 @@ class Providers
     @getResourceObjectByName(resource_to_be_removed).then( (resourceObject) =>
 
       url = "/app/#{dataHelpers.getAppId()}/service_providers/#{resourceObject.serviceProviderUid}/resources/#{resourceObject.uid}.json"
-      @config_api.del(url, (err, req, res, obj) =>
+      @config_api.del url, (err, req, res, obj) =>
         @config_api.close()
 
-        errorMsg = "Could not remove resource #{resourceObject.name}."
-
         if err?
-          deferred.reject errorMsg
+          deferred.reject "Could not remove resource #{resourceObject.name}."
 
         console.log "Done."
         deferred.resolve()
-      ).fail (error)=>
-        deferred.reject errorMsg
+
     ).fail (error)=>
       Help.error()
       console.log error
