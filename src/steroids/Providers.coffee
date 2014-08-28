@@ -68,10 +68,10 @@ class Providers
     deferred.promise
 
   # Temporary method for removing the database
-  removeDatabase: ()->
+  removeDatabase: () ->
     console.log "Removing the database..."
     @removeProvider "appgyver_sandbox"
-    removeConfig()
+    dataHelpers.removeYamlConfig data_definition_path
 
   addProvider: (provider_name, data) =>
     deferred = q.defer()
@@ -352,7 +352,7 @@ class Providers
     @config_api.get(url, (err, req, res, obj) =>
       @config_api.close()
 
-      dataHelpers.saveToLocalRaml(res['body'], local_raml_path).then ->
+      dataHelpers.overwriteFile(local_raml_path, res['body']).then ->
         console.log "Done."
     )
 
@@ -379,12 +379,6 @@ class Providers
       getProviderByName(name)?
     else
       false
-
-  updateConfig = (config) ->
-    fs.writeFileSync(data_definition_path, yaml.safeDump(config))
-
-  removeConfig = ()->
-    fs.unlinkSync(data_definition_path)
 
   resourceProviderInitialized = (name) ->
     return false unless fs.existsSync(data_definition_path)
@@ -458,10 +452,6 @@ class Providers
       )
       process.exit 1
 
-  saveConfig = (config, cb) ->
-    fs.writeFile(data_definition_path, yaml.safeDump(config), (err,data) =>
-      cb()
-    )
 
   validateName = (string) ->
     valid = /^[a-z_]*$/

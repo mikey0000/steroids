@@ -1,6 +1,7 @@
 fs = require "fs"
 Help = require "./Help"
 Q = require "q"
+yaml = require 'js-yaml'
 
 module.exports = class DataHelpers
 
@@ -26,13 +27,21 @@ module.exports = class DataHelpers
   @getLocalRaml = (localRamlPath) ->
     fs.readFileSync localRamlPath, 'utf8'
 
-  @saveToLocalRaml = (ramlFileContent, localRamlPath) ->
+  # generic promisified file overwrite
+  @overwriteFile = (filePath, fileContent) ->
     deferred = Q.defer()
 
-    fs.writeFile localRamlPath, ramlFileContent, (err, data) ->
+    fs.writeFile filePath, fileContent (err, data) ->
       if err?
         deferred.reject err
       else
         deferred.resolve data
 
     deferred.promise
+
+  # YAML stuff
+  @overwriteYamlConfig: (filePath, fileContent)->
+    @overwriteFile filePath, yaml.safeDump(config)
+
+  @removeYamlConfig: (yamlPath) ->
+    fs.unlinkSync(yamlPath)

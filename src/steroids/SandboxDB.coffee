@@ -49,10 +49,11 @@ class SandboxDB
       bucket_id: bucket_id
 
     steroidsCli.debug "Updating SandboxDB config..."
-    fs.writeFile(data_definition_path, yaml.safeDump(doc), (err,data) ->
+
+    dataHelpers.overwriteYamlConfig(data_definition_path, yaml.safeDump(doc)).then ->
       steroidsCli.debug "Done updating SandboxDB config."
       deferred.resolve()
-    )
+
     return deferred.promise
 
 module.exports = SandboxDB
