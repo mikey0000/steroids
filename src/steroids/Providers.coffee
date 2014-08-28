@@ -6,31 +6,26 @@ SandboxDB = require "./SandboxDB"
 SandboxScaffoldGenerator = require "./generators/sandbox/SandboxScaffold"
 q = require "q"
 fs = require "fs"
-URL = require "url"
 http = require 'http'
-open = require "open"
 paths = require "./paths"
 env = require("yeoman-generator")()
 Help = require "./Help"
 chalk = require "chalk"
+dataHelpers = require "./dataHelpers"
 
 data_definition_path = 'config/sandboxdb.yaml'
 raml_path            = 'www/local.raml'
 cloud_json_path      = 'config/cloud.json'
 
-db_browser_url       = 'http://sandboxdb.testgyver.com/browser/projects/'
 configapi_url        = 'http://config-api.testgyver.com'
 
 #configapi_url        = 'http://config-api.local.testgyver.com:3000'
-#db_browser_url       = 'http://sandboxdb.local.testgyver.com:3000/browser/projects/'
 
 class Providers
   constructor: (@options={}) ->
     @config_api = restify.createJsonClient
       url: configapi_url
     @config_api.headers["Authorization"] = Login.currentAccessToken()
-    @db_browser = restify.createJsonClient
-      url: db_browser_url
 
   listProviders: () =>
     console.log "Fetching all providers...\n"
@@ -84,8 +79,9 @@ class Providers
     console.log "Adding a provider..."
 
     data = data || @_getDefaultProviderData(provider_name)
+    url = "/app/#{dataHelpers.getAppId()}/service_providers.json"
 
-    @config_api.post "/app/#{@getAppId()}/service_providers.json", data, (err, req, res, obj) =>
+    @config_api.post url, data, (err, req, res, obj) =>
       if obj['uid']
         console.log "Provider successfully added!"
         deferred.resolve obj
@@ -109,7 +105,9 @@ class Providers
     @getProviderByName(provider_name).then (provider) =>
 
       console.log "Removing provider #{provider.name}..."
-      @config_api.del("/app/#{@getAppId()}/service_providers/#{provider.uid}.json", (err, req, res, obj) =>
+      url = "/app/#{dataHelpers.getAppId()}/service_providers/#{provider.uid}.json"
+
+      @config_api.del(url, (err, req, res, obj) =>
         console.log 'Provider was successfully removed'
         @config_api.close()
         deferred.resolve()
@@ -153,7 +151,10 @@ class Providers
   getResourceObjectByName: (resource_name) =>
     deferred = q.defer()
     @getProviderByName('appgyver_sandbox').then (provider) =>
-      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider.uid}/resources.json", (err, req, res, obj) =>
+
+      url = "/app/#{dataHelpers.getAppId()}/service_providers/#{provider.uid}/resources.json"
+
+      @config_api.get(url, (err, req, res, obj) =>
         if err?
           deferred.reject(err)
 
@@ -175,7 +176,7 @@ class Providers
     # should loop through all providers?
     @getResourceObjectByName(resource_to_be_removed).then( (resourceObject) =>
 
-      url = "/app/#{@getAppId()}/service_providers/#{resourceObject.serviceProviderUid}/resources/#{resourceObject.uid}.json"
+      url = "/app/#{dataHelpers.getAppId()}/service_providers/#{resourceObject.serviceProviderUid}/resources/#{resourceObject.uid}.json"
       @config_api.del(url, (err, req, res, obj) =>
         @config_api.close()
 
@@ -197,7 +198,7 @@ class Providers
   # Usable only after support for multiple providers per app
   resources: () =>
     console.log "Listing all resources..."
-    @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
+    @config_api.get("/app/#{dataHelpers.getAppId()}/service_providers.json", (err, req, res, obj) =>
       if err?
         errorObject = JSON.parse(err)
         Help.error()
@@ -209,7 +210,7 @@ class Providers
       else
         obj.forEach (providerObject) =>
 
-          @config_api.get("/app/#{@getAppId()}/service_providers/#{providerObject.uid}/resources.json", (err, req, res, obj) =>
+          @config_api.get("/app/#{dataHelpers.getAppId()}/service_providers/#{providerObject.uid}/resources.json", (err, req, res, obj) =>
             console.log "\nProvider: #{providerObject.name}"
 
             obj.forEach (resource) ->
@@ -225,7 +226,7 @@ class Providers
   resourcesForSandbox: () =>
     console.log "Fetching list of resources for your SandboxDB..."
     @getProviderByName('appgyver_sandbox').then (provider) =>
-      @config_api.get("/app/#{@getAppId()}/service_providers/#{provider.uid}/resources.json", (err, req, res, obj) =>
+      @config_api.get("/app/#{dataHelpers.getAppId()}/service_providers/#{provider.uid}/resources.json", (err, req, res, obj) =>
         if err?
           Help.error()
           console.log(
@@ -281,10 +282,6 @@ class Providers
         console.log "\nCould not add resource: #{errorObject.error}"
     )
 
-
-  browseResoures: (provider_name, params) =>
-    open URL.format("#{db_browser_url}#{@getAppId()}")
-
   scaffoldResource: (resource_name) =>
     deferred = q.defer()
 
@@ -311,7 +308,7 @@ class Providers
 
   # mostly for debugging
   listMyProviders: () =>
-    @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
+    @config_api.get("/app/#{dataHelpers.getAppId()}/service_providers.json", (err, req, res, obj) =>
       if obj.length==0
         console.log 'no providers defined'
       else
@@ -335,7 +332,7 @@ class Providers
 
     console.log "Updating SandboxDB data provider information..."
 
-    @config_api.put("/app/#{@getAppId()}/service_providers/#{provider.uid}.json", data, (err, req, res, obj) =>
+    @config_api.put("/app/#{dataHelpers.getAppId()}/service_providers/#{provider.uid}.json", data, (err, req, res, obj) =>
       console.log 'SandboxDB data provider information was updated.'
       deferred.resolve()
       @config_api.close()
@@ -348,7 +345,7 @@ class Providers
 
   saveRamlToFile: () =>
     @config_api.headers["Accept"] = "text/yaml"
-    url = "/app/#{@getAppId()}/raml?identification_hash=#{getIdentificationHash()}"
+    url = "/app/#{dataHelpers.getAppId()}/raml?identification_hash=#{dataHelpers.getIdentificationHash()}"
 
     console.log "Downloading new RAML and overwriting #{chalk.bold("config/sandboxdb.yaml")}..."
 
@@ -362,7 +359,7 @@ class Providers
   askConfigApiToCreateResource: (provider, postData) =>
     deferred = q.defer()
 
-    url = "/app/#{@getAppId()}/service_providers/#{provider}/resources.json"
+    url = "/app/#{dataHelpers.getAppId()}/service_providers/#{provider}/resources.json"
 
     @config_api.post(url, postData, (err, req, res, obj) =>
       @config_api.close()
@@ -376,9 +373,6 @@ class Providers
     )
 
     return deferred.promise
-
-  getAppId: () =>
-    getFromCloudJson('id')
 
   providerExists = (name) ->
     if fs.existsSync(data_definition_path)
@@ -404,7 +398,7 @@ class Providers
   getProviderByName: (name) ->
     deferred = q.defer()
 
-    @config_api.get("/app/#{@getAppId()}/service_providers.json", (err, req, res, obj) =>
+    @config_api.get("/app/#{dataHelpers.getAppId()}/service_providers.json", (err, req, res, obj) =>
       @config_api.close()
       if err?
         deferred.reject(err.message)
@@ -473,25 +467,11 @@ class Providers
         Could not read file #{chalk.bold("config/sandboxdb.yaml")}. You must
         initialize your SandboxDB with
 
-          #{chalk.bold("$ steroids sandbox resources:init")}
+          #{chalk.bold("$ steroids data init")}
 
         """
       )
       process.exit 1
-
-  getIdentificationHash = ->
-    getFromCloudJson('identification_hash')
-
-  getFromCloudJson = (param) ->
-    cloud_json_path = "config/cloud.json"
-
-    unless fs.existsSync(cloud_json_path)
-      Help.deployRequiredForSandboxDBProvisioning()
-      process.exit 1
-
-    cloud_json = fs.readFileSync(cloud_json_path, 'utf8')
-    cloud_obj = JSON.parse(cloud_json)
-    return cloud_obj[param]
 
   saveConfig = (config, cb) ->
     fs.writeFile(data_definition_path, yaml.safeDump(config), (err,data) =>

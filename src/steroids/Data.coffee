@@ -1,6 +1,10 @@
 Q = require "q"
 Bower = require "./Bower"
+open = require "open"
+URL = require "url"
 Providers = require "./Providers"
+
+data_manager_url = "http://sandboxdb.testgyver.com/browser/projects"
 
 class Data
 
@@ -47,5 +51,9 @@ class Data
         Error message: #{error}
         """
       )
+
+  manage: (provider_name, params) ->
+    appId = dataHelpers.getAppId()
+    open URL.format "#{data_manager_url}/#{appId}"
 
 module.exports = Data

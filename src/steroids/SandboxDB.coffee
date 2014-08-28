@@ -12,6 +12,7 @@ paths = require "./paths"
 env = require("yeoman-generator")()
 Help = require "./Help"
 chalk = require "chalk"
+dataHelpers = require "./dataHelpers"
 
 data_definition_path = 'config/sandboxdb.yaml'
 
@@ -19,9 +20,6 @@ sandbox_db_base_url    = 'http://datastorage-api.devgyver.com'
 sandbox_db_url         = "#{sandbox_db_base_url}/v1/datastorage"
 
 class SandboxDB
-
-  getAppId: () =>
-    getFromCloudJson('id')
 
   constructor: (@options={}) ->
     @sandboxDBProvisionApi = restify.createJsonClient
@@ -31,7 +29,7 @@ class SandboxDB
   createBucketWithCredentials: () =>
     deferred = q.defer()
     data =
-      appId: @getAppId()
+      appId: dataHelpers.getAppId()
 
     @sandboxDBProvisionApi.post('/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
       if obj.code==201
@@ -56,17 +54,6 @@ class SandboxDB
       deferred.resolve()
     )
     return deferred.promise
-
-  getFromCloudJson = (param) ->
-    cloud_json_path = "config/cloud.json"
-
-    unless fs.existsSync(cloud_json_path)
-      Help.deployRequiredForSandboxDBProvisioning()
-      process.exit 1
-
-    cloud_json = fs.readFileSync(cloud_json_path, 'utf8')
-    cloud_obj = JSON.parse(cloud_json)
-    return cloud_obj[param]
 
 module.exports = SandboxDB
 

@@ -94,14 +94,14 @@ class Help
         """
       )
 
-  @deployRequiredForSandboxDBProvisioning: ->
+  @deployRequiredForData: ->
     @error()
     console.log(
       """
       Could not find file #{chalk.bold('config/cloud.json')}.
 
-      Your application needs to be deployed before provisioning
-      a SandboxDB. Please run:
+      Your application needs to be deployed to AppGyver Cloud
+      before using Steroids Data. Please run:
 
         #{chalk.bold('$ steroids deploy')}
 
