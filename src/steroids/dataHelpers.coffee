@@ -44,4 +44,17 @@ module.exports = class DataHelpers
     @overwriteFile filePath, yaml.safeDump(fileContent)
 
   @removeYamlConfig: (yamlPath) ->
-    fs.unlinkSync(yamlPath)
+    deferred = Q.defer()
+
+    # If file doesn't exist, we don't need to remove it
+    if !fs.existsSync yamlPath
+      deferred.resolve()
+
+    fs.unlink yamlPath, (err, data) ->
+      if err?
+        deferred.reject "Could not remove file at #{yamlPath}."
+      else
+        deferred.resolve()
+
+    deferred.promise
+

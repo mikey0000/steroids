@@ -4,6 +4,7 @@ open = require "open"
 URL = require "url"
 Providers = require "./Providers"
 chalk = require "chalk"
+Help = require "./Help"
 
 data_manager_url = "http://sandboxdb.testgyver.com/browser/projects"
 
@@ -18,7 +19,6 @@ class Data
       """
       Installing the #{chalk.bold("steroids.data.js")} JavaScript library...
 
-
       """
     )
 
@@ -32,10 +32,10 @@ class Data
     providers = new Providers
 
     providers.initDatabase().then( =>
+      Help.SUCCESS()
       console.log(
         """
         SandboxDB database successfully initialized for your app!
-
 
         """
       )

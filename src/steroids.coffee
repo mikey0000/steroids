@@ -112,7 +112,7 @@ class Steroids
           data = new Data
           data.init()
 
-        else if otherOptions[0] is "db:remove"
+        else if otherOptions[0] is "reset"
           providers = new Providers
           providers.removeDatabase()
 

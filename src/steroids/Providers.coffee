@@ -69,9 +69,26 @@ class Providers
 
   # Temporary method for removing the database
   removeDatabase: () ->
-    console.log "Removing the database..."
-    @removeProvider "appgyver_sandbox"
-    dataHelpers.removeYamlConfig data_definition_path
+    console.log "Resetting your Steroids Data databases..."
+    @removeProvider("appgyver_sandbox").then( ->
+
+      console.log "Removing #{chalk.bold('config/sandboxdb.yaml')}..."
+      dataHelpers.removeYamlConfig(data_definition_path)
+    ).then( ->
+      Help.SUCCESS()
+      console.log(
+        """
+        All done! To reinitialize your Steroids Data database,
+        please run
+
+          #{chalk.bold("$ steroids data init")}
+
+        """
+      )
+    ).fail (err) ->
+      Help.error()
+      console.log err
+
 
   addProvider: (provider_name, data) =>
     deferred = q.defer()
@@ -102,16 +119,20 @@ class Providers
   removeProvider: (provider_name) =>
     deferred = q.defer()
 
-    @getProviderByName(provider_name).then (provider) =>
+    console.log "Removing provider #{provider_name}..."
 
-      console.log "Removing provider #{provider.name}..."
+    @getProviderByName(provider_name).then( (provider) =>
+
       url = "/app/#{dataHelpers.getAppId()}/service_providers/#{provider.uid}.json"
 
       @config_api.del(url, (err, req, res, obj) =>
-        console.log 'Provider was successfully removed'
+        console.log "Provider was successfully removed."
         @config_api.close()
         deferred.resolve()
       )
+    ).fail (err)->
+      deferred.reject err
+
     deferred.promise
 
   initResourceProvider: (provider) =>
