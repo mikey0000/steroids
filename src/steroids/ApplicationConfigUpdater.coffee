@@ -455,7 +455,7 @@ class ApplicationConfigUpdater extends events.EventEmitter
         Directory #{chalk.bold("node_modules")} not found in project root. Steroid requires
         certain npm dependencies to work. Please run
 
-          #{chalk.bold("npm install")}
+          #{chalk.bold("steroids update")}
 
         in your project root now to install the required dependencies.
 
