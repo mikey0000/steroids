@@ -50,9 +50,11 @@ class SandboxDB
 
     steroidsCli.debug "Updating SandboxDB config..."
 
-    dataHelpers.overwriteYamlConfig(data_definition_path, yaml.safeDump(doc)).then ->
+    dataHelpers.overwriteYamlConfig(data_definition_path, doc).then( ->
       steroidsCli.debug "Done updating SandboxDB config."
       deferred.resolve()
+    ).fail ->
+      deferred.reject "Could not update SandboxDB config."
 
     return deferred.promise
 

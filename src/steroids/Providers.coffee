@@ -45,7 +45,7 @@ class Providers
 
     self = this
 
-    initResource = (provider)->
+    initResource = (provider) ->
       self.initResourceProvider(provider).then( ->
         deferred.resolve provider
       ).fail (err)->
@@ -141,10 +141,12 @@ class Providers
         (bucket) =>
           console.log "Database provisioned, creating a local config file..."
           sandboxDB.createSandboxDBConfig("#{bucket.login}#{bucket.password}", bucket.name, bucket.datastore_bucket_id)
-      ).then (data) =>
+      ).then( (data) =>
         console.log "Local config file created at #{chalk.bold("config/sandboxdb.yaml")}"
         @updateProviderInfo(provider).then ()->
           deferred.resolve()
+      ).fail (error) =>
+        deferred.reject error
 
     deferred.promise
 

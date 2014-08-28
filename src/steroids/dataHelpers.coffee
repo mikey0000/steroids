@@ -24,14 +24,14 @@ module.exports = class DataHelpers
     return cloudObj[param]
 
   # RAML stuff
-  @getLocalRaml = (localRamlPath) ->
+  @getLocalRaml: (localRamlPath) ->
     fs.readFileSync localRamlPath, 'utf8'
 
   # generic promisified file overwrite
-  @overwriteFile = (filePath, fileContent) ->
+  @overwriteFile: (filePath, fileContent) ->
     deferred = Q.defer()
 
-    fs.writeFile filePath, fileContent (err, data) ->
+    fs.writeFile filePath, fileContent, (err, data) ->
       if err?
         deferred.reject err
       else
@@ -41,7 +41,7 @@ module.exports = class DataHelpers
 
   # YAML stuff
   @overwriteYamlConfig: (filePath, fileContent)->
-    @overwriteFile filePath, yaml.safeDump(config)
+    @overwriteFile filePath, yaml.safeDump(fileContent)
 
   @removeYamlConfig: (yamlPath) ->
     fs.unlinkSync(yamlPath)
