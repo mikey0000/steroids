@@ -3,6 +3,7 @@ Bower = require "./Bower"
 open = require "open"
 URL = require "url"
 Providers = require "./Providers"
+chalk = require "chalk"
 
 data_manager_url = "http://sandboxdb.testgyver.com/browser/projects"
 
@@ -15,7 +16,7 @@ class Data
 
     console.log(
       """
-      Installing the #{chalk.bold "steroids.data.js"} JavaScript library...
+      Installing the #{chalk.bold("steroids.data.js")} JavaScript library...
 
 
       """

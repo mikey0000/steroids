@@ -42,6 +42,7 @@ class Bower
     console.log(
       """
       Running #{chalk.bold("bower install #{packageName} --save")}...
+
       """
     )
 
