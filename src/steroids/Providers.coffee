@@ -174,18 +174,20 @@ class Providers
     console.log "Removing resource #{chalk.bold(resource_to_be_removed)}..."
     # should loop through all providers?
     @getResourceObjectByName(resource_to_be_removed).then( (resourceObject) =>
-      console.log resourceObject
+
       url = "/app/#{@getAppId()}/service_providers/#{resourceObject.serviceProviderUid}/resources/#{resourceObject.uid}.json"
       @config_api.del(url, (err, req, res, obj) =>
         @config_api.close()
 
+        errorMsg = "Could not remove resource #{resourceObject.name}."
+
         if err?
-          deferred.reject "Could not remove resource #{resourceObject.name}"
+          deferred.reject errorMsg
 
         console.log "Done."
         deferred.resolve()
       ).fail (error)=>
-        console.log error
+        deferred.reject errorMsg
     ).fail (error)=>
       Help.error()
       console.log error
