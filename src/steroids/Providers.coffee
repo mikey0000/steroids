@@ -14,7 +14,7 @@ chalk = require "chalk"
 dataHelpers = require "./dataHelpers"
 
 data_definition_path = 'config/sandboxdb.yaml'
-raml_path            = 'www/local.raml'
+local_raml_path      = 'www/local.raml'
 cloud_json_path      = 'config/cloud.json'
 
 configapi_url        = 'http://config-api.testgyver.com'
@@ -347,12 +347,12 @@ class Providers
     @config_api.headers["Accept"] = "text/yaml"
     url = "/app/#{dataHelpers.getAppId()}/raml?identification_hash=#{dataHelpers.getIdentificationHash()}"
 
-    console.log "Downloading new RAML and overwriting #{chalk.bold("config/sandboxdb.yaml")}..."
+    console.log "Downloading new RAML and overwriting #{chalk.bold(local_raml_path)}..."
 
     @config_api.get(url, (err, req, res, obj) =>
       @config_api.close()
 
-      saveRamlLocally res['body'], ->
+      dataHelpers.saveToLocalRaml(res['body'], local_raml_path).then ->
         console.log "Done."
     )
 
@@ -390,9 +390,6 @@ class Providers
     return false unless fs.existsSync(data_definition_path)
     config = getConfig()
     config.bucket_id?
-
-  getLocalRaml = ->
-    fs.readFileSync(raml_path, 'utf8')
 
   # only gets appgyver_sandbox provider
   getProviderByName: (name) ->
@@ -506,10 +503,5 @@ class Providers
   noServiceProvider = (err) ->
     return false unless err?
     JSON.parse(err.message).error == 'service provider not found'
-
-  saveRamlLocally = (raml_file_content, cb) ->
-    fs.writeFile(raml_path, raml_file_content, (err,data) ->
-      cb()
-    )
 
 module.exports = Providers

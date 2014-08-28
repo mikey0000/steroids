@@ -1,8 +1,10 @@
 fs = require "fs"
 Help = require "./Help"
+Q = require "q"
 
 module.exports = class DataHelpers
 
+  # config/cloud.json stuff
   @getAppId: () ->
     @getFromCloudJson "id"
 
@@ -10,12 +12,27 @@ module.exports = class DataHelpers
     @getFromCloudJson "identification_hash"
 
   @getFromCloudJson: (param) ->
-    cloud_json_path = "config/cloud.json"
+    cloudJsonPath = "config/cloud.json"
 
-    unless fs.existsSync(cloud_json_path)
+    unless fs.existsSync(cloudJsonPath)
       Help.deployRequiredForData()
       process.exit 1
 
-    cloud_json = fs.readFileSync(cloud_json_path, 'utf8')
-    cloud_obj = JSON.parse(cloud_json)
-    return cloud_obj[param]
+    cloudJson = fs.readFileSync cloudJsonPath, 'utf8'
+    cloudObj = JSON.parse(cloudJson)
+    return cloudObj[param]
+
+  # RAML stuff
+  @getLocalRaml = (localRamlPath) ->
+    fs.readFileSync localRamlPath, 'utf8'
+
+  @saveToLocalRaml = (ramlFileContent, localRamlPath) ->
+    deferred = Q.defer()
+
+    fs.writeFile localRamlPath, ramlFileContent, (err, data) ->
+      if err?
+        deferred.reject err
+      else
+        deferred.resolve data
+
+    deferred.promise
