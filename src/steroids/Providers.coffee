@@ -406,26 +406,14 @@ class Providers
         obj.forEach (provider) ->
           if (name == "appgyver_sandbox" and provider.providerTypeId==6)
             deferred.resolve provider
-        # errorMsg =
-        #   """
-        #   Provider with name #{chalk.bold(provider_name)} not found.
-
-        #   You can list available providers with
-
-        #     #{chalk.bold("$ steroids providers")}
-
-        #   You can then add the provider for your app with the command
-
-        #     #{chalk.bold("$ steroids providers:add providerName")}
-        #   """
 
         errorMsg =
           """
-          Could not find the sandbox data provider for your app. Please run
+          Could not find the SandboxDB data provider for your app. Please run
 
-            #{chalk.bold("$ steroids resources:init")}
+            #{chalk.bold("$ steroids data init")}
 
-          which will ensure the sandbox data provider is set up correctly.
+          which will ensure the SandboxDB data provider is set up correctly.
 
           """
         deferred.reject errorMsg
@@ -445,7 +433,7 @@ class Providers
       columns: []
 
     if params.length==0
-      console.log "resource should have at least one column"
+      console.log "A resource should have at least one column."
       process.exit 1
 
     params.forEach (column) ->
