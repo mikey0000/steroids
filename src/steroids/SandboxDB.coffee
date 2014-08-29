@@ -16,7 +16,7 @@ dataHelpers = require "./dataHelpers"
 
 data_definition_path = 'config/sandboxdb.yaml'
 
-sandbox_db_base_url    = 'http://datastorage-api.devgyver.com'
+sandbox_db_base_url    = 'https://datastorage-api.appgyver.com'
 sandbox_db_url         = "#{sandbox_db_base_url}/v1/datastorage"
 
 class SandboxDB

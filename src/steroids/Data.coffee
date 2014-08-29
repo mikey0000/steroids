@@ -7,7 +7,7 @@ chalk = require "chalk"
 Help = require "./Help"
 dataHelpers = require "./dataHelpers"
 
-data_manager_url = "http://composer.testgyver.com/data/browser/projects"
+data_manager_url = "https://data.appgyver.com/browser/projects"
 
 class Data
 
@@ -50,7 +50,7 @@ class Data
         """
         Could not initialize Steroids Data for your app.
 
-        Error message: #{error}
+        Error message: #{JSON.stringify(error)}
         """
       )
 

@@ -16,10 +16,7 @@ dataHelpers = require "./dataHelpers"
 data_definition_path = 'config/sandboxdb.yaml'
 local_raml_path      = 'www/local.raml'
 cloud_json_path      = 'config/cloud.json'
-
-configapi_url        = 'http://config-api.testgyver.com'
-
-#configapi_url        = 'http://config-api.local.testgyver.com:3000'
+configapi_url        = 'https://config-api.appgyver.com'
 
 class Providers
   constructor: (@options={}) ->
@@ -119,7 +116,7 @@ class Providers
   removeProvider: (provider_name) =>
     deferred = q.defer()
 
-    console.log "Removing provider #{provider_name}..."
+    console.log "Removing SandboxDB provider..."
 
     @getProviderByName(provider_name).then( (provider) =>
 
