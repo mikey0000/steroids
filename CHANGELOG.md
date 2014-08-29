@@ -1,3 +1,10 @@
+## 3.5.8 (2014-08-29)
+
+Steroids Data bugfixes.
+
+Changes:
+- Updated `generator-steroids` dependency to v0.4.2.
+
 ## 3.5.7 (2014-08-29)
 
 Updated generated examples.
