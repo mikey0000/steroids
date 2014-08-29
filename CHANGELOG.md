@@ -1,3 +1,13 @@
+## 3.5.7 (2014-08-29)
+
+Updated generated examples.
+
+Features:
+- Updated generated examples to run with latest version of the iOS native runtime and Steroids.js.
+
+Secret features:
+- Initial support for Steroids Data.
+
 ## 3.5.6 (2014-08-22)
 
 Updated iOS Simulator runtime.
