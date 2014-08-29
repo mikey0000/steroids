@@ -128,30 +128,3 @@
           #cyan[--deviceType=<deviceType>] - set simulator device type, see #bold[simulator] usage for device types
           #cyan[--no-qrcode] - run Karma without showing the QR code web page
           #cyan[--port=4567]  - set the port for connecting devices
-
-  #bold[data] #cyan[COMMAND]
-
-    Commands for Steroids Data:
-
-    #cyan[init]
-      Initialize your app to use Steroids Data, including provisioning a
-      SandboxDB and installing #bold[steroids.data.js].
-
-    #cyan[resources:add resourceName columnName:columnType]
-      Adds a resource to your app's SandboxDB. You can define multiple columns for your resource.
-
-    #cyan[resources:remove resourceName]
-      Removes a resource from your app's SandboxDB.
-
-    #cyan[resources:list]
-      Lists all resources defined in your app's SandboxDB
-
-    #cyan[scaffold resourceName]
-      Generates a show-and-create scaffold for the given resource name.
-      The scaffold is linked to actual data in your app's SandboxDB
-
-    #cyan[manage]
-      Opens the Steroids Data Manager in your web browser.
-
-    #cyan[reset]
-      Deletes your app's SandboxDB and associated local configs.

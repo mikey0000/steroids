@@ -45,6 +45,7 @@ class Paths
     loggedOut: path.join @bannersDir, "loggedout"
     loggedIn: path.join @bannersDir, "loggedin"
     safariListingHeader: path.join @bannersDir, "safari-listing-header"
+    dataUsage: path.join @bannersDir, "data-usage"
     legacy:
       requiresDetected: path.join @bannersDir, "legacy-requiresdetected"
       capitalizationDetected: path.join @bannersDir, "legacy-capitalizationdetected"

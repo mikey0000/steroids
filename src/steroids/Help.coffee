@@ -9,6 +9,9 @@ class Help
   @usage: ->
     @printBanner(paths.banners.usage, true)
 
+  @dataUsage: ->
+    @printBanner(paths.banners.dataUsage, true)
+
   @deployCompleted: ->
     @printBanner(paths.banners.deployCompleted, true)
 

@@ -164,7 +164,7 @@ class Steroids
             console.log error
 
         else
-          Help.usage()
+          Help.dataUsage()
 
       when "version"
         updater = new Updater
