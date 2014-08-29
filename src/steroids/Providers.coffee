@@ -14,7 +14,7 @@ chalk = require "chalk"
 dataHelpers = require "./dataHelpers"
 
 data_definition_path = 'config/sandboxdb.yaml'
-local_raml_path      = 'www/local.raml'
+raml_path            = 'www/cloud.raml'
 cloud_json_path      = 'config/cloud.json'
 configapi_url        = 'https://config-api.appgyver.com'
 
@@ -338,12 +338,12 @@ class Providers
     @config_api.headers["Accept"] = "text/yaml"
     url = "/app/#{dataHelpers.getAppId()}/raml?identification_hash=#{dataHelpers.getIdentificationHash()}"
 
-    console.log "Downloading new RAML and overwriting #{chalk.bold(local_raml_path)}..."
+    console.log "Downloading new RAML and overwriting #{chalk.bold(raml_path)}..."
 
     @config_api.get(url, (err, req, res, obj) =>
       @config_api.close()
 
-      dataHelpers.overwriteFile(local_raml_path, res['body']).then ->
+      dataHelpers.overwriteFile(raml_path, res['body']).then ->
         console.log "Done."
     )
 
