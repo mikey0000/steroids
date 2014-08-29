@@ -320,6 +320,7 @@ class Providers
       data.configurationKeys =
         bucket_id: config['bucket_id']
         steroids_api_key: config['apikey']
+        bucket_name: config['bucket']
 
     console.log "Updating SandboxDB data provider information..."
 
