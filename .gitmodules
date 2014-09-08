@@ -1,0 +1,3 @@
+[submodule "steroids-connect"]
+	path = steroids-connect
+	url = git@github.com:AppGyver/steroids-connect.git
