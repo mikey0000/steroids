@@ -1,5 +1,5 @@
 {
-  "name": "steroids",
+  "name": "devroids",
   "version": "3.5.8",
   "preferGlobal": "true",
   "license": "MIT",
@@ -33,7 +33,7 @@
   ],
   "main": "./src/main.js",
   "bin": {
-    "steroids": "./bin/steroids"
+    "devroids": "./bin/devroids"
   },
   "scripts": {
     "test": "./bin/test",
@@ -69,7 +69,6 @@
     "express": "3.3.8",
     "grunt": "0.4.2",
     "inquirer": "0.3.4",
-    "node-sass": "0.6.7",
     "oauth": "0.9.10",
     "open": "0.0.4",
     "optimist": "0.6.0",
