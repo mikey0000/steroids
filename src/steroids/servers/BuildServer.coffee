@@ -4,6 +4,7 @@ util = require "util"
 request = require "request"
 semver = require "semver"
 chalk = require "chalk"
+winston = require "winston"
 
 fs = require "fs"
 Paths = require "../paths"
@@ -56,6 +57,7 @@ class BuildServer extends Server
   constructor: (@options) ->
     @converter = new Converter Paths.application.configs.application
     @clients = {}
+    winston.add winston.transports.File, { filename: Paths.application.logFile }
 
     super(@options)
 
@@ -125,8 +127,10 @@ class BuildServer extends Server
       res.header "Access-Control-Allow-Headers", "Content-Type"
       res.end ''
 
-      logMessage = req.body
-      console.log "[#{chalk.cyan('steroids logger')}] #{logMessage.date} - #{logMessage.location} - tab: #{logMessage.screen_id}, layer: #{logMessage.layer_id} \n#{logMessage.message}\n"
+      console.log JSON.stringify(req.body)
+
+        ## {logMessage.location} - tab: #{logMessage.screen_id}, layer: #{logMessage.layer_id} \n#{logMessage.message}\n
+      winston.log "info", "hey"
 
 
     @app.get "/refresh_client?:timestamp", (req, res) =>

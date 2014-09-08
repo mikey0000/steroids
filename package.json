@@ -91,6 +91,7 @@
     "generator-steroids": "0.4.2",
     "js-yaml": "3.0.2",
     "request-json": "0.4.10",
-    "express-json": "1.0.0"
+    "express-json": "1.0.0",
+    "winston": "0.7.3"
   }
 }
