@@ -93,21 +93,3 @@
   #bold[deploy]
 
     Deploys your application to AppGyver Cloud.
-
-  #bold[test] #cyan[TYPE] #cyan[arguments]
-
-    Test types:
-      #cyan[karma]
-        Use Karma to run unit tests. Spec files are listed in the Karma configuration file (test/karma.coffee).
-
-        #cyan[init]
-          Create an initial configuration file and example spec for Karma in folder test/
-
-        #cyan[SPECFILE]
-          Run a single spec, e.g. $ #cyan[steroids test karma test/unit/exampleSpec.coffee]
-
-        Additional arguments for #cyan[karma] are:
-          #cyan[--simulator] - run Karma in the Simulator
-          #cyan[--deviceType=<deviceType>] - set simulator device type, see #bold[simulator] usage for device types
-          #cyan[--no-qrcode] - run Karma without showing the QR code web page
-          #cyan[--port=4567]  - set the port for connecting devices

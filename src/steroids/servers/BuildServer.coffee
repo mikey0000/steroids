@@ -67,10 +67,6 @@ class BuildServer extends Server
 
       config = @converter.configToAnkaFormat()
 
-      if @options.karmaPort
-        config.configuration.fullscreen_start_url = "#{req.protocol}://#{req.host}:#{@options.karmaPort}"
-        config.configuration.fullscreen = "true"
-
       config.archives.push {url: "#{req.protocol}://#{req.host}:#{@options.port}/appgyver/zips/project.zip"}
 
     @app.get "/appgyver/zips/project.zip", (req, res)->

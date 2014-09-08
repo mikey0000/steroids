@@ -16,8 +16,6 @@ util = require "util"
 Version = require "./steroids/Version"
 paths = require "./steroids/paths"
 
-Karma = require "./steroids/Karma"
-
 argv = require('optimist').argv
 open = require "open"
 
@@ -64,7 +62,7 @@ class Steroids
 
 
   ensureProjectIfNeededFor: (command, otherOptions) ->
-    if command in ["push", "make", "package", "grunt", "debug", "simulator", "connect", "update", "generate", "deploy", "test"]
+    if command in ["push", "make", "package", "grunt", "simulator", "connect", "update", "generate", "deploy"]
 
       return if @detectSteroidsProject()
       return if command == "generate" and otherOptions.length == 0    # displays usage
@@ -246,22 +244,6 @@ class Steroids
         else
           steroidsCli.simulator.run
             deviceType: argv.deviceType
-
-      when "test"
-
-        # steroids test karma
-        if otherOptions[0] is "karma"
-          karma = new Karma
-            firstOption: otherOptions[1]
-            webServerPort: argv.port
-            qrcode: argv.qrcode
-            simulator:
-              use: argv.simulator
-              deviceType: argv.deviceType
-
-        else
-          Help.usage()
-          process.exit(1)
 
       when "connect"
         updater = new Updater

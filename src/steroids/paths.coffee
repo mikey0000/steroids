@@ -108,16 +108,6 @@ class Paths
     unitTestPath: path.join @applicationDir, "test", "unit"
     functionalTestPath: path.join @applicationDir, "test", "functional"
 
-  @test.karma =
-    binaryPath: path.join @npm, "node_modules", "karma", "bin", "karma"
-    configFilePath: path.join @test.basePath, "karma.coffee"
-    singleConfigFilePath: path.join @test.basePath, "karmaSingle.coffee"
-    singleConfigFileLastRunPath: path.join @test.basePath, "karmaSingle.lastrun.coffee"
-    templates:
-      configPath: path.join @npm, "templates", "tests", "karma", "karma.coffee"
-      singleConfigPath: path.join @npm, "templates", "tests", "karma", "karmaSingle.coffee"
-      exampleSpecPath: path.join @npm, "templates", "tests", "karma", "spec", "exampleSpec.coffee"
-
   @iosSim =
     path: path.join @npm, "node_modules", "ios-sim", "dist", "ios-sim"
 
