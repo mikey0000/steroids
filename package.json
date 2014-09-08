@@ -1,5 +1,5 @@
 {
-  "name": "steroids",
+  "name": "devroids",
   "version": "3.5.8",
   "preferGlobal": "true",
   "license": "MIT",
@@ -33,7 +33,7 @@
   ],
   "main": "./src/main.js",
   "bin": {
-    "steroids": "./bin/steroids"
+    "devroids": "./bin/devroids"
   },
   "scripts": {
     "test": "./bin/test",
