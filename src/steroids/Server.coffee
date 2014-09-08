@@ -1,7 +1,8 @@
 paths = require "./paths"
 util = require "util"
 express = require "express"
-http = require 'http'
+json = require "express-json"
+http = require "http"
 
 class Server
 
@@ -33,7 +34,8 @@ class Server
     @app = express()
 
     @app.use express.static(paths.staticFiles)
-    @app.use(express.json())
+    @app.use express.static(paths.connectStaticFiles)
+    @app.use(json())
 
     @port = @options.port
 

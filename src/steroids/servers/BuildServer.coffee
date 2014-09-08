@@ -103,12 +103,27 @@ class BuildServer extends Server
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
-      res.end('')
+      res.end ''
+
+    @app.get "/__appgyver/logger", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+      res.send {
+        "message": "Location API ready to use",
+        "blob": "",
+        "code": 0,
+        "timestamp": 1304217782283,
+        "type": "log",
+        "deviceName": "Tomi's iPhone",
+        "view": "$native"
+      }
+
+      res.end ''
 
     @app.post "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
-      res.end('')
+      res.end ''
 
       logMessage = req.body
       console.log "[#{chalk.cyan('steroids logger')}] #{logMessage.date} - #{logMessage.location} - tab: #{logMessage.screen_id}, layer: #{logMessage.layer_id} \n#{logMessage.message}\n"

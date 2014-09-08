@@ -23,6 +23,7 @@ class Paths
   @bower: path.join @npm, "node_modules", "bower", "bin", "bower"
 
   @staticFiles: path.join @npm, "public"
+  @connectStaticFiles: path.join @npm, "node_modules", "steroids-connect"
   @appgyverStaticFiles: path.join @staticFiles, "__appgyver"
   @oauthSuccessHTML: path.join @appgyverStaticFiles, "login", "oauth2_success.html"
 
