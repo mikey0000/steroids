@@ -80,7 +80,6 @@
     "request": "2.27.0",
     "restify": "2.6.0",
     "restler": "2.0.1",
-    "ripple-emulator": "git+https://git@github.com/AppGyver/incubator-ripple.git",
     "semver": "2.3.1",
     "steroids-simulators": "http://appgyver.production.steroids.simulators.s3.amazonaws.com/steroids-simulators.tar.gz",
     "watchr": "2.4.4",

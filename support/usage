@@ -19,12 +19,6 @@
 
       Sets the port for connecting devices.
 
-    #cyan[--ripple]
-
-      Opens Ripple Emulator
-
-      #cyan[--ripplePort=4400] can be used to specify port for the Ripple Emulator
-
     #cyan[--no-qrcode]
 
       Do not open the QR code in a separate browser window.

@@ -8,7 +8,6 @@ Updater = require "./steroids/Updater"
 SafariDebug = require "./steroids/SafariDebug"
 Serve = require "./steroids/Serve"
 Server = require "./steroids/Server"
-Ripple = require "./steroids/Ripple"
 PortChecker = require "./steroids/PortChecker"
 
 Providers = require "./steroids/Providers"
@@ -306,7 +305,6 @@ class Steroids
 
           serve = new Serve servePort,
             platform: argv.platform
-            noBrowser: argv.ripple
 
           serve.start()
 
@@ -408,19 +406,6 @@ class Steroids
                       watcher.watch("./config")
 
                     prompt.connectLoop()
-
-                    if argv.ripple
-                      setTimeout =>
-                        ripple = new Ripple
-                          servePort: argv.servePort || 4000
-                          port: argv.ripplePort
-
-                        ripple.run()
-                      , 2000
-
-
-
-
 
       when "serve"
         Help.legacy.serve()
