@@ -1,5 +1,4 @@
 Help = require "./steroids/Help"
-Weinre = require "./steroids/Weinre"
 Simulator = require "./steroids/Simulator"
 TizenWebSimulator = require "./steroids/TizenWebSimulator"
 
@@ -81,12 +80,6 @@ class Steroids
 
     if argv.version
       firstOption = "version"
-
-    @weinrePort = if argv.weinrePort
-      argv.weinrePort
-    else
-      31173
-
 
     @ensureProjectIfNeededFor(firstOption, otherOptions)
 
@@ -229,24 +222,7 @@ class Steroids
         Help.legacy.debugweinre()
 
       when "weinre"
-        @port = if argv.port
-          argv.port
-        else
-          31173
-
-        options = {}
-        options.httpPort = @port
-
-        weinre = new Weinre options
-        weinre.run()
-
-        project = new Project
-        project.push
-          onSuccess: () =>
-            url = "http://127.0.0.1:#{weinre.options.httpPort}/client/#anonymous"
-            steroidsCli.debug "pushed, opening browser to #{url}"
-            open url
-
+        Help.legacy.debugweinre()
 
       when "simulator"
         if argv.type

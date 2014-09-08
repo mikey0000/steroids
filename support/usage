@@ -44,11 +44,6 @@
 
       Specifies the type of iOS Simulator to launch inside connect. See "simulator" command for options.
 
-    #cyan[--weinrePort=31173]
-
-      If #bold[steroids weinre] is started with custom port, match that port here so that `connect` and `weinre` are in sync.
-
-
   #bold[push]]
 
     Pushes new version of your application to connected clients (iOS device or iOS Simulator).
@@ -72,12 +67,6 @@
     #cyan[--port=4300]
 
       Used with #cyan[--deviceType=tizenweb] to start the Tizen Web Simulator in the given port.
-
-  #bold[weinre] #cyan[--port=31173]
-
-    Starts Weinre debugger and waits for connections.
-
-    #underline[Note:] if you start with other port than the default, you must also specify the same debug port for connect process, see #bold[connect] and #cyan[--weinrePort]
 
   #bold[safari] <part of the location path>
 
