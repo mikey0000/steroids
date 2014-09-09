@@ -92,6 +92,7 @@
     "js-yaml": "3.0.2",
     "request-json": "0.4.10",
     "express-json": "1.0.0",
-    "winston": "0.7.3"
+    "winston": "0.7.3",
+    "body-parser": "1.8.1"
   }
 }

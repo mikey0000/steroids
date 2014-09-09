@@ -5,6 +5,8 @@ request = require "request"
 semver = require "semver"
 chalk = require "chalk"
 winston = require "winston"
+bodyParser = require "body-parser"
+express = require "express"
 
 fs = require "fs"
 Paths = require "../paths"
@@ -58,8 +60,12 @@ class BuildServer extends Server
     @converter = new Converter Paths.application.configs.application
     @clients = {}
     winston.add winston.transports.File, { filename: Paths.application.logFile }
+    winston.remove winston.transports.Console
 
     super(@options)
+
+    @app.use express.static(Paths.connectStaticFiles)
+    @app.use bodyParser.json()
 
   setRoutes: =>
     @app.get "/", (req, res) =>
@@ -114,9 +120,7 @@ class BuildServer extends Server
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
-
-      options =
-        limit: 10
+      options = {}
 
       winston.query options, (err, results) ->
         if (err)
@@ -130,14 +134,19 @@ class BuildServer extends Server
       res.header "Access-Control-Allow-Headers", "Content-Type"
       res.end ''
 
-      #unused stuff: req.body.date, .screen_id, .layer_id, .view_id
+      logMsg = req.body
 
-      message = "Location API initialized" # req.body.message
+      #unused stuff coming in from Steroids.js:
+      #  logMsg.date, .screen_id, .layer_id, .view_id
+
+      logLevel = logMsg.level || "info"
+      message = logMsg.message
       metadata =
-        view: "cars/index" # req.body.location
-        deviceName: "Harri's iPhone" #not provided by steroids.js yet
+        view: logMsg.location
+        deviceName: logMsg.deviceName || null # not provided by steroids.js yet
+        blob: logMsg.deviceName || null # expandable extra info for the message
 
-      winston.log "info", "Location API initialized", metadata
+      winston.log logLevel, message, metadata
 
 
     @app.get "/refresh_client?:timestamp", (req, res) =>

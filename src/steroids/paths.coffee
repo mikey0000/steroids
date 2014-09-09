@@ -63,7 +63,7 @@ class Paths
     nodeModulesDir: path.join @applicationDir, "node_modules"
     bowerComponentsDir: path.join @applicationDir, "www", "components"
     logDir: path.join @applicationDir, "logs"
-    logFile: path.join @applicationDir, "logs", "log.json"
+    logFile: path.join @applicationDir, "logs", "steroids.log"
 
   @application.configs =
     application: path.join @application.configDir, "application.coffee"

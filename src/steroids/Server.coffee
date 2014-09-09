@@ -34,8 +34,7 @@ class Server
     @app = express()
 
     @app.use express.static(paths.staticFiles)
-    @app.use express.static(paths.connectStaticFiles)
-    @app.use(json())
+    @app.use json()
 
     @port = @options.port
 
