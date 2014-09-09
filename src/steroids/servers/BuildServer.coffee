@@ -69,10 +69,13 @@ class BuildServer extends Server
 
       config = @converter.configToAnkaFormat()
 
-      config.archives.push {url: "#{req.protocol}://#{req.host}:#{@options.port}/appgyver/zips/project.zip"}
+      zipObject =
+        url: "#{req.protocol}://#{req.hostname}:#{@options.port}/appgyver/zips/project.zip"
+
+      config.archives.push zipObject
 
     @app.get "/appgyver/zips/project.zip", (req, res)->
-      res.sendfile Paths.temporaryZip
+      res.sendFile Paths.temporaryZip
 
     @app.get "/refresh_client_events?:timestamp", (req, res)=>
       res.header "Access-Control-Allow-Origin", "*"
@@ -110,27 +113,31 @@ class BuildServer extends Server
     @app.get "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
-      res.send {
-        "message": "Location API ready to use",
-        "blob": "",
-        "code": 0,
-        "timestamp": 1304217782283,
-        "type": "log",
-        "deviceName": "Tomi's iPhone",
-        "view": "$native"
-      }
 
-      res.end ''
+
+      options =
+        limit: 10
+
+      winston.query options, (err, results) ->
+        if (err)
+          throw err
+
+        res.send results.file
+        res.end ''
 
     @app.post "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
       res.end ''
 
-      console.log JSON.stringify(req.body)
+      #unused stuff: req.body.date, .screen_id, .layer_id, .view_id
 
-        ## {logMessage.location} - tab: #{logMessage.screen_id}, layer: #{logMessage.layer_id} \n#{logMessage.message}\n
-      winston.log "info", "hey"
+      message = "Location API initialized" # req.body.message
+      metadata =
+        view: "cars/index" # req.body.location
+        deviceName: "Harri's iPhone" #not provided by steroids.js yet
+
+      winston.log "info", "Location API initialized", metadata
 
 
     @app.get "/refresh_client?:timestamp", (req, res) =>
