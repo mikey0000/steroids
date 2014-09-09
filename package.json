@@ -93,6 +93,7 @@
     "request-json": "0.4.10",
     "express-json": "1.0.0",
     "winston": "0.7.3",
-    "body-parser": "1.8.1"
+    "body-parser": "1.8.1",
+    "steroids-connect": "git+https://jepjep:00f4fe8dd1f89e7cfa1276bfb005ac27e476312e@github.com/AppGyver/steroids-connect.git"
   }
 }
