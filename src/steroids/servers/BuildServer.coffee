@@ -110,7 +110,14 @@ class BuildServer extends Server
       res.on "close", ()->
         clearInterval id
 
+    @app.get "/__appgyver/cloud_config", (req, res) =>
+      if fs.existsSync Paths.application.configs.cloud
+        cloudConfig = require Paths.application.configs.cloud
+        res.json cloudConfig
+      else
+        error = "Could not find config/cloud.json. Please run $ steroids deploy."
 
+        res.status(404).json {error: error}
 
     @app.options "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
