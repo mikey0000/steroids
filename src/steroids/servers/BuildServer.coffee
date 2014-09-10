@@ -13,6 +13,9 @@ Paths = require "../paths"
 
 Updater = require "../Updater"
 
+Project = require "../Project"
+Deploy = require "../Deploy"
+
 
 class ClientResolver
 
@@ -109,6 +112,26 @@ class BuildServer extends Server
 
       res.on "close", ()->
         clearInterval id
+
+    @app.get "/__appgyver/deploy", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      project = new Project
+      project.make
+        onSuccess: =>
+          project.package
+            onSuccess: =>
+              deploy = new Deploy()
+              deploy.uploadToCloud(
+                ()=>
+                  res.status(200).end ""
+                , {noSharePage: true}
+              )
+            onFailure: =>
+              res.status(500).json {error: "Cannot create package, cloud deploy not possible."}
+        onFailure: =>
+          res.status(500).json {error: "Cannot build project locally, cloud deploy not possible."}
 
     @app.get "/__appgyver/cloud_config", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"

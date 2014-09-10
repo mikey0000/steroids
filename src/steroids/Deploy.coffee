@@ -26,12 +26,12 @@ class Deploy
     @client = restify.createJsonClient
       url: ankaURL
 
-  uploadToCloud: (callback=->)->
+  uploadToCloud: (callback, options)->
     @client.basicAuth Login.currentAccessToken(), 'X'
 
     @uploadApplicationJSON ()=>
       @uploadApplicationZip ()=>
-        @updateConfigurationFile(callback)
+        @updateConfigurationFile(callback, options)
 
   uploadApplicationJSON: (callback)->
     # util.log "Updating application configuration"
@@ -104,7 +104,7 @@ class Deploy
       # util.log "Updated application build"
       callback()
 
-  updateConfigurationFile: (callback)->
+  updateConfigurationFile: (callback, options)->
     # util.log "Updating #{paths.application.configs.cloud}"
 
     cloudConfig = new CloudConfig
@@ -119,11 +119,13 @@ class Deploy
 
     Help.deployCompleted()
 
-    shareURL = steroidsCli.options.argv.shareURL || "https://share.appgyver.com"
+    unless options?.noSharePage
+      shareURL = steroidsCli.options.argv.shareURL || "https://share.appgyver.com"
 
-    util.log "Opening URL #{shareURL}/?id=#{config.id}&hash=#{config.identification_hash} in default web browser...\n"
-    open "#{shareURL}/?id=#{config.id}&hash=#{config.identification_hash}"
+      util.log "Opening URL #{shareURL}/?id=#{config.id}&hash=#{config.identification_hash} in default web browser...\n"
+      open "#{shareURL}/?id=#{config.id}&hash=#{config.identification_hash}"
 
-    callback()
+    if callback?
+      callback()
 
 module.exports = Deploy
