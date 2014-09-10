@@ -15,7 +15,7 @@ Updater = require "../Updater"
 
 Project = require "../Project"
 Deploy = require "../Deploy"
-
+Data = require "../Data"
 
 class ClientResolver
 
@@ -144,6 +144,14 @@ class BuildServer extends Server
         error = "Could not find config/cloud.json. Please run $ steroids deploy."
 
         res.status(404).json {error: error}
+
+    @app.get "/__appgyver/data/init", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      data = new Data
+      data.init().then ->
+        res.status(200).send "Success!"
 
     @app.options "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
