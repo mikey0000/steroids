@@ -111,6 +111,9 @@ class BuildServer extends Server
         clearInterval id
 
     @app.get "/__appgyver/cloud_config", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
       if fs.existsSync Paths.application.configs.cloud
         cloudConfig = require Paths.application.configs.cloud
         res.json cloudConfig
