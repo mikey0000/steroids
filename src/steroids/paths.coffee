@@ -22,6 +22,8 @@ class Paths
 
   @bower: path.join @npm, "node_modules", "bower", "bin", "bower"
 
+  @steroidsGenerator: path.join @npm, "node_modules", "generator-steroids", "generators", "app"
+
   @staticFiles: path.join @npm, "public"
   @connectStaticFiles: path.join @npm, "node_modules", "steroids-connect"
   @appgyverStaticFiles: path.join @staticFiles, "__appgyver"

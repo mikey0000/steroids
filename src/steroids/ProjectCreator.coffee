@@ -1,6 +1,7 @@
 paths = require "./paths"
 
 env = require("yeoman-generator")()
+steroidsGenerator = require "generator-steroids"
 
 q = require "q"
 
@@ -12,9 +13,8 @@ class ProjectCreator
 
     deferred = q.defer()
 
-    env.plugins "node_modules", paths.npm
-    env.lookup '*:*'
-    env.run "steroids:app #{targetDirectory}", {"skip-install": false}, deferred.resolve
+    env.register paths.steroidsGenerator
+    env.run "steroids:app", {"skip-install": false}, deferred.resolve
 
     return deferred.promise
 
