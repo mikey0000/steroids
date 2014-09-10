@@ -461,10 +461,6 @@ class Steroids
           util.log "ERROR: no authentication found, run steroids login first."
           process.exit 1
 
-        unless Login.authTokenExists()
-          util.log "ERROR: Cancelling cloud build due to login failure"
-          process.exit 1
-
         util.log "Building application locally"
 
         project = new Project
