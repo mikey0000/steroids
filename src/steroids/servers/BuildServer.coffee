@@ -80,6 +80,8 @@ class BuildServer extends Server
 
       config.archives.push zipObject
 
+      res.json config
+
     @app.get "/appgyver/zips/project.zip", (req, res)->
       res.sendFile Paths.temporaryZip
 
