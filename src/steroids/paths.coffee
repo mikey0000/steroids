@@ -61,7 +61,7 @@ class Paths
     distDir: path.join @applicationDir, "dist"
     wwwDir: path.join @applicationDir, "www"
     nodeModulesDir: path.join @applicationDir, "node_modules"
-    bowerComponentsDir: path.join @applicationDir, "www", "components"
+    bowerComponentsDir: path.join @applicationDir, "bower_components"
     logDir: path.join @applicationDir, "logs"
     logFile: path.join @applicationDir, "logs", "steroids.log"
 
