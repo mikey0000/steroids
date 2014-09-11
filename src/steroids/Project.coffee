@@ -82,12 +82,7 @@ class Project
 
     applicationConfigUpdater = new ApplicationConfigUpdater
 
-    applicationConfigUpdater.updateTo3_1_9()
-    .then( =>
-
-      applicationConfigUpdater.ensureNodeModulesDir()
-
-    ).then( =>
+    applicationConfigUpdater.ensureNodeModulesDir().then( =>
 
       steroidsCli.debug "Spawning steroids grunt #{steroidsCli.pathToSelf}"
 

@@ -24,35 +24,6 @@ class ApplicationConfigUpdater extends events.EventEmitter
 
     packageJson?.engines?.steroids
 
-  # 3.1.0 MIGRATION:
-  # - cordova.js not loaded from /appgyver/
-  # - package.json exists
-  # - engines.steroids exists at "3.1.0"
-  updateTo3_1_0: ->
-    deferred = Q.defer()
-
-    if @validateSteroidsEngineVersion(">=3.1.0")
-      deferred.resolve()
-    else
-      @checkCordovaJsPaths().then( =>
-        @ensurePackageJsonExists()
-      ).then( =>
-        @ensureSteroidsEngineIsDefinedWithVersion("3.1.0")
-      ).then( ->
-        deferred.resolve()
-      ).fail (msg)->
-        msg = msg ||
-          """
-          \n#{chalk.bold.red("Migration aborted")}
-          #{chalk.bold.red("=================")}
-
-          Please read through the instructions again!
-
-          """
-        deferred.reject(msg)
-
-    return deferred.promise
-
   # 3.1.4 MIGRATION
   # -
   updateTo3_1_4: ->
@@ -144,47 +115,6 @@ class ApplicationConfigUpdater extends events.EventEmitter
 
           """
         deferred.reject(msg)
-
-    return deferred.promise
-
-  checkCordovaJsPaths: ->
-    deferred = Q.defer()
-
-    console.log(
-      """
-      \nFirst up, the load path for #{chalk.bold("cordova.js")} has changed in Steroids CLI v3.1.0. The deprecated path is
-
-        #{chalk.underline.red("http://localhost/appgyver/cordova.js")}
-
-      or any subfolder of localhost. The required path for Steroids CLI 3.1.0 and newer is
-
-        #{chalk.underline.green("http://localhost/cordova.js")}
-
-      We will now search through your project's HTML files to see if there are any deprecated load paths.
-
-      """
-    )
-
-    promptConfirm().then( ->
-
-      gruntSbawn = sbawn
-        cmd: steroidsCli.pathToSelf
-        args: ["grunt", "--task=check-cordova-js-paths", "--gruntfile=#{paths.grunt.gruntfile}"]
-        stdout: true
-        stderr: true
-
-      gruntSbawn.on "exit", () =>
-        if gruntSbawn.code == 0
-          promptUnderstood().then( ->
-            deferred.resolve()
-          ).fail ->
-            deferred.reject()
-        else
-          console.log("Failed to run Grunt task #{chalk.bold("check-cordova-js-paths")}.")
-          process.exit(1)
-
-    ).fail ->
-      deferred.reject()
 
     return deferred.promise
 
