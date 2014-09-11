@@ -88,12 +88,12 @@
     "q": "0.9.7",
     "chalk": "0.3.0",
     "xml2js": "0.4.0",
-    "generator-steroids": "git+https://jepjep:e072ec18c4b0a3724637b731e345f2009ffe87f1@github.com/AppGyver/generator-devroids.git",
+    "generator-steroids": "git+https://jepjep:e072ec18c4b0a3724637b731e345f2009ffe87f1@github.com/AppGyver/generator-devroids.git#master",
     "js-yaml": "3.0.2",
     "request-json": "0.4.10",
     "express-json": "1.0.0",
     "winston": "0.7.3",
     "body-parser": "1.8.1",
-    "steroids-connect": "git+https://jepjep:00f4fe8dd1f89e7cfa1276bfb005ac27e476312e@github.com/AppGyver/steroids-connect.git"
+    "steroids-connect": "git+https://jepjep:00f4fe8dd1f89e7cfa1276bfb005ac27e476312e@github.com/AppGyver/steroids-connect.git#master"
   }
 }
