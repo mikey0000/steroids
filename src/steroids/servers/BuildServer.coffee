@@ -163,7 +163,9 @@ class BuildServer extends Server
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
-      options = {}
+      options = {
+        from: req.param "from"
+      }
 
       winston.query options, (err, results) ->
         if (err)
@@ -186,7 +188,7 @@ class BuildServer extends Server
       message = logMsg.message
       metadata =
         view: logMsg.location
-        deviceName: logMsg.deviceName || null # not provided by steroids.js yet
+        deviceName: logMsg.deviceName || "Richard's iPhone" # not provided by steroids.js yet
         blob: logMsg.deviceName || null # expandable extra info for the message
 
       winston.log logLevel, message, metadata
