@@ -5,7 +5,6 @@ chalk = require "chalk"
 fs = require "fs"
 Help = require "./Help"
 ApplicationConfigUpdater = require "./ApplicationConfigUpdater"
-ConfigXmlValidator = require "./ConfigXmlValidator"
 AppSettings = require "./AppSettings"
 
 class Project
@@ -82,18 +81,9 @@ class Project
   makeOnly: (options = {}) => # without hooks
 
     applicationConfigUpdater = new ApplicationConfigUpdater
-    configXmlValidator = new ConfigXmlValidator
 
     applicationConfigUpdater.updateTo3_1_9()
     .then( =>
-
-      configXmlValidator.check("ios")
-
-    ).then( =>
-
-      configXmlValidator.check("android")
-
-    ).then( =>
 
       applicationConfigUpdater.ensureNodeModulesDir()
 
