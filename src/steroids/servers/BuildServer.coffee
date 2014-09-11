@@ -16,6 +16,7 @@ Updater = require "../Updater"
 Project = require "../Project"
 Deploy = require "../Deploy"
 Data = require "../Data"
+Simulator = require "../Simulator"
 
 class ClientResolver
 
@@ -152,6 +153,16 @@ class BuildServer extends Server
       data = new Data
       data.init().then ->
         res.status(200).send "Success!"
+
+    @app.get "/__appgyver/launch_simulator", (req, res) ->
+      simulator = new Simulator()
+      simulator.run
+        deviceType: "iphone_retina_4_inch"
+
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      res.end ''
 
     @app.options "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
