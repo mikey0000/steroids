@@ -6,7 +6,6 @@ fs = require "fs"
 Help = require "./Help"
 ApplicationConfigUpdater = require "./ApplicationConfigUpdater"
 ConfigXmlValidator = require "./ConfigXmlValidator"
-BowerComponentsValidator = require "./BowerComponentsValidator"
 AppSettings = require "./AppSettings"
 
 class Project
@@ -82,14 +81,11 @@ class Project
 
   makeOnly: (options = {}) => # without hooks
 
-    bowerComponentsValidator = new BowerComponentsValidator
     applicationConfigUpdater = new ApplicationConfigUpdater
     configXmlValidator = new ConfigXmlValidator
 
-    bowerComponentsValidator.validate().then( =>
-      applicationConfigUpdater.updateTo3_1_9()
-
-    ).then( =>
+    applicationConfigUpdater.updateTo3_1_9()
+    .then( =>
 
       configXmlValidator.check("ios")
 
