@@ -166,6 +166,7 @@ class BuildServer extends Server
           "#{name}:#{type}" for name, type of req.param 'fields'
         )
       ).then ->
+        # We always get here, addResource swallows errors :D
         res.status(200).send "Success!"
 
     @app.get "/__appgyver/launch_simulator", (req, res) ->
