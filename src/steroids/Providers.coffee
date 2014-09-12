@@ -3,7 +3,7 @@ util = require "util"
 yaml = require 'js-yaml'
 Login = require "./Login"
 SandboxDB = require "./SandboxDB"
-SandboxScaffoldGenerator = require "./generators/sandbox/SandboxScaffold"
+DataModuleGenerator = require "./generators/DataModule"
 q = require "q"
 fs = require "fs"
 http = require 'http'
@@ -288,9 +288,11 @@ class Providers
 
   generateScaffoldForResource: (resource)->
     columns = resource.columns.map (column) -> column.name
-    args = "#{resource.name} #{columns.join(' ')}"
 
-    generator = new SandboxScaffoldGenerator {args: args}
+    generator = new DataModuleGenerator {
+      resourceName: resource.name
+      fields: columns
+    }
 
     try
       generator.generate()
