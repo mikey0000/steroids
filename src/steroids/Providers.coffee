@@ -248,6 +248,7 @@ class Providers
       )
 
   # only for SandboxDB, hardcoded provider_name
+  # params: [resource_name, "field_name:field_type"...]
   addResource: (params) =>
     provider_name = "appgyver_sandbox"
 

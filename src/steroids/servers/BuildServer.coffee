@@ -18,6 +18,8 @@ Deploy = require "../Deploy"
 Data = require "../Data"
 Simulator = require "../Simulator"
 
+Providers = require "../Providers"
+
 class ClientResolver
 
   constructor: (@request) ->
@@ -146,12 +148,25 @@ class BuildServer extends Server
 
         res.status(404).json {error: error}
 
-    @app.get "/__appgyver/data/init", (req, res) =>
+    @app.post "/__appgyver/data/init", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
       data = new Data
       data.init().then ->
+        res.status(200).send "Success!"
+
+    @app.post "/__appgyver/data/resource/add", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      providers = new Providers
+      providers.addResource(
+        [req.param 'name'].concat (
+          "#{name}:#{type}" for name, type of req.param 'fields'
+        )
+      ).then ->
+        # We always get here, addResource swallows errors :D
         res.status(200).send "Success!"
 
     @app.get "/__appgyver/launch_simulator", (req, res) ->
