@@ -146,7 +146,7 @@ class BuildServer extends Server
 
         res.status(404).json {error: error}
 
-    @app.get "/__appgyver/data/init", (req, res) =>
+    @app.post "/__appgyver/data/init", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
