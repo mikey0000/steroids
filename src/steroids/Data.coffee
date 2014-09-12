@@ -14,10 +14,7 @@ class Data
   constructor: ->
 
   init: ->
-    deferred = Q.defer()
-
     providers = new Providers
-
     providers.initDatabase().then( =>
       Help.SUCCESS()
       console.log(
@@ -35,9 +32,6 @@ class Data
         Error message: #{JSON.stringify(error)}
         """
       )
-      deferred.reject()
-
-    deferred.promise
 
   manage: (provider_name, params) ->
     appId = dataHelpers.getAppId()
