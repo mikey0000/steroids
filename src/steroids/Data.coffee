@@ -13,22 +13,6 @@ class Data
 
   constructor: ->
 
-  installDataJs: ->
-    deferred = Q.defer()
-
-    console.log(
-      """
-      Installing the #{chalk.bold("steroids.data.js")} JavaScript library...
-
-      """
-    )
-
-    bower = new Bower
-    bower.installPackage("steroids-data").then ->
-      deferred.resolve
-
-    deferred.promise
-
   init: ->
     deferred = Q.defer()
 
@@ -42,11 +26,6 @@ class Data
 
         """
       )
-
-      @installDataJs()
-    ).then(=>
-      console.log "steroids.data.js successfully installed!"
-      deferred.resolve()
     ).fail (error)->
       Help.error()
       console.log(
