@@ -65,6 +65,10 @@ class BuildServer extends Server
   constructor: (@options) ->
     @converter = new Converter Paths.application.configs.application
     @clients = {}
+
+    if !fs.existsSync(Paths.application.logDir)
+      fs.mkdir Paths.application.logDir
+
     winston.add winston.transports.File, { filename: Paths.application.logFile }
     winston.remove winston.transports.Console
 
