@@ -7,6 +7,7 @@ chalk = require "chalk"
 winston = require "winston"
 bodyParser = require "body-parser"
 express = require "express"
+tinylr = require "tiny-lr"
 
 fs = require "fs"
 Paths = require "../paths"
@@ -74,9 +75,11 @@ class BuildServer extends Server
 
     super(@options)
 
+    @app.use tinylr.middleware(app: @app)
     @app.use express.static(Paths.connectStaticFiles)
     @app.use express.static(Paths.application.distDir)
-    @app.use bodyParser.json()
+    # @app.use bodyParser.json()
+
 
   setRoutes: =>
     @app.get "/", (req, res) =>
