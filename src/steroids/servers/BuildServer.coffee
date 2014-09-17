@@ -75,6 +75,7 @@ class BuildServer extends Server
     super(@options)
 
     @app.use express.static(Paths.connectStaticFiles)
+    @app.use express.static(Paths.application.distDir)
     @app.use bodyParser.json()
 
   setRoutes: =>
