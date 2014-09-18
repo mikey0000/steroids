@@ -13,6 +13,7 @@ class Prompt
     @prompt.delimiter = " "
 
     @prompt.start();
+    @buildServer = @options.buildServer
 
   refresh: () =>
     process.stdout.write @prompt.message + @prompt.delimiter + chalk.grey("command  ")
@@ -23,7 +24,6 @@ class Prompt
     steroidsCli.simulator.stop()
 
     console.log "... done."
-
 
   connectLoop: =>
 
@@ -51,7 +51,7 @@ class Prompt
           project = new Project
           project.make
             onSuccess: =>
-              project.package
+                @buildServer.triggerLiveReload()
                 onSuccess: =>
                   @refresh()
 

@@ -95,6 +95,6 @@
     "winston": "0.7.3",
     "body-parser": "1.8.1",
     "steroids-connect": "git+https://jepjep:00f4fe8dd1f89e7cfa1276bfb005ac27e476312e@github.com/AppGyver/steroids-connect.git#master",
-    "tiny-lr": "~0.1.4"
+    "tiny-lr": "git+https://github.com/AppGyver/tiny-lr.git#master"
   }
 }

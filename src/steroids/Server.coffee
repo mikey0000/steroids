@@ -55,9 +55,6 @@ class Server
     @server.on "error", @options.errorCallback
     @server.listen @options.port
 
-    @server2 = http.createServer(@app)
-    @server2.listen 12345
-
   mount: (appToMount) =>
     appToMount.setRoutes()
     @app.use appToMount.options.path, appToMount.app

@@ -76,11 +76,17 @@ class BuildServer extends Server
 
     super(@options)
 
+    @tinylr = tinylr.middleware(app: @app, server: @server.server)
+
     @app.use express.static(Paths.connectStaticFiles)
     @app.use express.static(Paths.application.distDir)
     @app.use bodyParser.json()
-    @app.use tinylr.middleware(app: @app, server: @server.server)
+    @app.use @tinylr.middleware
 
+  triggerLiveReload: ->
+    @tinylr.server.changed
+      body:
+        files: ["dolan.js"]
 
   setRoutes: =>
     @app.get "/", (req, res) =>

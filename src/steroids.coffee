@@ -281,10 +281,6 @@ class Steroids
               onSuccess: =>
                 BuildServer = require "./steroids/servers/BuildServer"
 
-                Prompt = require("./steroids/Prompt")
-                prompt = new Prompt
-                  context: @
-
                 server = Server.start
                   port: @port
                   callback: ()=>
@@ -296,6 +292,11 @@ class Steroids
                                         port: @port
 
                     server.mount(buildServer)
+
+                    Prompt = require("./steroids/Prompt")
+                    prompt = new Prompt
+                      context: @
+                      buildServer: buildServer
 
                     unless argv.qrcode is false
                       QRCode = require "./steroids/QRCode"
