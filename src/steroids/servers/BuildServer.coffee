@@ -64,6 +64,7 @@ class ClientResolver
 class BuildServer extends Server
 
   constructor: (@options) ->
+    @server = @options.server
     @converter = new Converter Paths.application.configs.application
     @clients = {}
 
@@ -75,10 +76,10 @@ class BuildServer extends Server
 
     super(@options)
 
-    @app.use tinylr.middleware(app: @app)
     @app.use express.static(Paths.connectStaticFiles)
     @app.use express.static(Paths.application.distDir)
-    # @app.use bodyParser.json()
+    @app.use bodyParser.json()
+    @app.use tinylr.middleware(app: @app, server: @server.server)
 
 
   setRoutes: =>

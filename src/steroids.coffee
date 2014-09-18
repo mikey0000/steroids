@@ -291,6 +291,7 @@ class Steroids
                     global.steroidsCli.server = server
 
                     buildServer = new BuildServer
+                                        server: server
                                         path: "/"
                                         port: @port
 
