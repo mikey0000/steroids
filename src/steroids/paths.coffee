@@ -8,14 +8,6 @@ class Paths
   @npm: path.join __dirname, "..", ".."
   @applicationDir: process.cwd()
 
-  @templatesDir: path.join @npm, "templates"
-  @templates:
-    applications: path.join @templatesDir, "applications"
-    resources: path.join @templatesDir, "resources"
-    scaffolds: path.join @templatesDir, "scaffolds"
-    gruntfile: path.join @templatesDir, "applications", "default", "Gruntfile.js"
-    packageJson: path.join @templatesDir, "applications", "default", "package.json"
-
   @grunt:
     library: path.join @npm, "node_modules", "grunt", "lib", "grunt"
     gruntfile: path.join @npm, "src", "steroids", "grunt", "grunt.js"
