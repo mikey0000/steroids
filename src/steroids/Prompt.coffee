@@ -53,7 +53,7 @@ class Prompt
           project = new Project
           project.make
             onSuccess: =>
-              if steroidsCli.options.argv.liveReload
+              if steroidsCli.options.argv.livereload
                 @buildServer.triggerLiveReload()
                 @refresh()
               else
