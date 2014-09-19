@@ -11,6 +11,7 @@ PortChecker = require "./steroids/PortChecker"
 
 Providers = require "./steroids/Providers"
 Data = require "./steroids/Data"
+Grunt = require "./steroids/Grunt"
 
 util = require "util"
 Version = require "./steroids/Version"
@@ -62,7 +63,7 @@ class Steroids
 
 
   ensureProjectIfNeededFor: (command, otherOptions) ->
-    if command in ["push", "make", "package", "grunt", "simulator", "connect", "update", "generate", "deploy"]
+    if command in ["push", "make", "package", "simulator", "connect", "update", "generate", "deploy"]
 
       return if @detectSteroidsProject()
       return if command == "generate" and otherOptions.length == 0    # displays usage
@@ -198,23 +199,6 @@ class Steroids
         packager = new Packager
 
         packager.create()
-
-      when "grunt"
-
-        task = if argv.task
-          argv.task
-        else
-          "default"
-
-        gruntfile = if argv.gruntfile
-          argv.gruntfile
-
-
-        # Grunt steals the whole node process ...
-        Grunt = require("./steroids/Grunt")
-
-        grunt = new Grunt
-        grunt.run( { task: task, gruntfile: gruntfile } )
 
       when "debug"
         Help.legacy.debugweinre()

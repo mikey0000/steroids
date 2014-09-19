@@ -1,20 +1,16 @@
 paths = require "./paths"
+grunt = require "grunt"
 
 class Grunt
   constructor: ()->
 
-  run: (options = {}) ->
+  run: (options = {}, done = ->) ->
 
-    gruntfile = options.gruntfile || paths.application.gruntfile
+    grunt.loadTasks paths.application.configs.grunt
 
-    task = options.task || "default"
-    # set steroids path to global namespace for grunt requires
-    global.steroidsPath = paths.npm
+    gruntOptions = {}
+    gruntTasks = options.tasks || ["default"]
 
-    require(paths.grunt.library).tasks [task],
-      gruntfile: gruntfile
-      verbose: false
-
-    # nothing gets executed here, the grunt steals the whole process somehow.
+    grunt.tasks gruntTasks, gruntOptions, done
 
 module.exports = Grunt

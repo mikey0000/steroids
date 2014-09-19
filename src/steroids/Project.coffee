@@ -6,6 +6,7 @@ fs = require "fs"
 Help = require "./Help"
 ApplicationConfigUpdater = require "./ApplicationConfigUpdater"
 AppSettings = require "./AppSettings"
+Grunt = require "./Grunt"
 
 class Project
 
@@ -84,23 +85,11 @@ class Project
 
     applicationConfigUpdater.ensureNodeModulesDir().then( =>
 
-      steroidsCli.debug "Spawning steroids grunt #{steroidsCli.pathToSelf}"
+      steroidsCli.debug "Running Grunt tasks..."
 
-      gruntArgs = ["grunt"]
-      gruntArgs.push("--no-sass") if steroidsCli.options.argv.sass == false
-
-      gruntSbawn = sbawn
-        cmd: steroidsCli.pathToSelf
-        args: gruntArgs
-        stdout: true
-        stderr: true
-
-      gruntSbawn.on "exit", () =>
-        if gruntSbawn.code == 0
-          options.onSuccess.call() if options.onSuccess?
-        else
-          steroidsCli.debug "grunt spawn exited with code #{gruntSbawn.code}"
-          options.onFailure.call() if options.onFailure?
+      grunt = new Grunt()
+      grunt.run {tasks: ["default"]}, ->
+        options.onSuccess.call() if options.onSuccess?
 
     ).fail (errorMessage)->
       Help.error()

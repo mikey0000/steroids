@@ -1,6 +1,10 @@
 Help = require "./Help"
 paths = require "./paths"
+Grunt = require "./Grunt"
+Project = require "./Project"
+
 chalk = require "chalk"
+
 
 class Prompt
 
@@ -46,14 +50,16 @@ class Prompt
           process.exit(0)
         when "", "push", "p"
           console.log "Updating code on all connected devices ..."
-          Project = require "./Project"
-
           project = new Project
           project.make
             onSuccess: =>
+              if steroidsCli.options.argv.liveReload
                 @buildServer.triggerLiveReload()
-                onSuccess: =>
-                  @refresh()
+                @refresh()
+              else
+                project.package
+                  onSuccess: =>
+                    @refresh()
 
         when "d", "debug"
           SafariDebug = require "./SafariDebug"

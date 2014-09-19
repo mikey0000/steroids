@@ -71,7 +71,7 @@ class Paths
     application: path.join @application.configDir, "application.coffee"
     cloud: path.join @application.configDir, "cloud.json"
     bower: path.join @applicationDir, "bower.json"
-    grunt: path.join @applicationDir, "Gruntfile.js"
+    grunt: path.join @applicationDir, "Gruntfile.coffee"
     configIosXml: path.join @application.wwwDir, "config.ios.xml"
     configAndroidXml: path.join @application.wwwDir, "config.android.xml"
     packageJson: path.join @applicationDir, "package.json"

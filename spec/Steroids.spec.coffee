@@ -37,7 +37,7 @@ describe 'Steroids Cli', ->
 
     it "gives error if command requires to be run in project directory", ->
 
-      commandsThatRequireSteroidsProject = ["push", "make", "package", "grunt", "debug", "simulator", "connect", "update", "generate", "deploy"]
+      commandsThatRequireSteroidsProject = ["push", "make", "package", "debug", "simulator", "connect", "update", "generate", "deploy"]
 
       for command in commandsThatRequireSteroidsProject
 
