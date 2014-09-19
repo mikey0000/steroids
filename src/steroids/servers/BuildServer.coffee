@@ -234,6 +234,12 @@ class BuildServer extends Server
 
       winston.log logLevel, message, metadata
 
+    @app.get "/__appgyver/clients", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      res.send
+        clients: @clients
 
     @app.get "/refresh_client?:timestamp", (req, res) =>
 
