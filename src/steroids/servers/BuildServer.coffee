@@ -71,7 +71,10 @@ class BuildServer extends Server
     if !fs.existsSync(Paths.application.logDir)
       fs.mkdir Paths.application.logDir
 
-    winston.add winston.transports.File, { filename: Paths.application.logFile }
+    winston.add winston.transports.File, {
+      filename: Paths.application.logFile
+      level: 'debug'
+    }
     winston.remove winston.transports.Console
 
     super(@options)
