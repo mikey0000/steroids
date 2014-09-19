@@ -322,15 +322,14 @@ class Steroids
                       steroidsCli.debug "Starting FS watcher"
                       Watcher = require("./steroids/fs/watcher")
 
-                      pushAndPrompt = =>
+                      project = new Project
+
+                      refreshAndPrompt = =>
                         console.log ""
                         util.log "File system change detected, pushing code to connected devices ..."
-
-                        project = new Project
-                        project.push
+                        project.make
                           onSuccess: =>
-                            prompt.refresh()
-                          onFailure: =>
+                            buildServer.triggerLiveReload()
                             prompt.refresh()
 
                       if argv.watchExclude?
@@ -340,8 +339,8 @@ class Steroids
 
                       watcher = new Watcher
                         excludePaths: excludePaths
-                        onCreate: pushAndPrompt
-                        onUpdate: pushAndPrompt
+                        onCreate: refreshAndPrompt
+                        onUpdate: refreshAndPrompt
                         onDelete: (file) =>
                           steroidsCli.debug "Deleted watched file #{file}"
 
