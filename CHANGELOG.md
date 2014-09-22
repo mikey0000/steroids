@@ -1,6 +1,6 @@
 ## 3.5.9 (2014-09-22)
 
-Fixed iOS Simulator to work with Xcode 6.
+Fixed iOS Simulator to work with Xcode 6 and updated the iOS Simulator runtime to v3.5.2.
 
 Changes:
 - Use the [`ios-sim`](https://github.com/phonegap/ios-sim) npm package instead of AppGyver's fork.
