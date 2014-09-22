@@ -1,3 +1,11 @@
+## 3.5.9 (2014-09-22)
+
+Fixed iOS Simulator to work with Xcode 6.
+
+Changes:
+- Use the [`ios-sim`](https://github.com/phonegap/ios-sim) npm package instead of AppGyver's fork.
+- `ios-sim` version updated to 2.0.1, fixing a bug where the iOS Simulator would not start with Xcode 6 installed. Closes [#517](https://github.com/AppGyver/steroids/issues/517).
+
 ## 3.5.8 (2014-08-29)
 
 Steroids Data bugfixes.
