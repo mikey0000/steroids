@@ -119,6 +119,6 @@ class Paths
       exampleSpecPath: path.join @npm, "templates", "tests", "karma", "spec", "exampleSpec.coffee"
 
   @iosSim =
-    path: path.join @npm, "node_modules", "ios-sim", "build", "Release", "ios-sim"
+    path: path.join @npm, "node_modules", "ios-sim", "dist", "ios-sim"
 
 module.exports = Paths
