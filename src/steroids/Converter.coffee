@@ -113,31 +113,36 @@ class Converter
     }
 
   appearanceObject: (config)->
-    appearanceObject =
-      nav_bar_portrait_background_image: "#{config.navigationBar.portrait.backgroundImage}"
-      nav_bar_landscape_background_image: "#{config.navigationBar.landscape.backgroundImage}"
-      nav_bar_tint_color: "#{config.navigationBar.tintColor}"
-      nav_bar_title_text_color: "#{config.navigationBar.titleColor}"
-      nav_bar_title_shadow_color: "#{config.navigationBar.titleShadowColor}"
-      nav_bar_button_tint_color: "#{config.navigationBar.buttonTintColor}"
-      nav_bar_button_title_text_color: "#{config.navigationBar.buttonTitleColor}"
-      nav_bar_button_title_shadow_color: "#{config.navigationBar.buttonShadowColor}"
-      tab_bar_background_image: "#{config.tabBar.backgroundImage}"
-      tab_bar_tint_color: "#{config.tabBar.tintColor}"
-      tab_bar_button_title_text_color: "#{config.tabBar.tabTitleColor}"
-      tab_bar_button_title_shadow_color: "#{config.tabBar.tabTitleShadowColor}"
-      tab_bar_selected_icon_tint_color: "#{config.tabBar.selectedTabTintColor}"
-      tab_bar_selected_indicator_background_image: "#{config.tabBar.selectedTabBackgroundImage}"
-      loading_screen_color: "#{config.loadingScreen.tintColor}"
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        {}
+      ->
+        appearanceObject =
+          nav_bar_portrait_background_image: "#{config.navigationBar.portrait.backgroundImage}"
+          nav_bar_landscape_background_image: "#{config.navigationBar.landscape.backgroundImage}"
+          nav_bar_tint_color: "#{config.navigationBar.tintColor}"
+          nav_bar_title_text_color: "#{config.navigationBar.titleColor}"
+          nav_bar_title_shadow_color: "#{config.navigationBar.titleShadowColor}"
+          nav_bar_button_tint_color: "#{config.navigationBar.buttonTintColor}"
+          nav_bar_button_title_text_color: "#{config.navigationBar.buttonTitleColor}"
+          nav_bar_button_title_shadow_color: "#{config.navigationBar.buttonShadowColor}"
+          tab_bar_background_image: "#{config.tabBar.backgroundImage}"
+          tab_bar_tint_color: "#{config.tabBar.tintColor}"
+          tab_bar_button_title_text_color: "#{config.tabBar.tabTitleColor}"
+          tab_bar_button_title_shadow_color: "#{config.tabBar.tabTitleShadowColor}"
+          tab_bar_selected_icon_tint_color: "#{config.tabBar.selectedTabTintColor}"
+          tab_bar_selected_indicator_background_image: "#{config.tabBar.selectedTabBackgroundImage}"
+          loading_screen_color: "#{config.loadingScreen.tintColor}"
 
-    # legacy support: bug in 3.1.5 client causes empty strings for these values to crash
-    unless config.navigationBar.borderSize is null or config.navigationBar.borderSize is ""
-      appearanceObject.nav_bar_border_size = "#{config.navigationBar.borderSize}"
+        # legacy support: bug in 3.1.5 client causes empty strings for these values to crash
+        unless config.navigationBar.borderSize is null or config.navigationBar.borderSize is ""
+          appearanceObject.nav_bar_border_size = "#{config.navigationBar.borderSize}"
 
-    unless config.navigationBar.borderColor is null or config.navigationBar.borderColor is ""
-      appearanceObject.nav_bar_border_color = "#{config.navigationBar.borderColor}"
+        unless config.navigationBar.borderColor is null or config.navigationBar.borderColor is ""
+          appearanceObject.nav_bar_border_color = "#{config.navigationBar.borderColor}"
 
-    return appearanceObject
+        appearanceObject
+    )
 
   preloadsObject: (config)->
     return [] unless config.preloads?.length
