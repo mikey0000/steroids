@@ -6,8 +6,6 @@ class Grunt
 
   run: (options = {}, done = ->) ->
 
-    grunt.loadTasks paths.application.configs.grunt
-
     gruntOptions = {}
     gruntTasks = options.tasks || ["default"]
 

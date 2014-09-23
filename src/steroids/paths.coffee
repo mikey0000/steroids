@@ -8,10 +8,6 @@ class Paths
   @npm: path.join __dirname, "..", ".."
   @applicationDir: process.cwd()
 
-  @grunt:
-    library: path.join @npm, "node_modules", "grunt", "lib", "grunt"
-    gruntfile: path.join @npm, "src", "steroids", "grunt", "grunt.js"
-
   @bower: path.join @npm, "node_modules", "bower", "bin", "bower"
 
   @steroidsGenerator: path.join @npm, "node_modules", "generator-steroids", "generators", "app"
@@ -63,7 +59,6 @@ class Paths
     application: path.join @application.configDir, "application.coffee"
     cloud: path.join @application.configDir, "cloud.json"
     bower: path.join @applicationDir, "bower.json"
-    grunt: path.join @applicationDir, "Gruntfile.coffee"
     configIosXml: path.join @application.wwwDir, "config.ios.xml"
     configAndroidXml: path.join @application.wwwDir, "config.android.xml"
     packageJson: path.join @applicationDir, "package.json"
