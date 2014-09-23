@@ -1,14 +1,25 @@
+_ = require "lodash"
+
 paths = require "./paths"
 
 module.exports = class SupersonicConfig
 
+  defaults:
+    hooks:
+      preMake:
+        cmd: null
+        args: null
+      postMake:
+        cmd: null
+        args: null
+
   constructor: ->
     configPath = paths.application.configs.app
-    lol = require configPath
-    @setDefaults(lol)
+    @currentConfig = require configPath
+    @setDefaults @currentConfig
 
-  getCurrent: () ->
-    return "lol"
+  getCurrent: ->
+    @currentConfig
 
   setDefaults: ->
-    # set defaults here
+    @currentConfig = _.merge @currentConfig, @defaults
