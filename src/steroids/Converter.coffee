@@ -45,7 +45,7 @@ class Converter
     ankaLikeJSON.authentication = @legacyAuthenticationObject()
     ankaLikeJSON.update = @legacyUpdateObject()
 
-    ankaLikeJSON.hosts = @hostsObject(configObject)
+    ankaLikeJSON.hosts = []
 
     return ankaLikeJSON
 
@@ -67,18 +67,6 @@ class Converter
 
         return tabs
     )
-
-  hostsObject: (config)->
-    return [] unless config.hosts.length
-
-    hosts = []
-    for configHost in config.hosts
-      host =
-        host: configHost
-
-      hosts.push host
-
-    return hosts
 
   configurationObject: (config) =>
     {statusBar, fullscreen, location} = @config.eitherSupersonicOrLegacy().fold(
