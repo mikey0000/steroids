@@ -96,6 +96,7 @@
     "body-parser": "1.8.1",
     "steroids-connect": "git+https://jepjep:00f4fe8dd1f89e7cfa1276bfb005ac27e476312e@github.com/AppGyver/steroids-connect.git#master",
     "tiny-lr": "git+https://github.com/AppGyver/tiny-lr.git#master",
-    "lodash": "2.4.1"
+    "lodash": "2.4.1",
+    "data.either": "1.2.0"
   }
 }

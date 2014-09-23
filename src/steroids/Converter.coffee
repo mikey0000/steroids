@@ -3,14 +3,15 @@ fs = require "fs"
 Paths = require "./paths"
 Config = require "./Config"
 CloudConfig = require "./CloudConfig"
+routingHelpers = require "./routingHelpers"
 
 class Converter
   constructor: (@configPath)->
 
   configToAnkaFormat: ->
 
-    config = new Config()
-    configObject = config.getCurrent()
+    @config = new Config()
+    configObject = @config.getCurrent()
 
     cloudConfig = new CloudConfig().getCurrentSync()
     cloudId = if cloudConfig
@@ -48,21 +49,24 @@ class Converter
 
     return ankaLikeJSON
 
-  tabsObject: (config)->
-    return [] unless config.tabBar.tabs.length
-    return [] if @fullscreen
+  tabsObject: (config) =>
+    @config.eitherSupersonicOrLegacy().map(
+      =>
+        return [] unless config.tabBar.tabs.length
+        return [] if config.tabBar.enabled == false
 
-    tabs = []
-    for configTab, i in config.tabBar.tabs
-      tab =
-        position: i,
-        title: configTab.title
-        image_path: configTab.icon
-        target_url: configTab.location
+        tabs = []
+        for configTab, i in config.tabBar.tabs
+          tab =
+            position: i,
+            title: configTab.title
+            image_path: configTab.icon
+            target_url: configTab.location
 
-      tabs.push tab
+          tabs.push tab
 
-    return tabs
+        return tabs
+    )
 
   hostsObject: (config)->
     return [] unless config.hosts.length
@@ -76,26 +80,30 @@ class Converter
 
     return hosts
 
-  configurationObject: (config)->
-
-    if config.statusBar.enabled == false or config.statusBar.enabled == undefined
-      statusBar = "hidden"
-    else
-      statusBar = config.statusBar.style
-
-    if config.tabBar.enabled == true
-      @fullscreen = false
-    else
-      @fullscreen = true
+  configurationObject: (config) =>
+    {statusBar, fullscreen, location} = @config.eitherSupersonicOrLegacy().fold(
+      ->
+        statusBar: "default" # will be overridden by native CSS
+        fullscreen: config.structure.tabs?
+        location: routingHelpers.getLocationFromRouteOrUrl(config.structure.rootView)
+      ->
+        statusBar:
+          if config.statusBar?.enabled == false or config.statusBar?.enabled == undefined
+            "hidden"
+          else
+            config.statusBar.style
+        fullscreen: config.tabBar.enabled == false
+        location: config.location
+    )
 
     return {
+      fullscreen: fullscreen
+      fullscreen_start_url: location
+      status_bar_style: statusBar
       request_user_location: "false"
-      fullscreen: "#{@fullscreen}"
-      fullscreen_start_url: "#{config.location}"
       splashscreen_duration_in_seconds: 0
       client_version: "edge"
-      navigation_bar_style: "#{config.theme}"
-      status_bar_style: statusBar
+      navigation_bar_style: "black"
       initial_eval_js_string: ""
       background_eval_js_string: ""
       wait_for_document_ready_before_open: "true"
@@ -158,8 +166,9 @@ class Converter
   userFilesObject: (config)->
     userFilesObject = []
 
-    for file in config.copyToUserFiles
-      userFilesObject.push file
+    if config.copyToUserFiles?
+      for file in config.copyToUserFiles
+        userFilesObject.push file
 
     return userFilesObject
 
