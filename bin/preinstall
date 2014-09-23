@@ -220,7 +220,7 @@ var printMessages = function(messages, whenDone) {
   }, 150);
 }
 
-message = "If have any problems, please visit our forums at http://forums.appgyver.com\n        \nWe are now trying to detect required dependencies and problems. Some dependencies (like dtrace-provider and node-sass) will print ugly warnings to the screen, but everything will be fine.\n\n  - The AppGyver team (contact@appgyver.com)\n\n"
+message = "If have any problems, please visit our forums at http://forums.appgyver.com\n        \nWe are now trying to detect required dependencies and problems. Some dependencies (like dtrace-provider) will print ugly warnings to the screen, but everything will be fine.\n\n  - The AppGyver team (contact@appgyver.com)\n\n"
 
 var packageJSON = require("../package.json");
 steroidsVersion = packageJSON.version;

@@ -1,3 +1,13 @@
+## 3.5.11 (TODO)
+
+Remove mention of Node.js v0.11 compatibility due to errors being raised by submodules. Supported Node.js version is now 0.10.
+
+Changes:
+- No longer support Node.js v0.11.
+
+Bugfixes:
+- Remove unused `node-sass` dependency
+
 ## 3.5.10 (2014-09-22)
 
 Hotfix patch fixed previous release
