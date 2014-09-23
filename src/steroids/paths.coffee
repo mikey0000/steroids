@@ -63,6 +63,7 @@ class Paths
     configAndroidXml: path.join @application.wwwDir, "config.android.xml"
     packageJson: path.join @applicationDir, "package.json"
     appgyverSettings: path.join @application.distDir, "__appgyver_settings.json"
+    app: path.join @application.configDir, "app.coffee"
     legacy:
       bower: path.join @application.configDir, "bower.json"
 

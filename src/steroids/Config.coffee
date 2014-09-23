@@ -1,72 +1,20 @@
+fs = require "fs"
 paths = require "./paths"
+LegacyConfig = require "./LegacyConfig"
+SupersonicConfig = require "./SupersonicConfig"
 
-class Config
+module.exports = class Config
 
   constructor: ->
-    @editor = {}
+    @version = if fs.existsSync(paths.application.configs.app)
+      "supersonic"
+    else
+      "legacy"
 
-    @statusBar =
-      style: "black"
-      enabled: false
+  getCurrent: =>
+    config = if @version is "supersonic"
+      new SupersonicConfig()
+    else
+      new LegacyConfig()
 
-    @navigationBar =
-      portrait:
-        backgroundImage:          ""
-      landscape:
-        backgroundImage:          ""
-      tintColor:                  ""
-      titleColor:                 ""
-      titleShadowColor:           ""
-
-      buttonTitleColor:           ""
-      buttonShadowColor:          ""
-      buttonTintColor:            ""
-
-      borderSize:                 ""
-      borderColor:                ""
-
-    @theme = "black"
-
-    @location = "http://localhost/index.html"
-
-    @hosts = []
-    @tabBar =
-      enabled:                    false
-      backgroundImage:            ""
-      tintColor:                  ""
-      tabTitleColor:              ""
-      tabTitleShadowColor:        ""
-      selectedTabTintColor:       ""
-      selectedTabBackgroundImage: ""
-      tabs: []
-
-    @loadingScreen =
-      tintColor: ""
-
-    @worker =  {}   # what is this?
-
-    @hooks =
-      preMake: {}
-      postMake: {}
-
-    @watch =
-      exclude: []
-
-    # Project files that will be copied to a writable UserFiles directory.
-    # File is copied only if it doesn't yet exist in the UserFiles directory.
-    @copyToUserFiles = []
-
-  getCurrent: () ->
-    # needs to use global, because application.coffee needs to stay require free
-
-    configPath = paths.application.configs.application
-    delete require.cache[configPath] if require.cache[configPath]
-
-    global.steroids =
-      config: new Config
-
-    require configPath
-
-    return global.steroids.config
-
-module.exports = Config
+    config.getCurrent()
