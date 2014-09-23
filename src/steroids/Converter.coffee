@@ -133,28 +133,28 @@ class Converter
     )
 
   preloadsObject: (config)->
-    return [] unless config.preloads?.length
-
-    preloads = []
-
-    for preloadView in config.preloads
-      preloads.push preloadView
-
-    return preloads
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        config.structure.preloads
+      ->
+        config.preloads
+    )
 
   drawersObject: (config)->
-    return {} unless config.drawers?
-
-    drawersObject = config.drawers
-
-    # strechDrawer typo fix
-    if drawersObject.options?.stretchDrawer?
-      drawersObject.options.strechDrawer = drawersObject.options.stretchDrawer
-
-    return drawersObject
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        config.structure.drawers
+      ->
+        config.drawers
+    )
 
   initialViewObject: (config)->
-    return config.initialView || null # runtime crashes with empty object
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        config.structure.initialView
+      ->
+        config.initialView
+    )
 
   userFilesObject: (config)->
     userFilesObject = []
@@ -168,7 +168,7 @@ class Converter
   legacyAuthenticationObject: ->
     return {
       title: "Log in recommended"
-      link_types: [ ]
+      link_types: []
       message: "You should login to use Facebook. You can also login later for commenting etc."
       cancel_button_text: "Back"
     }

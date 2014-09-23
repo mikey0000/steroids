@@ -29,7 +29,10 @@ module.exports = class LegacyConfig
 
     @location = "http://localhost/index.html"
 
-    @hosts = []
+    @preloads = []
+    @drawers = {}
+    @initialView = null
+
     @tabBar =
       enabled:                    false
       backgroundImage:            ""
