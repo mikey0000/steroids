@@ -7,6 +7,7 @@ Help = require "./Help"
 ApplicationConfigUpdater = require "./ApplicationConfigUpdater"
 AppSettings = require "./AppSettings"
 Grunt = require "./Grunt"
+ConfigXmlGenerator = require "./ConfigXmlGenerator"
 
 class Project
 
@@ -89,6 +90,9 @@ class Project
 
       grunt = new Grunt()
       grunt.run {tasks: ["default"]}, ->
+        console.log "WRITING YEY"
+        configXmlGenerator = new ConfigXmlGenerator()
+        configXmlGenerator.writeConfigXml()
         options.onSuccess.call() if options.onSuccess?
 
     ).fail (errorMessage)->
