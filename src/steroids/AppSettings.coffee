@@ -5,10 +5,10 @@ fs = require "fs"
 class AppSettings
 
   WHITELISTED_SETTING_KEYS = [
-    "appearance"
     "preloads"
     "drawers"
     "initialView"
+    "tabs"
   ]
 
   constructor: ->

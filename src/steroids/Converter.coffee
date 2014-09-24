@@ -39,21 +39,31 @@ class Converter
     ankaLikeJSON.files = []
     ankaLikeJSON.archives = []
 
-    ankaLikeJSON.bottom_bars = @tabsObject(configObject)
+    ankaLikeJSON.bottom_bars = ankaLikeJSON.tabs = @tabsObject(configObject)
 
     # legacy stuff
     ankaLikeJSON.authentication = @legacyAuthenticationObject()
     ankaLikeJSON.update = @legacyUpdateObject()
-
     ankaLikeJSON.hosts = []
 
     return ankaLikeJSON
 
   tabsObject: (config) =>
-    @config.eitherSupersonicOrLegacy().map(
-      =>
-        return [] unless config.tabBar.tabs.length
-        return [] if config.tabBar.enabled == false
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        unless config.structure.tabs?
+          []
+        else
+          tabs = []
+          for configTab, i in config.structure.tabs
+            tab =
+              position: i
+              title: configTab.title
+              image_path: configTab.icon
+              target_url: routingHelpers.getLocationFromRouteOrUrl(configTab)
+      ->
+        unless config.tabBar.tabs.length or config.tabBar.enabled == false
+          return []
 
         tabs = []
         for configTab, i in config.tabBar.tabs
@@ -72,7 +82,7 @@ class Converter
     {statusBar, fullscreen, location} = @config.eitherSupersonicOrLegacy().fold(
       ->
         statusBar: "default" # will be overridden by native CSS
-        fullscreen: config.structure.tabs?
+        fullscreen: !(config.structure.tabs?)
         location: routingHelpers.getLocationFromRouteOrUrl(config.structure.rootView)
       ->
         statusBar:
