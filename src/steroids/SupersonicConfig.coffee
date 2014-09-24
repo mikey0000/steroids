@@ -16,6 +16,7 @@ module.exports = class SupersonicConfig
 
   constructor: ->
     configPath = paths.application.configs.app
+    delete require.cache[configPath] if require.cache[configPath]
     @currentConfig = require configPath
     @setDefaults @currentConfig
 
