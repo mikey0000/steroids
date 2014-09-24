@@ -90,9 +90,10 @@ class Project
 
       grunt = new Grunt()
       grunt.run {tasks: ["default"]}, ->
-        console.log "WRITING YEY"
-        configXmlGenerator = new ConfigXmlGenerator()
-        configXmlGenerator.writeConfigXml()
+        unless steroidsCli.options.argv.noSettingsJson == true
+          appSettings = new AppSettings()
+          steroidsCli.debug "Creating dist/__appgyver_settings.json..."
+          appSettings.createJSONFile()
         options.onSuccess.call() if options.onSuccess?
 
     ).fail (errorMessage)->
@@ -105,15 +106,11 @@ class Project
   make: (options = {}) => # with pre- and post-make hooks
 
     steroidsCli.debug "Making with hooks."
-    appSettings = new AppSettings
 
     @preMake
       onSuccess: =>
         @makeOnly
           onSuccess: =>
-            unless steroidsCli.options.argv.noSettingsJson == true
-              steroidsCli.debug "Creating dist/__appgyver_settings.json..."
-              appSettings.createJSONFile()
             @postMake options
 
   package: (options = {}) =>
