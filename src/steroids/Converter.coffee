@@ -49,9 +49,7 @@ class Converter
   tabsObject: (config) =>
     @config.eitherSupersonicOrLegacy().fold(
       ->
-        unless config.structure.tabs?
-          []
-        else
+        if config.structure.tabs?
           tabs = []
           for configTab, i in config.structure.tabs
             tab =
@@ -59,6 +57,10 @@ class Converter
               title: configTab.title
               image_path: configTab.icon
               target_url: routingHelpers.getLocationFromRouteOrUrl(configTab)
+
+            tabs.push tab
+
+          tabs
       ->
         unless config.tabBar.tabs.length or config.tabBar.enabled == false
           return []
@@ -77,20 +79,24 @@ class Converter
     )
 
   configurationObject: (config) =>
-    {statusBar, fullscreen, location} = @config.eitherSupersonicOrLegacy().fold(
-      ->
-        statusBar: "default" # will be overridden by native CSS
-        fullscreen: !(config.structure.tabs?)
-        location: routingHelpers.getLocationFromRouteOrUrl(config.structure.rootView)
-      ->
-        statusBar:
-          if config.statusBar?.enabled == false or config.statusBar?.enabled == undefined
-            "hidden"
+    {statusBar, fullscreen, location} =
+      @config.eitherSupersonicOrLegacy().fold(
+        ->
+          statusBar: "default" # will be overridden by native CSS
+          fullscreen: !(config.structure.tabs?)
+          location: if config.structure.rootView?
+            routingHelpers.getLocationFromRouteOrUrl(config.structure.rootView)
           else
-            config.statusBar.style
-        fullscreen: config.tabBar.enabled == false
-        location: config.location
-    )
+            ""
+        ->
+          statusBar:
+            if config.statusBar?.enabled == false or config.statusBar?.enabled == undefined
+              "hidden"
+            else
+              config.statusBar.style
+          fullscreen: config.tabBar.enabled == false
+          location: config.location
+      )
 
     return {
       fullscreen: fullscreen
@@ -143,7 +149,14 @@ class Converter
   preloadsObject: (config)->
     @config.eitherSupersonicOrLegacy().fold(
       ->
-        config.structure.preloads
+        if config.structure.preloads?
+          preloads = []
+
+          for view in config.structure.preloads
+            view.location = routingHelpers.getLocationFromRouteOrUrl(view)
+            preloads.push view
+
+          preloads
       ->
         config.preloads
     )
@@ -151,7 +164,15 @@ class Converter
   drawersObject: (config)->
     @config.eitherSupersonicOrLegacy().fold(
       ->
-        config.structure.drawers
+        if config.structure.drawers?
+          leftDrawer = config.structure.drawers.left
+          rightDrawer = config.structure.drawers.right
+
+          for drawer in [leftDrawer, rightDrawer]
+            drawer?.location =
+              routingHelpers.getLocationFromRouteOrUrl(drawer)
+
+          config.structure.drawers
       ->
         config.drawers
     )
@@ -159,7 +180,10 @@ class Converter
   initialViewObject: (config)->
     @config.eitherSupersonicOrLegacy().fold(
       ->
-        config.structure.initialView
+        initView = config.structure.initialView
+        initView?.location =
+          routingHelpers.getLocationFromRouteOrUrl(initView)
+        initView
       ->
         config.initialView
     )

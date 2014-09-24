@@ -5,9 +5,7 @@ paths = require "./paths"
 module.exports = class SupersonicConfig
 
   defaults:
-    structure:
-      preloads: []
-      initialView: null
+    structure: {}
     hooks:
       preMake:
         cmd: null
