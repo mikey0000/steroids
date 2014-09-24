@@ -89,11 +89,10 @@ class Project
       steroidsCli.debug "Running Grunt tasks..."
 
       grunt = new Grunt()
-      grunt.run {tasks: ["default"]}, ->
+      grunt.run {tasks: ["default"]}, =>
         unless steroidsCli.options.argv.noSettingsJson == true
-          appSettings = new AppSettings()
-          steroidsCli.debug "Creating dist/__appgyver_settings.json..."
-          appSettings.createJSONFile()
+          @createSettingsJson()
+        @createConfigXml()
         options.onSuccess.call() if options.onSuccess?
 
     ).fail (errorMessage)->
@@ -130,6 +129,16 @@ class Project
         options.onSuccess() if options.onSuccess
       else
         options.onFailure() if options.onFailure
+
+  createSettingsJson: ->
+    appSettings = new AppSettings()
+    steroidsCli.debug "Creating dist/__appgyver_settings.json..."
+    appSettings.createJSONFile()
+
+  createConfigXml: ->
+    configXmlGenerator = new ConfigXmlGenerator()
+    steroidsCli.debug "Creating dist/config.ios.xml..."
+    configXmlGenerator.writeConfigXml()
 
 
 module.exports = Project
