@@ -1,9 +1,25 @@
 ## 3.5.11 (TODO)
 
-Remove mention of Node.js v0.11 compatibility due to errors being raised by submodules. Supported Node.js version is now 0.10.
+Xcode 6 Simulator types supported. Remove mention of Node.js v0.11 compatibility due to errors being raised by submodules. Supported Node.js version is now 0.10.
+
+Features:
+- Support new iOS Simulator types in Xcode 6:
+  - iPhone 4S (`steroids simulator --deviceType=iphone_4s`)
+  - iPhone 5 (`steroids simulator --deviceType=iphone_5`)
+  - iPhone 5S (`steroids simulator --deviceType=iphone_5s`)
+  - iPhone 6 (`steroids simulator --deviceType=iphone_6`)
+  - iPhone 6 Plus (`steroids simulator --deviceType=iphone_6_plus`)
+  - iPad 2 (`steroids simulator --deviceType=ipad_2`)
+  - iPad Retina (`steroids simulator --deviceType=ipad_retina`)
+  - iPad Air (`steroids simulator --deviceType=ipad_air`)
 
 Changes:
 - No longer support Node.js v0.11.
+- Old Xcode 5 Simulator types remain available as legacy commands, but dropped from usage:
+  - `steroids simulator --deviceType=ipad`
+  - `steroids simulator --deviceType=ipad_retina`
+  - `steroids simulator --deviceType=iphone_retina_3_5_inch`
+  - `steroids simulator --deviceType=iphone_retina_4_inch`
 
 Bugfixes:
 - Remove unused `node-sass` dependency
