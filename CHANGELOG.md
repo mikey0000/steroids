@@ -1,4 +1,4 @@
-## 3.5.11 (TODO)
+## 3.5.11 (2014-09-24)
 
 Xcode 6 Simulator types supported. Remove mention of Node.js v0.11 compatibility due to errors being raised by submodules. Supported Node.js version is now 0.10.
 
