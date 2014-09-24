@@ -36,15 +36,13 @@ class Converter
     if initialViewObject?
       ankaLikeJSON.initialView = initialViewObject
 
+    # supersonic stuff
+    ankaLikeJSON.rootView = @rootViewObject(configObject)
+
     ankaLikeJSON.files = []
     ankaLikeJSON.archives = []
 
     ankaLikeJSON.bottom_bars = ankaLikeJSON.tabs = @tabsObject(configObject)
-
-    # legacy stuff
-    ankaLikeJSON.authentication = @legacyAuthenticationObject()
-    ankaLikeJSON.update = @legacyUpdateObject()
-    ankaLikeJSON.hosts = []
 
     return ankaLikeJSON
 
@@ -175,22 +173,8 @@ class Converter
 
     return userFilesObject
 
-  legacyAuthenticationObject: ->
-    return {
-      title: "Log in recommended"
-      link_types: []
-      message: "You should login to use Facebook. You can also login later for commenting etc."
-      cancel_button_text: "Back"
-    }
-
-  legacyUpdateObject: ->
-    return {
-      minimum_required_version: "2.0",
-      update_recommendation_url: "http://store.apple.com/",
-      title: "Update found",
-      text: "You should update",
-      current_version: "2.0"
-    }
-
+  rootViewObject: (config)->
+    @config.eitherSupersonicOrLegacy().fold ->
+      config.structure.rootView
 
 module.exports = Converter

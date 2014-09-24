@@ -9,6 +9,7 @@ class AppSettings
     "drawers"
     "initialView"
     "tabs"
+    "rootView"
   ]
 
   constructor: ->
