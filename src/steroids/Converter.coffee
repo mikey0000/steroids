@@ -113,7 +113,7 @@ class Converter
   appearanceObject: (config)->
     @config.eitherSupersonicOrLegacy().fold(
       ->
-        {}
+        null
       ->
         appearanceObject =
           nav_bar_portrait_background_image: "#{config.navigationBar.portrait.backgroundImage}"
