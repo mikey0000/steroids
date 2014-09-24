@@ -34,7 +34,7 @@ class Serve
 
         util.log "Serving application in #{url}"
 
-        if steroidsCli.platform == "tizen" || @opts.noBrowser
+        if @opts.noBrowser
           return
         else
           open url

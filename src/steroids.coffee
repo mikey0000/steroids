@@ -1,6 +1,5 @@
 Help = require "./steroids/Help"
 Simulator = require "./steroids/Simulator"
-TizenWebSimulator = require "./steroids/TizenWebSimulator"
 
 Project = require "./steroids/Project"
 Updater = require "./steroids/Updater"
@@ -210,20 +209,6 @@ class Steroids
         if argv.type
           Help.legacy.simulatorType()
           process.exit(1)
-
-        if argv.deviceType == "tizenweb"
-          steroidsCli.platform = "tizen"
-
-          servePort = if argv.port
-            argv.port
-          else
-            4300
-
-          tizenWebSimulator = new TizenWebSimulator servePort
-          tizenWebSimulator.run()
-
-          serve = new Serve servePort
-          serve.start()
 
         else
           steroidsCli.simulator.run

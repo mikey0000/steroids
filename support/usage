@@ -58,15 +58,11 @@
 
   #bold[simulator] #cyan[--deviceType=<deviceType>]
 
-    Launches the iOS Simulator (requires Xcode 5) or the Tizen Web Simulator. Default device is 4-inch Retina iPhone.
+    Launches the iOS Simulator (requires Xcode 5). Default device is 4-inch Retina iPhone.
 
-    Valid values for deviceType: #cyan[ipad, ipad_retina, iphone_retina_3_5_inch or iphone_retina_4_inch] or #cyan[tizenweb]
+    Valid values for deviceType: #cyan[ipad, ipad_retina, iphone_retina_3_5_inch or iphone_retina_4_inch]
 
     Optionally, append #cyan['@<iOS-version>'] to launch the iOS simulator with a specific iOS version (assuming it is installed); e.g. #cyan['ipad@5.1']
-
-    #cyan[--port=4300]
-
-      Used with #cyan[--deviceType=tizenweb] to start the Tizen Web Simulator in the given port.
 
   #bold[safari] <part of the location path>
 

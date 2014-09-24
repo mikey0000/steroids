@@ -34,11 +34,6 @@ class WebServer extends Server
       steroidsCli.debug "config.xml requesteded, sending #{configFile}"
       res.sendfile configFile
       return
-    else if req.path.endsWith("cordova.tizen.js")
-      steroidsCli.debug "cordova.tizen.js requested, serving from npm"
-      tizenCordovaFile = path.join Paths.appgyverStaticFiles, "browser_overrides", "cordova.tizen.js"
-      res.sendfile tizenCordovaFile
-      return
     unless fs.existsSync(fileDistPath)
       res.status(status = 404)
       res.end()
