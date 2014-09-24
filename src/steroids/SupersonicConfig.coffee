@@ -5,7 +5,6 @@ paths = require "./paths"
 module.exports = class SupersonicConfig
 
   defaults:
-    structure: {}
     hooks:
       preMake:
         cmd: null
@@ -15,9 +14,18 @@ module.exports = class SupersonicConfig
         args: null
 
   constructor: ->
-    configPath = paths.application.configs.app
-    delete require.cache[configPath] if require.cache[configPath]
-    @currentConfig = require configPath
+    appConfigPath = paths.application.configs.app
+    structureConfigPath = paths.application.configs.structure
+
+    delete require.cache[appConfigPath] if require.cache[appConfigPath]
+    delete require.cache[structureConfigPath] if require.cache[structureConfigPath]
+
+    appConfig = require appConfigPath
+    structureConfig =
+      structure: require structureConfigPath
+
+    @currentConfig = _.merge appConfig, structureConfig
+
     @setDefaults @currentConfig
 
   getCurrent: ->

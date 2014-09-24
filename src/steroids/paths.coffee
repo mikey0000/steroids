@@ -64,6 +64,7 @@ class Paths
     packageJson: path.join @applicationDir, "package.json"
     appgyverSettings: path.join @application.distDir, "__appgyver_settings.json"
     app: path.join @application.configDir, "app.coffee"
+    structure: path.join @application.configDir, "structure.coffee"
     legacy:
       bower: path.join @application.configDir, "bower.json"
 
