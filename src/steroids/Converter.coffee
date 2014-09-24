@@ -49,33 +49,31 @@ class Converter
   tabsObject: (config) =>
     @config.eitherSupersonicOrLegacy().fold(
       ->
+        tabs = []
+
         if config.structure.tabs?
-          tabs = []
           for configTab, i in config.structure.tabs
             tab =
               position: i
               title: configTab.title
               image_path: configTab.icon
               target_url: routingHelpers.getLocationFromRouteOrUrl(configTab)
-
             tabs.push tab
 
-          tabs
+        tabs
       ->
-        unless config.tabBar.tabs.length or config.tabBar.enabled == false
-          return []
-
         tabs = []
-        for configTab, i in config.tabBar.tabs
-          tab =
-            position: i,
-            title: configTab.title
-            image_path: configTab.icon
-            target_url: configTab.location
 
-          tabs.push tab
+        if config.tabBar.enabled
+          for configTab, i in config.tabBar.tabs
+            tab =
+              position: i
+              title: configTab.title
+              image_path: configTab.icon
+              target_url: configTab.location
+            tabs.push tab
 
-        return tabs
+        tabs
     )
 
   configurationObject: (config) =>
@@ -198,7 +196,11 @@ class Converter
     return userFilesObject
 
   rootViewObject: (config)->
-    @config.eitherSupersonicOrLegacy().fold ->
-      config.structure.rootView
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        config.structure.rootView
+      ->
+        null
+    )
 
 module.exports = Converter
