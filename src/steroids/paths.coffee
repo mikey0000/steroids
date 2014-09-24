@@ -55,6 +55,9 @@ class Paths
     logDir: path.join @applicationDir, "logs"
     logFile: path.join @applicationDir, "logs", "steroids.log"
 
+  @application.dist =
+    configIosXml: path.join @application.distDir, "config.ios.xml"
+
   @application.configs =
     application: path.join @application.configDir, "application.coffee"
     cloud: path.join @application.configDir, "cloud.json"

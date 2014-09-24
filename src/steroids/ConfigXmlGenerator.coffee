@@ -15,7 +15,7 @@ module.exports = class ConfigXmlGenerator
 
     xml = @constructXmlFromConfig(config)
 
-    console.log xml
+    fs.writeFileSync paths.application.dist.configIosXml, xml
 
   constructXmlFromConfig: (config)->
     root = xmlbuilder.create("widget")
