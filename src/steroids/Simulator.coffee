@@ -115,8 +115,8 @@ class Simulator
     deferred = Q.defer()
 
     killSimulator = sbawn
-      cmd: "/usr/bin/killall"
-      args: ["launchd_sim", "iPhone Simulator"]
+      cmd: "/usr/bin/pkill"
+      args: ["-f", "iOS Simulator"]
 
     killSimulator.on "exit", () =>
       steroidsCli.debug "Killed iOS Simulator."
