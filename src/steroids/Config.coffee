@@ -9,10 +9,6 @@ SupersonicConfig = require "./SupersonicConfig"
 module.exports = class Config
 
   constructor: ->
-    @version = if fs.existsSync(paths.application.configs.app)
-      "supersonic"
-    else
-      "legacy"
 
   getCurrent: =>
     config = @eitherSupersonicOrLegacy().fold(
