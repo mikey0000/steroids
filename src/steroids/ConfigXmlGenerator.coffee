@@ -11,11 +11,12 @@ module.exports = class ConfigXmlGenerator
 
   writeConfigXml: ->
     config = new Config()
-    config = config.getCurrent()
+    currentConfig = config.getCurrent()
 
-    xml = @constructXmlFromConfig(config)
+    unless fs.existsSync paths.application.configs.configIosXml
+      xml = @constructXmlFromConfig(currentConfig)
 
-    fs.writeFileSync paths.application.dist.configIosXml, xml
+      fs.writeFileSync paths.application.dist.configIosXml, xml
 
   constructXmlFromConfig: (config)->
     root = xmlbuilder.create("widget")
