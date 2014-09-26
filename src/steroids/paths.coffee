@@ -68,6 +68,8 @@ class Paths
     appgyverSettings: path.join @application.distDir, "__appgyver_settings.json"
     app: path.join @application.configDir, "app.coffee"
     structure: path.join @application.configDir, "structure.coffee"
+    data:
+      sandboxdb: path.join @application.configDir, "sandboxdb.yaml"
     legacy:
       bower: path.join @application.configDir, "bower.json"
 
