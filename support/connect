@@ -12,6 +12,8 @@
 
  #bold[qr]               -             Show the QR code for connecting devices
 
+ #bold[reload]           r             Reload the whole app (when using connect with #cyan[--livereload])
+
  #bold[edit]             e             Launch editor (set in application.coffee), defaults to #cyan[subl]
 
  #bold[debug <path>]     d             Open Safari debugger for matching path in URL location

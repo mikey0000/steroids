@@ -114,6 +114,14 @@ class Prompt
               debug: true
               exitOnError: false
 
+        when "r", "reload"
+          project = new Project
+          project.make
+            onSuccess: =>
+              project.package
+                onSuccess: =>
+                  @refresh()
+
         when "help", "?", "usage"
           Help.connect()
         else
