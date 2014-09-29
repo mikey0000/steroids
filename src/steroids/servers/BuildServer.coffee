@@ -104,6 +104,10 @@ class BuildServer extends Server
 
       config.archives.push zipObject
 
+      if steroidsCli.options.argv.livereload
+        config.livereload_host = "#{req.hostname}:#{@options.port}"
+        config.livereload_url = "ws://#{req.hostname}:#{@options.port}/livereload"
+
       res.json config
 
     @app.get "/appgyver/zips/project.zip", (req, res)->

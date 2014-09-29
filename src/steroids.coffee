@@ -314,8 +314,10 @@ class Steroids
                         util.log "File system change detected, pushing code to connected devices ..."
                         project.make
                           onSuccess: =>
-                            buildServer.triggerLiveReload()
-                            prompt.refresh()
+                            if argv.livereload
+                              buildServer.triggerLiveReload()
+                            else
+                              prompt.refresh()
 
                       if argv.watchExclude?
                         excludePaths = steroidsCli.config.getCurrent().watch.exclude.concat(argv.watchExclude.split(","))
