@@ -1,4 +1,4 @@
-## 3.5.12 (2014-09-24)
+## 3.5.12 (2014-09-29)
 
 Fixed a bug where Steroids CLI would not kill the iOS Simulator process between subsequent users of the `simulator` command, leading to errors.
 
