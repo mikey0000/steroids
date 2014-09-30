@@ -30,6 +30,7 @@ class Converter
     ankaLikeJSON.appearance = @appearanceObject(configObject)
     ankaLikeJSON.preloads = @preloadsObject(configObject)
     ankaLikeJSON.drawers = @drawersObject(configObject)
+    ankaLikeJSON.configuration.extra_response_headers = @extraHeadersObject(configObject)
 
     # runtime crashes with empty initialView object
     initialViewObject = @initialViewObject(configObject)
@@ -45,6 +46,14 @@ class Converter
     ankaLikeJSON.bottom_bars = ankaLikeJSON.tabs = @tabsObject(configObject)
 
     return ankaLikeJSON
+
+  extraHeadersObject: (config) =>
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        config.network?.extraResponseHeaders
+      ->
+        {}
+    )
 
   tabsObject: (config) =>
     @config.eitherSupersonicOrLegacy().fold(

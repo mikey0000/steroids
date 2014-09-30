@@ -10,6 +10,7 @@ class AppSettings
     "initialView"
     "tabs"
     "rootView"
+    "extra_response_headers"
   ]
 
   constructor: ->
