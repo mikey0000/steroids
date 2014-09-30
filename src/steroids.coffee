@@ -48,7 +48,7 @@ class Steroids
     return contents
 
   detectSteroidsProject: ->
-    return fs.existsSync(paths.application.configDir) and fs.existsSync(paths.application.wwwDir)
+    return fs.existsSync(paths.application.configDir) and (fs.existsSync(paths.application.appDir) or fs.existsSync(paths.application.wwwDir))
 
   debug: (options = {}) =>
     return unless steroidsCli.options.debug
