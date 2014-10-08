@@ -56,6 +56,17 @@ More usage information is available via
 
     $ steroids usage
 
+## Development
+
+Install dependencies:
+
+    $ npm install
+
+Link your `devroids` folder into the global namespace:
+
+    $ npm link
+
+Run with `$ devroids` command. 
 
 ## Documentation
 
