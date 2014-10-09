@@ -70,7 +70,7 @@ class Steroids
       Help.logo() unless argv.noLogo
 
     Login = require("./steroids/Login")
-    if firstOption in ["connect", "deploy", "simulator"]
+    if firstOption in ["connect", "deploy", "simulator", "logout"]
       unless Login.authTokenExists()
         console.log """
 
@@ -389,10 +389,6 @@ class Steroids
         Login = require "./steroids/Login"
 
         Help.logo()
-
-        unless Login.authTokenExists()
-          util.log "Try logging in before you try logging out."
-          return
 
         Login.removeAuthToken()
 
