@@ -396,15 +396,9 @@ class Steroids
 
 
       when "deploy"
-        Login = require "./steroids/Login"
-
         Project = require "./steroids/Project"
 
         Help.logo()
-
-        unless Login.authTokenExists()
-          util.log "ERROR: no authentication found, run steroids login first."
-          process.exit 1
 
         util.log "Building application locally"
 
