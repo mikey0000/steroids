@@ -1,19 +1,11 @@
 Help = require "./steroids/Help"
-
-
 Grunt = require "./steroids/Grunt"
-
-util = require "util"
-
 paths = require "./steroids/paths"
 
 argv = require('optimist').argv
+util = require "util"
 open = require "open"
-
 fs = require("fs")
-
-
-
 chalk = require "chalk"
 
 class Steroids
