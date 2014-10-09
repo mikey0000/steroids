@@ -1,8 +1,7 @@
 Help = require "./steroids/Help"
 Simulator = require "./steroids/Simulator"
 
-Project = require "./steroids/Project"
-Updater = require "./steroids/Updater"
+
 SafariDebug = require "./steroids/SafariDebug"
 Serve = require "./steroids/Serve"
 Server = require "./steroids/Server"
@@ -158,12 +157,6 @@ class Steroids
           Help.dataUsage()
 
       when "version"
-        updater = new Updater
-          verbose: false
-
-        updater.check
-          from: "version"
-
         console.log @version.formattedVersion()
 
       when "create"
@@ -184,12 +177,14 @@ class Steroids
 
 
       when "push"
+        Project = require "./steroids/Project"
         project = new Project
         project.push
           onSuccess: ->
             steroidsCli.debug "steroids make && steroids package ok."
 
       when "make"
+        Project = require "./steroids/Project"
         project = new Project
         project.make()
 
@@ -216,9 +211,7 @@ class Steroids
             deviceType: argv.deviceType
 
       when "connect"
-        updater = new Updater
-        updater.check
-          from: "connect"
+        Project = require "./steroids/Project"
 
         @port = if argv.port
           argv.port
@@ -342,6 +335,7 @@ class Steroids
         Help.legacy.serve()
 
       when "update"
+        Updater = require "./steroids/Updater"
         updater = new Updater
           verbose: false
 
@@ -386,10 +380,6 @@ class Steroids
 
 
       when "login"
-        updater = new Updater
-        updater.check
-          from: "login"
-
         Help.logo()
 
         if Login.authTokenExists()
@@ -424,9 +414,7 @@ class Steroids
 
 
       when "deploy"
-        updater = new Updater
-        updater.check
-          from: "deploy"
+        Project = require "./steroids/Project"
 
         Help.logo()
 
