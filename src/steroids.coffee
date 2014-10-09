@@ -1,16 +1,10 @@
 Help = require "./steroids/Help"
-Simulator = require "./steroids/Simulator"
 
-
-SafariDebug = require "./steroids/SafariDebug"
-Serve = require "./steroids/Serve"
-Server = require "./steroids/Server"
-PortChecker = require "./steroids/PortChecker"
 
 Grunt = require "./steroids/Grunt"
 
 util = require "util"
-Version = require "./steroids/Version"
+
 paths = require "./steroids/paths"
 
 argv = require('optimist').argv
@@ -18,8 +12,7 @@ open = require "open"
 
 fs = require("fs")
 
-Config = require "./steroids/Config"
-Login = require "./steroids/Login"
+
 
 chalk = require "chalk"
 
@@ -28,6 +21,10 @@ class Steroids
   simulator: null
 
   constructor: (@options = {}) ->
+    Simulator = require "./steroids/Simulator"
+    Version = require "./steroids/Version"
+    Config = require "./steroids/Config"
+
     @simulator = new Simulator
       debug: @options.debug
 
@@ -81,6 +78,7 @@ class Steroids
     if firstOption in ["connect", "create"]
       Help.logo() unless argv.noLogo
 
+    Login = require("./steroids/Login")
     if firstOption in ["connect", "deploy", "simulator"]
       unless Login.authTokenExists()
         console.log """
@@ -202,16 +200,17 @@ class Steroids
         Help.legacy.debugweinre()
 
       when "simulator"
-        if argv.type
-          Help.legacy.simulatorType()
-          process.exit(1)
+        Simulator = require "./steroids/Simulator"
 
-        else
-          steroidsCli.simulator.run
-            deviceType: argv.deviceType
+        #TODO: why is it like this?
+        steroidsCli.simulator.run
+          deviceType: argv.deviceType
 
       when "connect"
         Project = require "./steroids/Project"
+        Serve = require "./steroids/Serve"
+        Server = require "./steroids/Server"
+        PortChecker = require "./steroids/PortChecker"
 
         @port = if argv.port
           argv.port
@@ -380,6 +379,9 @@ class Steroids
 
 
       when "login"
+        Server = require "./steroids/Server"
+        Login = require "./steroids/Login"
+
         Help.logo()
 
         if Login.authTokenExists()
@@ -402,6 +404,8 @@ class Steroids
             login.authorize()
 
       when "logout"
+        Login = require "./steroids/Login"
+
         Help.logo()
 
         unless Login.authTokenExists()
@@ -414,6 +418,8 @@ class Steroids
 
 
       when "deploy"
+        Login = require "./steroids/Login"
+
         Project = require "./steroids/Project"
 
         Help.logo()
@@ -443,6 +449,7 @@ class Steroids
         console.log "Chat is deprecated, please visit forums at http://forums.appgyver.com"
 
       when "safari"
+        SafariDebug = require "./steroids/SafariDebug"
         safariDebug = new SafariDebug
         if otherOptions[0]
           safariDebug.open(otherOptions[0])
