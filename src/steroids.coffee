@@ -8,8 +8,6 @@ Serve = require "./steroids/Serve"
 Server = require "./steroids/Server"
 PortChecker = require "./steroids/PortChecker"
 
-Providers = require "./steroids/Providers"
-Data = require "./steroids/Data"
 Grunt = require "./steroids/Grunt"
 
 util = require "util"
@@ -98,6 +96,9 @@ class Steroids
     switch firstOption
 
       when "data"
+        Providers = require "./steroids/Providers"
+        Data = require "./steroids/Data"
+
         if otherOptions[0] is "init"
           data = new Data
           data.init()
