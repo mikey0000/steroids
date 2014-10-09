@@ -185,12 +185,6 @@ class Steroids
 
         packager.create()
 
-      when "debug"
-        Help.legacy.debugweinre()
-
-      when "weinre"
-        Help.legacy.debugweinre()
-
       when "simulator"
         Simulator = require "./steroids/Simulator"
 
@@ -322,9 +316,6 @@ class Steroids
 
                     prompt.connectLoop()
 
-      when "serve"
-        Help.legacy.serve()
-
       when "update"
         Updater = require "./steroids/Updater"
         updater = new Updater
@@ -437,8 +428,6 @@ class Steroids
           onFailure: =>
             console.log "Cannot build project locally, cloud deploy not possible."
 
-      when "chat"
-        console.log "Chat is deprecated, please visit forums at http://forums.appgyver.com"
 
       when "safari"
         SafariDebug = require "./steroids/SafariDebug"
