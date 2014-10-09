@@ -1,5 +1,4 @@
 Help = require "./steroids/Help"
-Grunt = require "./steroids/Grunt"
 paths = require "./steroids/paths"
 
 argv = require('optimist').argv
