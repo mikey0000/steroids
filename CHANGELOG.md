@@ -1,3 +1,7 @@
+## 3.5.13 (2014-10-10)
+
+Steroids Simulator updated to iOS v4.0.0 and generator to v0.4.3 which includes native UI styling with Pixate CSS.
+
 ## 3.5.12 (2014-09-29)
 
 Fixed a bug where Steroids CLI would not kill the iOS Simulator process between subsequent uses of the `simulator` command, leading to errors.
