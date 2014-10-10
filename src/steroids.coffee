@@ -194,128 +194,22 @@ class Steroids
           deviceType: argv.deviceType
 
       when "connect"
-        Project = require "./steroids/Project"
-        Serve = require "./steroids/Serve"
-        Server = require "./steroids/Server"
-        PortChecker = require "./steroids/PortChecker"
+        Connect = require("./steroids/connect")
 
-        @port = if argv.port
+        port = if argv.port
           argv.port
         else
           4567
 
-        if argv.serve
-          servePort = if argv.servePort
-            argv.servePort
-          else
-            4000
+        connect = new Connect
+          port: port
+          watch = argv.watch
+          livereload = argv.livereload
+          watchExclude = argv.watchExclude
+          qrcode = argv.qrcode
 
-          serve = new Serve servePort,
-            platform: argv.platform
+        connect.run()
 
-          serve.start()
-
-        checker = new PortChecker
-          port: @port
-          autorun: true
-          onOpen: ()=>
-            console.log "Error: port #{@port} is already in use. Make sure there is no other program or that 'steroids connect' is not running on this port."
-            process.exit(1)
-
-          onClosed: ()=>
-            project = new Project
-            project.push
-              onFailure: =>
-                steroidsCli.debug "Cannot continue starting server, the push failed."
-              onSuccess: =>
-                BuildServer = require "./steroids/servers/BuildServer"
-
-                server = Server.start
-                  port: @port
-                  callback: ()=>
-                    global.steroidsCli.server = server
-
-                    buildServer = new BuildServer
-                                        server: server
-                                        path: "/"
-                                        port: @port
-
-                    server.mount(buildServer)
-
-                    Prompt = require("./steroids/Prompt")
-                    prompt = new Prompt
-                      context: @
-                      buildServer: buildServer
-
-                    unless argv.qrcode is false
-                      QRCode = require "./steroids/QRCode"
-                      QRCode.showLocal
-                        port: @port
-
-                      util.log "Waiting for the client to connect, scan the QR code visible in your browser ..."
-
-                    setInterval () ->
-                      activeClients = 0;
-                      needsRefresh = false
-
-                      for ip, client of buildServer.clients
-                        delta = Date.now() - client.lastSeen
-
-                        if (delta > 2000)
-                          needsRefresh = true
-                          delete buildServer.clients[ip]
-                          console.log ""
-                          util.log "Client disconnected: #{client.ipAddress} - #{client.userAgent}"
-                        else if client.new
-                          needsRefresh = true
-                          activeClients++
-                          client.new = false
-
-                          console.log ""
-                          util.log "New client: #{client.ipAddress} - #{client.userAgent}"
-                        else
-                          activeClients++
-
-                      if needsRefresh
-                        util.log "Number of clients connected: #{activeClients}"
-                        prompt.refresh()
-
-                    , 1000
-
-
-                    if argv.watch
-                      steroidsCli.debug "Starting FS watcher"
-                      Watcher = require("./steroids/fs/watcher")
-
-                      project = new Project
-
-                      refreshAndPrompt = =>
-                        console.log ""
-                        util.log "File system change detected, pushing code to connected devices ..."
-                        project.make
-                          onSuccess: =>
-                            if argv.livereload
-                              buildServer.triggerLiveReload()
-                            else
-                              prompt.refresh()
-
-                      if argv.watchExclude?
-                        excludePaths = steroidsCli.config.getCurrent().watch.exclude.concat(argv.watchExclude.split(","))
-                      else
-                        excludePaths = steroidsCli.config.getCurrent().watch.exclude
-
-                      watcher = new Watcher
-                        excludePaths: excludePaths
-                        onCreate: refreshAndPrompt
-                        onUpdate: refreshAndPrompt
-                        onDelete: (file) =>
-                          steroidsCli.debug "Deleted watched file #{file}"
-
-                      watcher.watch("./app")
-                      watcher.watch("./www")
-                      watcher.watch("./config")
-
-                    prompt.connectLoop()
 
       when "update"
         Updater = require "./steroids/Updater"
