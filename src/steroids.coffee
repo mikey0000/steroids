@@ -146,7 +146,9 @@ class Steroids
           Help.dataUsage()
 
       when "version"
-        console.log @version.formattedVersion()
+        Version = require("./steroids/version")
+        version = new Version
+        version.run()
 
       when "create"
 

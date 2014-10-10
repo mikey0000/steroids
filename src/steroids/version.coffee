@@ -6,6 +6,9 @@ class Version
   constructor: (@options = {})->
     @pathToPackageJSON = path.join paths.npm, "package.json"
 
+  run: (opts={}) =>
+    console.log @formattedVersion()
+
   getVersion: =>
     steroidsCli.debug "requiring #{@pathToPackageJSON}"
 
