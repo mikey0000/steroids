@@ -7,7 +7,21 @@ open = require "open"
 fs = require("fs")
 chalk = require "chalk"
 
+global.Promise = require("bluebird")
+Promise.onPossiblyUnhandledRejection (e, promise) ->
+  throw e
+
+
+class SteroidsError extends Error
+  constructor: (message)->
+    Error.call @
+    Error.captureStackTrace(@, @constructor)
+    @name = @constructor.name
+    @message = message
+
 class Steroids
+
+  SteroidsError: SteroidsError
 
   simulator: null
 
@@ -293,9 +307,12 @@ class Steroids
 
       when "deploy"
         Deploy = require "./steroids/Deploy"
-        deploy = new Deploy()
-        deploy.run()
 
+        deploy = new Deploy(otherOptions)
+
+        deploy.run().then () ->
+          util.log "Deployment complete"
+          Help.deployCompleted()
 
       when "safari"
         SafariDebug = require "./steroids/SafariDebug"
@@ -313,11 +330,31 @@ class Steroids
 
 module.exports =
   run: ->
-    global.steroidsCli = new Steroids
-      debug: argv.debug
-      argv: argv
+    domain = require "domain"
+    d = domain.create()
 
-    steroidsCli.execute()
+    d.on 'error', (err) ->
+      console.log """
+      Error with: steroids #{process.argv[2]}
+
+      #{err.stack}
+
+      Runtime information:
+
+      \tplatform: #{process.platform}\tnode path: #{process.execPath}
+      \tarch: #{process.arch}\t\tnode version: #{process.version}
+
+      \tcwd: #{process.cwd()}
+
+      Please send the above output to contact@appgyver.com
+      """
+
+    d.run ->
+      global.steroidsCli = new Steroids
+        debug: argv.debug
+        argv: argv
+
+      steroidsCli.execute()
 
   Help: Help
   paths: paths

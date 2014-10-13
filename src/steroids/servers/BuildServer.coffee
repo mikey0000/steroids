@@ -142,21 +142,14 @@ class BuildServer extends Server
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
-      project = new Project
-      project.make
-        onSuccess: =>
-          project.package
-            onSuccess: =>
-              deploy = new Deploy()
-              deploy.uploadToCloud(
-                ()=>
-                  res.status(200).end ""
-                , {noSharePage: true}
-              )
-            onFailure: =>
-              res.status(500).json {error: "Cannot create package, cloud deploy not possible."}
-        onFailure: =>
-          res.status(500).json {error: "Cannot build project locally, cloud deploy not possible."}
+      Deploy = require "../Deploy"
+      deploy = new Deploy
+
+      deploy.run({noSharePage: true}).then () ->
+        res.status(200).end ""
+      .catch Deploy.DeployError, (err) ->
+        res.status(500).json {error: "Can not deploy project"}
+
 
     @app.get "/__appgyver/cloud_config", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"

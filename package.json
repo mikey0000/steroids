@@ -98,6 +98,7 @@
     "tiny-lr": "git+https://github.com/AppGyver/tiny-lr.git#master",
     "lodash": "2.4.1",
     "data.either": "1.2.0",
-    "xmlbuilder": "2.4.4"
+    "xmlbuilder": "2.4.4",
+    "bluebird": "2.3.5"
   }
 }

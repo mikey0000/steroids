@@ -16,6 +16,9 @@ Help = require "./Help"
 CloudConfig = require "./CloudConfig"
 
 class Deploy
+
+  @DeployError: class DeployError extends steroidsCli.SteroidsError
+
   constructor: (@options={})->
     @cloudConfig = JSON.parse(fs.readFileSync(paths.application.configs.cloud, "utf8")) if fs.existsSync paths.application.configs.cloud
 
@@ -27,19 +30,21 @@ class Deploy
       url: ankaURL
 
   run: (opts={}) =>
-    Project = require "./Project"
-    project = new Project
-    project.make
-        onSuccess: =>
-            project.package
-              onSuccess: =>
-                @uploadToCloud ()=>
-                  # all complete
-              onFailure: =>
-                console.log "Cannot create package, cloud deploy not possible."
-          onFailure: =>
-            console.log "Cannot build project locally, cloud deploy not possible."
+    return new Promise (resolve, reject) =>
+      Project = require "./Project"
 
+      project = new Project
+      project.make
+          onSuccess: =>
+              project.package
+                onSuccess: =>
+                  @uploadToCloud ()=>
+                    resolve()
+                  , opts
+                onFailure: =>
+                  reject new DeployError "package failed"
+            onFailure: =>
+              reject new DeployError "make failed"
 
 
   uploadToCloud: (callback, options)->
@@ -130,10 +135,6 @@ class Deploy
     cloudConfig.saveSync()
 
     config = cloudConfig.getCurrentSync()
-
-    util.log "Deployment complete"
-
-    Help.deployCompleted()
 
     unless options?.noSharePage
       shareURL = steroidsCli.options.argv.shareURL || "https://share.appgyver.com"
