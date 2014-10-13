@@ -26,6 +26,22 @@ class Deploy
     @client = restify.createJsonClient
       url: ankaURL
 
+  run: (opts={}) =>
+    Project = require "./Project"
+    project = new Project
+    project.make
+        onSuccess: =>
+            project.package
+              onSuccess: =>
+                @uploadToCloud ()=>
+                  # all complete
+              onFailure: =>
+                console.log "Cannot create package, cloud deploy not possible."
+          onFailure: =>
+            console.log "Cannot build project locally, cloud deploy not possible."
+
+
+
   uploadToCloud: (callback, options)->
     @client.basicAuth Login.currentAccessToken(), 'X'
 

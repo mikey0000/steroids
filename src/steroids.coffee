@@ -292,26 +292,9 @@ class Steroids
 
 
       when "deploy"
-        Project = require "./steroids/Project"
-
-        Help.logo()
-
-        util.log "Building application locally"
-
-        project = new Project
-        project.make
-          onSuccess: =>
-            project.package
-              onSuccess: =>
-                Deploy = require "./steroids/Deploy"
-                deploy = new Deploy(otherOptions)
-                deploy.uploadToCloud ()=>
-                  # all complete
-                  process.exit 0
-              onFailure: =>
-                console.log "Cannot create package, cloud deploy not possible."
-          onFailure: =>
-            console.log "Cannot build project locally, cloud deploy not possible."
+        Deploy = require "./steroids/Deploy"
+        deploy = new Deploy()
+        deploy.run()
 
 
       when "safari"
