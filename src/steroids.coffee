@@ -308,7 +308,7 @@ class Steroids
       when "deploy"
         Deploy = require "./steroids/Deploy"
 
-        deploy = new Deploy(otherOptions)
+        deploy = new Deploy()
 
         deploy.run().then () ->
           util.log "Deployment complete"

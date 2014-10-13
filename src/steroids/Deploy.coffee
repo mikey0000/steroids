@@ -29,7 +29,7 @@ class Deploy
     @client = restify.createJsonClient
       url: ankaURL
 
-  run: (opts={}) =>
+  run: () =>
     return new Promise (resolve, reject) =>
       Project = require "./Project"
 
@@ -40,7 +40,7 @@ class Deploy
                 onSuccess: =>
                   @uploadToCloud ()=>
                     resolve()
-                  , opts
+                  , @options
                 onFailure: =>
                   reject new DeployError "package failed"
             onFailure: =>

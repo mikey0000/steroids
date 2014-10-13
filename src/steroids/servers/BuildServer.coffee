@@ -144,8 +144,9 @@ class BuildServer extends Server
 
       Deploy = require "../Deploy"
       deploy = new Deploy
+        noSharePage: true
 
-      deploy.run({noSharePage: true}).then () ->
+      deploy.run().then () ->
         res.status(200).end ""
       .catch Deploy.DeployError, (err) ->
         res.status(500).json {error: "Can not deploy project"}
