@@ -55,6 +55,7 @@ class DeployConverter
     open_clicked_links_in_new_layer: @config.open_clicked_links_in_new_layer ? "false"
     shake_gesture_enabled_during_development: @config.shake_gesture_enabled_during_development ? "false"
     tabs: @tabsCloudSchemaRepresentation()
+    copy_to_user_files: @userFilesObject(@config)
     hosts: []
 
   tabsCloudSchemaRepresentation: =>
@@ -91,5 +92,12 @@ class DeployConverter
     else
       @config.statusBar.style
 
+  userFilesObject: (config)->
+    userFilesObject = []
+
+    for file in config.copyToUserFiles
+      userFilesObject.push file
+
+    return userFilesObject
 
 module.exports = DeployConverter
