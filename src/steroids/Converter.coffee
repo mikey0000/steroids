@@ -55,6 +55,7 @@ class Converter
     tabs = []
     for configTab, i in config.tabBar.tabs
       tab =
+        id: configTab.id
         position: i,
         title: configTab.title
         image_path: configTab.icon

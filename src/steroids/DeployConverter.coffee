@@ -60,6 +60,7 @@ class DeployConverter
       betterTabs = []
       for configTab, i in @config.tabBar.tabs
         tab =
+          id: configTab.id
           title: configTab.title
           icon: configTab.icon
           location: configTab.location
