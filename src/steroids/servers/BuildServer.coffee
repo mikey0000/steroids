@@ -144,7 +144,7 @@ class BuildServer extends Server
 
       Deploy = require "../Deploy"
       deploy = new Deploy
-        noSharePage: true
+        sharePage: false
 
       deploy.run().then () ->
         res.status(200).end ""

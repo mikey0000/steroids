@@ -136,11 +136,14 @@ class Deploy
 
     config = cloudConfig.getCurrentSync()
 
-    unless options?.noSharePage
-      shareURL = steroidsCli.options.argv.shareURL || "https://share.appgyver.com"
+    shareProtocolAndHost = steroidsCli.options.argv.shareURL || "https://share.appgyver.com"
+    fullShareURL = "#{shareProtocolAndHost}/?id=#{config.id}&hash=#{config.identification_hash}"
 
-      util.log "Opening URL #{shareURL}/?id=#{config.id}&hash=#{config.identification_hash} in default web browser...\n"
-      open "#{shareURL}/?id=#{config.id}&hash=#{config.identification_hash}"
+    if options?.sharePage == false
+      # TODO: pull this logic out of here...
+    else
+      util.log "Opening URL #{fullShareURL} in default web browser ..."
+      open fullShareURL
 
     if callback?
       callback()
