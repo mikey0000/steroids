@@ -64,6 +64,7 @@ class Converter
           for configTab, i in config.structure.tabs
             tab =
               position: i
+              id: configTab.id
               title: configTab.title
               image_path: configTab.icon
               target_url: routingHelpers.getLocationFromRouteOrUrl(configTab)
@@ -77,6 +78,7 @@ class Converter
           for configTab, i in config.tabBar.tabs
             tab =
               position: i
+              id: configTab.id
               title: configTab.title
               image_path: configTab.icon
               target_url: configTab.location

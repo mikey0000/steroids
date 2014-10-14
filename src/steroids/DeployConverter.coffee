@@ -66,6 +66,7 @@ class DeployConverter
           for configTab, i in @config.structure.tabs
             tab =
               title: configTab.title
+              id: configTab.id
               icon: configTab.icon
               location: routingHelpers.getLocationFromRouteOrUrl(configTab)
             tabs.push tab
@@ -78,6 +79,7 @@ class DeployConverter
           for configTab, i in @config.tabBar.tabs
             tab =
               title: configTab.title
+              id: configTab.id
               icon: configTab.icon
               location: configTab.location
             tabs.push tab
