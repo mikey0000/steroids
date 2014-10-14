@@ -1,11 +1,10 @@
 class Logout
 
     run: =>
-      Help = require "./Help"
-      Login = require "./Login"
+      return new Promise (resolve, reject) =>
+        Login = require "./Login"
 
-      Login.removeAuthToken()
-      Help.logo()
-      Help.loggedOut()
+        Login.removeAuthToken()
+        resolve()
 
 module.exports = Logout

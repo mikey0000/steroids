@@ -293,7 +293,9 @@ class Steroids
       when "logout"
         Logout = require "./steroids/logout"
         logout = new Logout
-        logout.run()
+        logout.run().then () ->
+          Help.logo()
+          Help.loggedOut()
 
       when "deploy"
         Deploy = require "./steroids/Deploy"
