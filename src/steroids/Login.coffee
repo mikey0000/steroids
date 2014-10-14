@@ -46,12 +46,17 @@ class Login
       @settings.tokenPath)
 
   run: =>
-    Server = require "./Server"
+    return new Promise (resolve, reject) =>
+      @loginPromise =
+        resolve: resolve
+        reject: reject
 
-    @options.server = Server.start
-      port: @options.port
-      callback: ()=>
-        @authorize()
+      Server = require "./Server"
+
+      @options.server = Server.start
+        port: @options.port
+        callback: ()=>
+          @authorize()
 
   authorize: ()->
     @startServer()
@@ -85,10 +90,6 @@ class Login
 
     fs.writeFileSync paths.oauthTokenPath, JSON.stringify(options)
 
-    util.log "Login process successful."
-
-    Help.loggedIn()
-
-    process.exit 0
+    @loginPromise.resolve()
 
 module.exports = Login

@@ -287,8 +287,9 @@ class Steroids
         login = new Login
           port: port
 
-        login.run()
-
+        login.run().then () =>
+          Help.loggedIn()
+          process.exit(0)
 
       when "logout"
         Logout = require "./steroids/logout"
