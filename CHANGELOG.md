@@ -1,3 +1,10 @@
+## 3.5.14 (TODO)
+
+Features:
+- Add id for Tab Items so they can be referred to with Native CSS using #tab-id.
+- Deploy attribute `steroids.config.copyToUserFiles` to the Cloud.
+
+
 ## 3.5.13 (2014-10-10)
 
 Steroids Simulator updated to iOS v4.0.0 and generator to v0.4.3 which includes native UI styling with Pixate CSS.
