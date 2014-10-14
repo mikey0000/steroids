@@ -41,6 +41,7 @@ class DeployConverter
     shake_gesture_enabled_during_development: @config.shake_gesture_enabled_during_development ? "false"
     tabs: @tabsCloudSchemaRepresentation()
     hosts: @hostsCloudSchemaRepresentation()
+    copy_to_user_files: @userFilesObject(@config)
 
   hostsCloudSchemaRepresentation: ->
     return [] unless @config.hosts?
@@ -77,5 +78,12 @@ class DeployConverter
     else
       @config.statusBar.style
 
+  userFilesObject: (config)->
+    userFilesObject = []
+
+    for file in config.copyToUserFiles
+      userFilesObject.push file
+
+    return userFilesObject
 
 module.exports = DeployConverter
