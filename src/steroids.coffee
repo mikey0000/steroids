@@ -271,7 +271,6 @@ class Steroids
 
 
       when "login"
-        Server = require "./steroids/Server"
         Login = require "./steroids/Login"
 
         Help.logo()
@@ -280,30 +279,21 @@ class Steroids
           util.log "Already logged in."
           return
 
-        util.log "Starting login process"
-
-        @port = if argv.port
+        port = if argv.port
           argv.port
         else
           13303
 
-        server = Server.start
-          port: @port
-          callback: ()=>
-            login = new Login
-              server: server
-              port: @port
-            login.authorize()
+        login = new Login
+          port: port
+
+        login.run()
+
 
       when "logout"
-        Login = require "./steroids/Login"
-
-        Help.logo()
-
-        Login.removeAuthToken()
-
-        Help.loggedOut()
-
+        Logout = require "./steroids/logout"
+        logout = new Logout
+        logout.run()
 
       when "deploy"
         Deploy = require "./steroids/Deploy"

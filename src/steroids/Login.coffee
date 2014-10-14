@@ -45,6 +45,14 @@ class Login
       @settings.authPath,
       @settings.tokenPath)
 
+  run: =>
+    Server = require "./Server"
+
+    @options.server = Server.start
+      port: @options.port
+      callback: ()=>
+        @authorize()
+
   authorize: ()->
     @startServer()
 
