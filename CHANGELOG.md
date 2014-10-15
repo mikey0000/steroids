@@ -1,9 +1,8 @@
-## 3.5.14 (TODO)
+## 3.5.14 (2014-10-15)
 
 Features:
 - Add id for Tab Items so they can be referred to with Native CSS using #tab-id.
 - Deploy attribute `steroids.config.copyToUserFiles` to the Cloud.
-
 
 ## 3.5.13 (2014-10-10)
 
