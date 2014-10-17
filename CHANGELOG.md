@@ -1,3 +1,10 @@
+## 3.5.15 (TODO)
+
+Bugfixes:
+- `steroids connect` no longer gives an erroneous warning about an outdated CLI version when a new device connects. Closes [#569](https://github.com/AppGyver/steroids/issues/569).
+- When checking if a new Scanner version is available, `steroids connect` no longer mixes up version numbers between clients. Closes [#456](https://github.com/AppGyver/steroids/issues/456).
+- When connecting with an out-of-date Scanner, `steroids connect` no longer spam the output full of "Please update" messages. Closes [#562](https://github.com/AppGyver/steroids/issues/562).
+
 ## 3.5.14 (2014-10-15)
 
 Features:

@@ -117,8 +117,6 @@ class BuildServer extends Server
       res.on "close", ()->
         clearInterval id
 
-
-
     @app.options "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
@@ -135,7 +133,6 @@ class BuildServer extends Server
 
 
     @app.get "/refresh_client?:timestamp", (req, res) =>
-
       res.header "Access-Control-Allow-Origin", "*"
 
       clientResolver = new ClientResolver(req)
