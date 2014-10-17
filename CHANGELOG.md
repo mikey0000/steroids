@@ -1,4 +1,4 @@
-## 3.5.15 (TODO)
+## 3.5.15 (2014-10-17)
 
 Bugfixes:
 - `steroids connect` no longer gives an erroneous warning about an outdated CLI version when a new device connects. Closes [#569](https://github.com/AppGyver/steroids/issues/569).
