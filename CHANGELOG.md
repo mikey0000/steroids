@@ -1,8 +1,3 @@
-## 3.5.15 (TODO)
-
-Changes:
-- `steroids connect` no longer gives a notification about outdated CLI version when a client connects. Closes [#569](https://github.com/AppGyver/steroids/issues/569).
-
 ## 3.5.14 (2014-10-15)
 
 Features:

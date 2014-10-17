@@ -83,12 +83,11 @@ class Updater
         return
 
       if latestVersion == currentVersion
-        console.log "Running latest version of Steroids CLI (#{currentVersion})" if @options.verbose
+        console.log "Running latest version of Steroids NPM (#{currentVersion})" if @options.verbose
         deferred.resolve()
         return
 
-      unless opts.from is "connect"
-        Help.newVersionAvailable(latestVersion)
+      Help.newVersionAvailable(latestVersion)
       deferred.resolve()
 
     return deferred.promise
