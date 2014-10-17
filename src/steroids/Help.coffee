@@ -55,25 +55,22 @@ class Help
   @newClientVersionAvailable: (opts) ->
     @attention()
     @printBanner(paths.banners.newClientVersionAvailable, true)
+    { platform, appStore } = if opts.platform is "android"
+      platform: "Android"
+      appStore:"Google Play"
+    else
+      platform: "iOS"
+      appStore: "App Store"
+
     console.log """
 
-      You have: #{opts.currentVersion}
-      Latest available is: #{opts.latestVersion}
+      There is a new version of AppGyver Scanner for #{platform} available.
+
+      You have: AppGyver Scanner for #{platform} v#{opts.currentVersion}
+      Latest available is: AppGyver Scanner for #{platform} v#{opts.latestVersion}
+
+      Plese update from #{appStore}.
     """
-
-    if opts.platform == "android"
-      console.log """
-
-        Please update from Google Play.
-
-      """
-    else
-      console.log """
-
-        Please update from App Store.
-
-      """
-
 
   @loggedOut: ->
     @printBanner(paths.banners.loggedOut, true)

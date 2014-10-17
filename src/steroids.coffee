@@ -354,7 +354,7 @@ class Steroids
                       for ip, client of buildServer.clients
                         delta = Date.now() - client.lastSeen
 
-                        if (delta > 2000)
+                        if (delta > 4000)
                           needsRefresh = true
                           delete buildServer.clients[ip]
                           console.log ""
