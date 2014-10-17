@@ -1,5 +1,5 @@
 Help = require "./Help"
-restler = require "restler"
+request = require "request"
 os = require "os"
 
 Login = require "./Login"
@@ -15,13 +15,13 @@ class Updater
 
 
   getFromEndpoint: (endpointURL, onSuccess) ->
+    request endpointURL, (error, response, body) ->
+      return if error
 
-    restler.get(endpointURL).on 'complete', (data) =>
-      return if data.errno
+      bodyObject = JSON.parse body
+      latestVersion = bodyObject.version
 
-      latestVersion = data["version"]
-
-      onSuccess(latestVersion)
+      onSuccess latestVersion
 
   getCurrentUserId: () =>
     currentToken = Login.currentToken()
