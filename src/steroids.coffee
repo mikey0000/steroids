@@ -208,22 +208,27 @@ class Steroids
           deviceType: argv.deviceType
 
       when "connect"
-        Connect = require("./steroids/connect")
 
-        port = if argv.port
-          argv.port
-        else
-          4567
+        Project = require "./steroids/Project"
+        Connect = require "./steroids/connect"
 
-        connect = new Connect
-          port: port
-          watch = argv.watch
-          livereload = argv.livereload
-          watchExclude = argv.watchExclude
-          qrcode = argv.qrcode
+        project = new Project
 
-        connect.run()
+        project.make
+          onSuccess: =>
+            port = if argv.port
+              argv.port
+            else
+              4567
 
+            connect = new Connect
+              port: port
+              watch = argv.watch
+              livereload = argv.livereload
+              watchExclude = argv.watchExclude
+              qrcode = argv.qrcode
+
+            connect.run()
 
       when "update"
         Updater = require "./steroids/Updater"
