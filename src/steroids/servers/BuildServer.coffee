@@ -253,7 +253,6 @@ class BuildServer extends Server
         clients: @clients
 
     @app.get "/refresh_client?:timestamp", (req, res) =>
-
       res.header "Access-Control-Allow-Origin", "*"
 
       clientResolver = new ClientResolver(req)

@@ -1,3 +1,64 @@
+## 3.5.15 (2014-10-17)
+
+Bugfixes:
+- `steroids connect` no longer gives an erroneous warning about an outdated CLI version when a new device connects. Closes [#569](https://github.com/AppGyver/steroids/issues/569).
+- When checking if a new Scanner version is available, `steroids connect` no longer mixes up version numbers between clients. Closes [#456](https://github.com/AppGyver/steroids/issues/456).
+- When connecting with an out-of-date Scanner, `steroids connect` no longer spam the output full of "Please update" messages. Closes [#562](https://github.com/AppGyver/steroids/issues/562).
+
+## 3.5.14 (2014-10-15)
+
+Features:
+- Add id for Tab Items so they can be referred to with Native CSS using #tab-id.
+- Deploy attribute `steroids.config.copyToUserFiles` to the Cloud.
+
+## 3.5.13 (2014-10-10)
+
+Steroids Simulator updated to iOS v4.0.0 and generator to v0.4.3 which includes native UI styling with Pixate CSS.
+
+## 3.5.12 (2014-09-29)
+
+Fixed a bug where Steroids CLI would not kill the iOS Simulator process between subsequent uses of the `simulator` command, leading to errors.
+
+## 3.5.11 (2014-09-24)
+
+Xcode 6 Simulator types supported. Remove mention of Node.js v0.11 compatibility due to errors being raised by submodules. Supported Node.js version is now 0.10.
+
+Features:
+- Support new iOS Simulator types in Xcode 6:
+  - iPhone 4S (`steroids simulator --deviceType=iphone_4s`)
+  - iPhone 5 (`steroids simulator --deviceType=iphone_5`)
+  - iPhone 5S (`steroids simulator --deviceType=iphone_5s`)
+  - iPhone 6 (`steroids simulator --deviceType=iphone_6`)
+  - iPhone 6 Plus (`steroids simulator --deviceType=iphone_6_plus`)
+  - iPad 2 (`steroids simulator --deviceType=ipad_2`)
+  - iPad Retina (`steroids simulator --deviceType=ipad_retina`)
+  - iPad Air (`steroids simulator --deviceType=ipad_air`)
+
+Changes:
+- No longer support Node.js v0.11.
+- Old Xcode 5 Simulator types remain available as legacy commands, but dropped from usage:
+  - `steroids simulator --deviceType=ipad`
+  - `steroids simulator --deviceType=ipad_retina`
+  - `steroids simulator --deviceType=iphone_retina_3_5_inch`
+  - `steroids simulator --deviceType=iphone_retina_4_inch`
+
+Bugfixes:
+- Remove unused `node-sass` dependency
+
+## 3.5.10 (2014-09-22)
+
+Hotfix patch fixed previous release
+- Use fork of ios-sim instead of upstream to get prebuilt binary along
+
+## 3.5.9 (2014-09-22)
+
+Fixed iOS Simulator to work with Xcode 6 and updated the iOS Simulator runtime to v3.5.2.
+
+Changes:
+- Use the [`ios-sim`](https://github.com/phonegap/ios-sim) npm package instead of AppGyver's fork.
+- `ios-sim` version updated to 2.0.1, fixing a bug where the iOS Simulator would not start with Xcode 6 installed. Closes [#517](https://github.com/AppGyver/steroids/issues/517).
+
+
 ## 3.5.8 (2014-08-29)
 
 Steroids Data bugfixes.

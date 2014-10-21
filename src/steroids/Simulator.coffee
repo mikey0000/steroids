@@ -11,8 +11,20 @@ Q = require "q"
 
 class Simulator
 
-  DEFAULT_DEVICE_TYPE: "iphone_retina_4_inch"
-  SUPPORTED_DEVICE_TYPES: ["ipad", "ipad_retina", "iphone_retina_3_5_inch", "iphone_retina_4_inch"]
+  DEFAULT_DEVICE_TYPE: "iphone_5s"
+  SUPPORTED_DEVICE_TYPES: [
+    "iphone_4s"
+    "iphone_5"
+    "iphone_5s"
+    "iphone_6"
+    "iphone_6_plus"
+    "ipad_2"
+    "ipad_retina"
+    "ipad_air"
+    "ipad"
+    "iphone_retina_3_5_inch"
+    "iphone_retina_4_inch"
+  ]
 
   running: false
 
@@ -35,6 +47,8 @@ class Simulator
       # Split into device type and optional, '@'-separated suffix specifying the iOS version (SDK version; e.g., '5.1').
       [ deviceType, iOSVersion ] = opts.deviceType.split('@')
 
+      namespace = "com.apple.CoreSimulator.SimDeviceType."
+
       switch deviceType
         when "ipad"
           args.push "--family", "ipad"
@@ -44,6 +58,20 @@ class Simulator
           args.push "--retina"
         when "iphone_retina_4_inch"
           args.push "--retina", "--tall"
+        when "iphone_4s"
+          args.push "--devicetypeid", "#{namespace}iPhone-4s"
+        when "iphone_5"
+          args.push "--devicetypeid", "#{namespace}iPhone-5"
+        when "iphone_5s"
+          args.push "--devicetypeid", "#{namespace}iPhone-5s"
+        when "iphone_6_plus"
+          args.push "--devicetypeid", "#{namespace}iPhone-6-Plus"
+        when "iphone_6"
+          args.push "--devicetypeid", "#{namespace}iPhone-6"
+        when "ipad_2"
+          args.push "--devicetypeid", "#{namespace}iPad-2"
+        when "ipad_air"
+          args.push "--devicetypeid", "#{namespace}iPad-Air"
 
       if iOSVersion?
         args.push "--sdk", iOSVersion
