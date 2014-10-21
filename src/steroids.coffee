@@ -209,26 +209,21 @@ class Steroids
 
       when "connect"
 
-        Project = require "./steroids/Project"
         Connect = require "./steroids/connect"
 
-        project = new Project
+        port = if argv.port
+          argv.port
+        else
+          4567
 
-        project.make
-          onSuccess: =>
-            port = if argv.port
-              argv.port
-            else
-              4567
+        connect = new Connect
+          port: port
+          watch = argv.watch
+          livereload = argv.livereload
+          watchExclude = argv.watchExclude
+          qrcode = argv.qrcode
 
-            connect = new Connect
-              port: port
-              watch = argv.watch
-              livereload = argv.livereload
-              watchExclude = argv.watchExclude
-              qrcode = argv.qrcode
-
-            connect.run()
+        connect.run()
 
       when "update"
         Updater = require "./steroids/Updater"
