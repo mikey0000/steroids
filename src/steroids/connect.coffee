@@ -17,7 +17,7 @@ class Connect
 
     project = new Project
 
-    project.make
+    project.push
       onSuccess: =>
 
         server = Server.start
