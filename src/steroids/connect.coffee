@@ -12,95 +12,100 @@ class Connect
     Serve = require "./Serve"
     Server = require "./Server"
     PortChecker = require "./PortChecker"
+    BuildServer = require "./servers/BuildServer"
     util = require "util"
 
-    BuildServer = require "./servers/BuildServer"
-    server = Server.start
-      port: @port
-      callback: ()=>
-        global.steroidsCli.server = server
+    project = new Project
 
-        buildServer = new BuildServer
-                            server: server
-                            path: "/"
-                            port: @port
+    project.make
+      onSuccess: =>
 
-        server.mount(buildServer)
+        server = Server.start
+          port: @port
+          callback: ()=>
+            global.steroidsCli.server = server
 
-        Prompt = require("./Prompt")
-        prompt = new Prompt
-          context: @
-          buildServer: buildServer
+            buildServer = new BuildServer
+                                server: server
+                                path: "/"
+                                port: @port
 
-        unless @showQRCode is false
-          QRCode = require "./QRCode"
-          QRCode.showLocal
-            port: @port
+            server.mount(buildServer)
 
-          util.log "Waiting for the client to connect, scan the QR code visible in your browser ..."
+            Prompt = require("./Prompt")
+            prompt = new Prompt
+              context: @
+              buildServer: buildServer
 
-        setInterval () ->
-          activeClients = 0;
-          needsRefresh = false
+            unless @showQRCode is false
+              QRCode = require "./QRCode"
+              QRCode.showLocal
+                port: @port
 
-          for ip, client of buildServer.clients
-            delta = Date.now() - client.lastSeen
+              util.log "Waiting for the client to connect, scan the QR code visible in your browser ..."
 
-            if (delta > 2000)
-              needsRefresh = true
-              delete buildServer.clients[ip]
-              console.log ""
-              util.log "Client disconnected: #{client.ipAddress} - #{client.userAgent}"
-            else if client.new
-              needsRefresh = true
-              activeClients++
-              client.new = false
+            setInterval () ->
+              activeClients = 0;
+              needsRefresh = false
 
-              console.log ""
-              util.log "New client: #{client.ipAddress} - #{client.userAgent}"
-            else
-              activeClients++
+              for ip, client of buildServer.clients
+                delta = Date.now() - client.lastSeen
 
-          if needsRefresh
-            util.log "Number of clients connected: #{activeClients}"
-            prompt.refresh()
+                if (delta > 4000)
+                  needsRefresh = true
+                  delete buildServer.clients[ip]
+                  console.log ""
+                  util.log "Client disconnected: #{client.ipAddress} - #{client.userAgent}"
+                else if client.new
+                  needsRefresh = true
+                  activeClients++
+                  client.new = false
 
-        , 1000
-
-
-        if @watch
-          steroidsCli.debug "Starting FS watcher"
-          Watcher = require("./fs/watcher")
-
-          project = new Project
-
-          refreshAndPrompt = =>
-            console.log ""
-            util.log "File system change detected, pushing code to connected devices ..."
-            project.make
-              onSuccess: =>
-                if @livereload
-                  buildServer.triggerLiveReload()
+                  console.log ""
+                  util.log "New client: #{client.ipAddress} - #{client.userAgent}"
                 else
-                  prompt.refresh()
+                  activeClients++
 
-          if @watchExclude?
-            excludePaths = steroidsCli.config.getCurrent().watch.exclude.concat(@watchExclude.split(","))
-          else
-            excludePaths = steroidsCli.config.getCurrent().watch.exclude
+              if needsRefresh
+                util.log "Number of clients connected: #{activeClients}"
+                prompt.refresh()
 
-          watcher = new Watcher
-            excludePaths: excludePaths
-            onCreate: refreshAndPrompt
-            onUpdate: refreshAndPrompt
-            onDelete: (file) =>
-              steroidsCli.debug "Deleted watched file #{file}"
+            , 1000
 
-          watcher.watch("./app")
-          watcher.watch("./www")
-          watcher.watch("./config")
 
-        prompt.connectLoop()
+            if @watch
+              steroidsCli.debug "Starting FS watcher"
+              Watcher = require("./fs/watcher")
+
+              project = new Project
+
+              refreshAndPrompt = =>
+                console.log ""
+                util.log "File system change detected, pushing code to connected devices ..."
+                project.make
+                  onSuccess: =>
+                    if @livereload
+                      buildServer.triggerLiveReload()
+                    else
+                      prompt.refresh()
+
+              if @watchExclude?
+                excludePaths = steroidsCli.config.getCurrent().watch.exclude.concat(@watchExclude.split(","))
+              else
+                excludePaths = steroidsCli.config.getCurrent().watch.exclude
+
+              watcher = new Watcher
+                excludePaths: excludePaths
+                onCreate: refreshAndPrompt
+                onUpdate: refreshAndPrompt
+                onDelete: (file) =>
+                  steroidsCli.debug "Deleted watched file #{file}"
+
+              watcher.watch("./app")
+              watcher.watch("./www")
+              watcher.watch("./config")
+
+            prompt.connectLoop()
 
 
 

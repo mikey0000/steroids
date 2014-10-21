@@ -208,7 +208,8 @@ class Steroids
           deviceType: argv.deviceType
 
       when "connect"
-        Connect = require("./steroids/connect")
+
+        Connect = require "./steroids/connect"
 
         port = if argv.port
           argv.port
@@ -217,13 +218,12 @@ class Steroids
 
         connect = new Connect
           port: port
-          watch = argv.watch
-          livereload = argv.livereload
-          watchExclude = argv.watchExclude
-          qrcode = argv.qrcode
+          watch: argv.watch
+          livereload: argv.livereload
+          watchExclude: argv.watchExclude
+          qrcode: argv.qrcode
 
         connect.run()
-
 
       when "update"
         Updater = require "./steroids/Updater"

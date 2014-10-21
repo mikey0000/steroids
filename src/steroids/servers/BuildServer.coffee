@@ -264,7 +264,6 @@ class BuildServer extends Server
         res.status(404).json {error: "Not authenticated"}
 
     @app.get "/refresh_client?:timestamp", (req, res) =>
-
       res.header "Access-Control-Allow-Origin", "*"
 
       clientResolver = new ClientResolver(req)
