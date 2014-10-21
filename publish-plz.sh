@@ -23,20 +23,3 @@ npm version $SEVERITY || exit 1
 git push && git push --tags && npm publish ./
 
 echo "DONE, remember that clients will check from updates.appgyver.com"
-
-
-echo "Next up: generating a new project with this for testing?"
-read
-
-cd test
-
-CURRENTVERSION=$(./getversion.js)
-
-./generate.sh ../bin/steroids v$CURRENTVERSION || exit 1
-
-cd ..
-
-git add test
-git commit -m "generated with $CURRENTVERSION"
-
-echo "done, push pls"
