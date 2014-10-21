@@ -252,6 +252,17 @@ class BuildServer extends Server
       res.send
         clients: @clients
 
+    @app.get "/__appgyver/access_token", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      Login = require "../Login"
+
+      if Login.currentAccessToken()
+        res.status(200).send Login.currentAccessToken()
+      else
+        res.status(404).json {error: "Not authenticated"}
+
     @app.get "/refresh_client?:timestamp", (req, res) =>
 
       res.header "Access-Control-Allow-Origin", "*"
