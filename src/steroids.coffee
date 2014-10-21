@@ -218,10 +218,10 @@ class Steroids
 
         connect = new Connect
           port: port
-          watch = argv.watch
-          livereload = argv.livereload
-          watchExclude = argv.watchExclude
-          qrcode = argv.qrcode
+          watch: argv.watch
+          livereload: argv.livereload
+          watchExclude: argv.watchExclude
+          qrcode: argv.qrcode
 
         connect.run()
 
