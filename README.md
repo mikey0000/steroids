@@ -58,6 +58,10 @@ More usage information is available via
 
 ## Development
 
+After pulling from remote, to ensure all dependencies are updated properly:
+
+    $ rm -rf node_modules
+
 Install dependencies:
 
     $ npm install
