@@ -7,6 +7,11 @@ chalk = require "chalk"
 class Help
 
   @usage: ->
+    @logo()
+    Version = require("./version")
+    version = new Version
+    console.log "\t\t\t\t\t\tv#{version.getVersion()}\n"
+
     @printBanner(paths.banners.usage, true)
 
   @dataUsage: ->
@@ -156,7 +161,7 @@ class Help
     contents = @readContentsSync(filename)
 
     if color
-      colorize.console.log  contents
+      colorize.console.log contents
     else
       console.log contents
 

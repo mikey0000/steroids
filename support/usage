@@ -1,93 +1,22 @@
-#bold[#magenta[Synopsis:]]
+#bold[#magenta[Synopsis:]] steroids #bold[command] arguments #cyan[--options]
 
-  steroids #bold[command] arguments #cyan[--options]
+#bold[#magenta[Available commands:]]
 
-#bold[#magenta[Basic usage commands]]:
+  #bold[create]     Creates a new application from the default template
+  #bold[connect]    Starts development mode
+  #bold[deploy]     Deploys your application to AppGyver Cloud
 
-  #bold[create] APP_PATH
+  #bold[generate]   Runs Steroids² code generators
+  #bold[update]     Updates your dependencies (with bower)
 
-    Creates a new application from the default template.
+  #bold[login]      Logs you in to AppGyver Cloud
+  #bold[logout]     Logs you out from the AppGyver Cloud
 
-  #bold[connect]]
+#bold[#magenta[OS X only:]]
 
-    Starts server and allows to connect your iOS device or iOS Simulator to see your application.
-    Provides further instructions for connecting and enters a console for accepting further commands.
+  #bold[simulator]  Starts the iOS Simulator with AppGyver Scanner
+  #bold[safari]     Opens the Safari Web Inspector
 
-    Options:
+For more information, see:
 
-    #cyan[--port=4567]
-
-      Sets the port for connecting devices.
-
-    #cyan[--no-qrcode]
-
-      Do not open the QR code in a separate browser window.
-
-    #cyan[--terminal-qrcode]
-
-      Show all QR codes in the console window instead of opening a separate browser window.
-
-    #cyan[--watch]
-
-      Automatically push code to connected devices on file updates in app/, config/ or www/ directories.
-
-      #cyan[--watchExclude=<path1,path2,path/to/file>] can be used to exclude paths and files, also see setting in application.coffee for permanent excludes
-
-    #cyan[--serve]
-
-      Starts a separate web server in http://localhost:4000 that serves files from dist/ for developing with a browser.
-      When a push is made, the browser refreshes. #underline[Note:] this currently only works if connect is running on the default port.
-
-      #cyan[--servePort=4000] can be used for setting the port for serve.
-
-    #cyan[--deviceType=<device>]
-
-      Specifies the type of iOS Simulator to launch inside connect. See "simulator" command for options.
-
-  #bold[push]]
-
-    Pushes new version of your application to connected clients (iOS device or iOS Simulator).
-    #underline[Note:] connect needs to be running for push to work.
-
-
-#bold[#magenta[Other usage commands:]]
-
-  #bold[generate] #cyan[GENERATOR]
-
-    Run code generators. Lists all code generators if started without an argument.
-
-  #bold[simulator] #cyan[--deviceType=<deviceType>]
-
-    Launches the iOS Simulator (requires Xcode 6). Default device is iPhone 5S.
-
-    Valid values for deviceType:
-      #cyan["iphone_4s", "iphone_5", "iphone_5s", "iphone_6", "iphone_6_plus"
-      "ipad_2", "ipad_retina", "ipad_air"]
-
-    Optionally, append #cyan['@<iOS-version>'] to launch the iOS simulator with a specific iOS version (assuming it is installed); e.g. #cyan['ipad@5.1']
-
-  #bold[safari] <part of the location path>
-
-    Opens the Safari Web Inspector (OS X only). Omit <part of the location path> to see a list of open webviews.
-
-    Example: `steroids #bold[safari] show` opens the Safari Web Inspector for a WebView that matches "show" in its location URL.
-
-    #underline[Note:] Enable Develop menu in: Safari -> Preferences -> Advanced
-
-  #bold[update]
-
-    Updates your bower components as defined in bower.json (in your project root).
-
-    Equal to running #bold[bower install] in your project directory. If you wish to use bower more, see installation instructions at: https://github.com/twitter/bower
-
-  #bold[login] #cyan[--port=4567]]
-
-    Logs you in to AppGyver Cloud. Use #cyan[--port] option to switch the local port used if it is already in use.
-
-  #bold[logout]
-
-    Logs you out from the AppGyver Cloud.
-
-  #bold[deploy]
-
-    Deploys your application to AppGyver Cloud.
+  #bold[http://docs.appgyver.com]

@@ -317,7 +317,6 @@ class Steroids
           safariDebug.listViews()
 
       else
-        Help.logo() unless argv.noLogo
         Help.usage()
 
 
