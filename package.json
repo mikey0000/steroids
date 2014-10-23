@@ -31,7 +31,6 @@
       "email": "petrus.repo@appgyver.com"
     }
   ],
-  "main": "./src/main.js",
   "bin": {
     "devroids": "./bin/devroids"
   },
