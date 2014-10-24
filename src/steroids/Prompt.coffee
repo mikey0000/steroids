@@ -87,7 +87,7 @@ class Prompt
         when "qr", "qr-code", "qrcode"
           QRCode = require "./QRCode"
           QRCode.showLocal
-            port: steroidsCli.port
+            port: @buildServer.port
 
         when "e", "edit"
 
