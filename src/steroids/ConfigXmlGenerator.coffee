@@ -26,8 +26,6 @@ module.exports = class ConfigXmlGenerator
       switch key
         when "webView"
           namespace = "webView"
-        when "keyboard"
-          namespace = "keyboard"
         when "splashscreen"
           namespace = "splashscreen"
         else
@@ -67,18 +65,6 @@ module.exports = class ConfigXmlGenerator
             value: value
           else
             key: key
-            value: value
-
-      when "keyboard"
-        switch key
-          when "shrinksView"
-            key: "KeyboardShrinksView"
-            value: value
-          when "displayRequiresUserAction"
-            key: "DisplayRequiresUserAction"
-            value: value
-          when "hideAccessoryBar"
-            key: "HideKeyboardFormAccessoryBar"
             value: value
 
       when "splashscreen"
