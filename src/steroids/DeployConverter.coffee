@@ -18,7 +18,7 @@ class DeployConverter
           fullscreen: not @config.structure.tabs?
           location:
             if @config.structure.rootView?
-              routingHelpers.getLocationFromRouteOrUrl(@config.structure.rootView)
+              routingHelpers.parseLocation(@config.structure.rootView.location)
             else
               ""
         =>
@@ -69,7 +69,7 @@ class DeployConverter
               title: configTab.title
               id: configTab.id
               icon: configTab.icon
-              location: routingHelpers.getLocationFromRouteOrUrl(configTab)
+              location: routingHelpers.parseLocation(configTab.location)
             tabs.push tab
 
         tabs

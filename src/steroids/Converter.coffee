@@ -67,7 +67,7 @@ class Converter
               id: configTab.id
               title: configTab.title
               image_path: configTab.icon
-              target_url: routingHelpers.getLocationFromRouteOrUrl(configTab)
+              target_url: routingHelpers.parseLocation(configTab.location)
             tabs.push tab
 
         tabs
@@ -94,7 +94,7 @@ class Converter
           statusBar: "default" # will be overridden by native CSS
           fullscreen: !(config.structure.tabs?)
           location: if config.structure.rootView?
-            routingHelpers.getLocationFromRouteOrUrl(config.structure.rootView)
+            routingHelpers.parseLocation(config.structure.rootView.location)
           else
             ""
         ->
@@ -162,7 +162,7 @@ class Converter
           preloads = []
 
           for view in config.structure.preloads
-            view.location = routingHelpers.getLocationFromRouteOrUrl(view)
+            view.location = routingHelpers.parseLocation(view.location)
             preloads.push view
 
           preloads
@@ -179,7 +179,7 @@ class Converter
 
           for drawer in [leftDrawer, rightDrawer]
             drawer?.location =
-              routingHelpers.getLocationFromRouteOrUrl(drawer)
+              routingHelpers.parseLocation(drawer.location)
 
           config.structure.drawers
       ->
@@ -191,7 +191,7 @@ class Converter
       ->
         initView = config.structure.initialView
         initView?.location =
-          routingHelpers.getLocationFromRouteOrUrl(initView)
+          routingHelpers.parseLocation(initView.location)
         initView
       ->
         config.initialView
