@@ -5,6 +5,7 @@ paths = require "./paths"
 module.exports = class SupersonicConfig
 
   defaults:
+    copyToUserFiles: []
     hooks:
       preMake:
         cmd: null
