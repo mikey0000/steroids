@@ -32,7 +32,6 @@ class Simulator
 
   run: (opts={}) =>
     unless os.type() == "Darwin"
-      console.log "Error: Simulator requires Mac OS X."
       return false
 
     @stop()

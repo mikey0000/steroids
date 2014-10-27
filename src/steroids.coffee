@@ -81,6 +81,20 @@ class Steroids
     if firstOption not in ["emulate", "debug"] and argv.help
       firstOption = "usage"
 
+    os = require "os"
+
+    unless os.type() == "Darwin"
+      wrongPlatform = false
+      if firstOption == "emulate" and otherOptions[0] == "ios"
+        console.log "Error: iOS Simulator requires Mac OS X."
+        wrongPlatform=true
+      if firstOption == "debug" and otherOptions[0] == "safari"
+        console.log "Error: iOS Simulator requires Mac OS X."
+        wrongPlatform=true
+
+      process.exit(1) if wrongPlatform
+
+
     @ensureProjectIfNeededFor(firstOption, otherOptions)
 
     if firstOption in ["connect", "create"]
@@ -204,11 +218,7 @@ class Steroids
         packager.create()
 
       when "simulator"
-        Simulator = require "./steroids/Simulator"
-
-        #TODO: why is it like this?
-        steroidsCli.simulator.run
-          deviceType: argv.deviceType
+        console.log "see: steroids emulate"
 
       when "connect"
 
@@ -314,20 +324,26 @@ class Steroids
         console.log "see: steroids debug"
 
       when "emulate"
-        Usage = require "./steroids/usage"
-        usage = new Usage
-        usage.emulate()
+        switch otherOptions[0]
+          when "ios"
+            Simulator = require "./steroids/Simulator"
+
+            #TODO: why is it like this?
+            steroidsCli.simulator.run
+              deviceType: argv.deviceType
+
+          when "genymotion"
+            console.log "Not implemented yet"
+
+          else
+            Usage = require "./steroids/usage"
+            usage = new Usage
+            usage.emulate()
 
       when "debug"
 
         switch otherOptions[0]
           when "safari"
-            os = require "os"
-
-            unless os.type() == "Darwin"
-              console.log "Error: Safari Developer Tools debugging requires Mac OS X."
-              return
-
             SafariDebug = require "./steroids/SafariDebug"
             safariDebug = new SafariDebug
             safariDebug.run
