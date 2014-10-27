@@ -104,3 +104,8 @@ To develop Steroids-npm locally:
 * Clone this repo and install its dependencies (`npm install`).
 * Create a symlink from `/usr/local/bin/devroids` to your development Steroids executable.
 * Use `devroids` as you would use `steroids`.
+
+
+## Statistics
+
+[![NPM](https://nodei.co/npm-dl/steroids.png?height=3)](https://nodei.co/npm/steroids/)
