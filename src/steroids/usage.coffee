@@ -12,4 +12,9 @@ class Usage
 
     Help.usage.footer()
 
+  emulate: ->
+    Help = require "./Help"
+
+    Help.usage.emulate()
+
 module.exports = Usage

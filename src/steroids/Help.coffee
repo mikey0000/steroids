@@ -22,6 +22,9 @@ class Help
     footer: ->
       Help.printBanner(paths.banners.usage.footer, true)
 
+    emulate: ->
+      Help.printBanner(paths.banners.usage.emulate, true)
+
   @dataUsage: ->
     @printBanner(paths.banners.dataUsage, true)
 

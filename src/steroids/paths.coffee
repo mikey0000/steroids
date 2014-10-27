@@ -31,6 +31,7 @@ class Paths
       compact: path.join @bannersDir, "usage", "compact"
       extended: path.join @bannersDir, "usage", "extended"
       footer: path.join @bannersDir, "usage", "footer"
+      emulate: path.join @bannersDir, "usage", "emulate"
     ready: path.join @bannersDir, "ready"
     resetiOSSim: path.join @bannersDir, "iossim-reset"
     newVersionAvailable: path.join @bannersDir, "new-version-available"

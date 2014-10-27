@@ -1,0 +1,14 @@
+#bold[#magenta[Synopsis:]] steroids emulate #bold[mode] #cyan[--options]
+
+  Launches the iOS Simulator or Android Emulator
+
+#bold[#magenta[Available modes and options:]]
+
+  #bold[genymotion]   Starts the Genymotion Android Emulator
+
+  #bold[ios]          Starts the iOS Simulator (OS X only)
+    #cyan[--deviceType=<type>]
+    #cyan[--deviceType=<type>@<sdk>]
+
+      #bold[type] iphone,iphone_4s,iphone_5,iphone_5s,iphone_6,iphone_6_plus,ipad_2,ipad_retina,ipad_air
+      sdk  The iOS SDK version e.g. iphone_5s@7.1 ... assuming that it is installed

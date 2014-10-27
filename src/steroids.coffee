@@ -78,7 +78,7 @@ class Steroids
     if argv.version
       firstOption = "version"
 
-    if argv.help
+    if firstOption not in ["emulate"] and argv.help
       firstOption = "usage"
 
     @ensureProjectIfNeededFor(firstOption, otherOptions)
@@ -318,6 +318,11 @@ class Steroids
         else
           Help.safariListingHeader()
           safariDebug.listViews()
+
+      when "emulate"
+        Usage = require "./steroids/usage"
+        usage = new Usage
+        usage.emulate()
 
       else
         Usage = require "./steroids/usage"

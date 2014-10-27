@@ -12,7 +12,7 @@
   #bold[login]      Logs you in to AppGyver Cloud
   #bold[logout]     Logs you out from the AppGyver Cloud
 
-#bold[#magenta[OS X only:]]
+#bold[#magenta[Available when ]connect#magenta[ is running:]]
 
-  #bold[simulator]  Starts the iOS Simulator with AppGyver Scanner
-  #bold[safari]     Opens the Safari Web Inspector
+  #bold[emulate]    Starts the Android Emulator or iOS Simulator
+  #bold[debug]      Chrome Dev Tools (Android) or Safari Remote Web Inspector (OS X only)
