@@ -93,7 +93,7 @@ class Converter
         ->
           statusBar: "default" # will be overridden by native CSS
           fullscreen: !(config.structure.tabs?)
-          location: if config.structure.rootView?
+          location: if config.structure.rootView?.location?
             routingHelpers.parseLocation(config.structure.rootView.location)
           else
             ""
