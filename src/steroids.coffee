@@ -78,6 +78,9 @@ class Steroids
     if argv.version
       firstOption = "version"
 
+    if argv.help
+      firstOption = "usage"
+
     @ensureProjectIfNeededFor(firstOption, otherOptions)
 
     if firstOption in ["connect", "create"]
@@ -317,8 +320,11 @@ class Steroids
           safariDebug.listViews()
 
       else
-        Help.usage()
+        Usage = require "./steroids/usage"
+        usage = new Usage
+          extended: argv.help?
 
+        usage.run()
 
 module.exports =
   run: ->

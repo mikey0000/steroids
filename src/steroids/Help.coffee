@@ -6,13 +6,21 @@ chalk = require "chalk"
 
 class Help
 
-  @usage: ->
-    @logo()
-    Version = require("./version")
-    version = new Version
-    console.log "\t\t\t\t\t\tv#{version.getVersion()}\n"
+  @usage =
+    header: ->
+      Help.logo()
+      Version = require("./version")
+      version = new Version
+      console.log "\t\t\t\t\t\tv#{version.getVersion()}\n"
 
-    @printBanner(paths.banners.usage, true)
+    compact: ->
+      Help.printBanner(paths.banners.usage.compact, true)
+
+    extended: ->
+      Help.printBanner(paths.banners.usage.extended, true)
+
+    footer: ->
+      Help.printBanner(paths.banners.usage.footer, true)
 
   @dataUsage: ->
     @printBanner(paths.banners.dataUsage, true)

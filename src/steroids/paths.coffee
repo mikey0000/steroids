@@ -27,7 +27,10 @@ class Paths
     SUCCESS: path.join @bannersDir, "success-caps"
     error: path.join @bannersDir, "error"
     awesome: path.join @bannersDir, "awesome"
-    usage: path.join @bannersDir, "usage"
+    usage:
+      compact: path.join @bannersDir, "usage", "compact"
+      extended: path.join @bannersDir, "usage", "extended"
+      footer: path.join @bannersDir, "usage", "footer"
     ready: path.join @bannersDir, "ready"
     resetiOSSim: path.join @bannersDir, "iossim-reset"
     newVersionAvailable: path.join @bannersDir, "new-version-available"

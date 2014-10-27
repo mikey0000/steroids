@@ -16,7 +16,3 @@
 
   #bold[simulator]  Starts the iOS Simulator with AppGyver Scanner
   #bold[safari]     Opens the Safari Web Inspector
-
-For more information, see:
-
-  #bold[http://docs.appgyver.com]
