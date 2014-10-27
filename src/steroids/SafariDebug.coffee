@@ -13,17 +13,26 @@ class SafariDebug
 
   constructor: (@callBackOnExit) ->  # @callBackOnExit is invoked when this class' methods exit - typically used to redisplay the interactive prompt.
 
-  listViews: =>
+  run: (options={}) =>
+    return unless os.type() == "Darwin"
+
+    if options.path
+      @open(options.path)
+    else
+      console.log "Fetching location paths from Safari:\n"
+      @callBackOnExit = ->
+        console.log "Use path with --location=<part of the location path>"
+
+      @listViews()
+
+
+  listViews: ()=>
     @runAppleScript "SafariDebugWebViewLister.scpt"
 
   open: (argument) =>
     @runAppleScript "openSafariDevMenu.scpt", argument
 
   runAppleScript: (scriptFileName, argument)=>
-    unless os.type() == "Darwin"
-      console.log "Error: Safari Developer Tools debugging requires Mac OS X."
-      @callBackOnExit?()
-
     @ensureAssistiveAccess().then( =>
       scriptPath = path.join paths.scriptsDir, scriptFileName
 
@@ -44,9 +53,8 @@ class SafariDebug
           errMsg = chalk.red '\nERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(osascriptSbawn.stderr)?[1] || osascriptSbawn.stderr)
           console.error errMsg
         else unless argument?
-          console.log "\n\n  Found following WebViews in Safari:\n"
           for line in osascriptSbawn.stdout.split("\n") when line isnt ""
-            console.log "   - #{line}"
+            console.log line
           console.log ''
 
         @callBackOnExit?()

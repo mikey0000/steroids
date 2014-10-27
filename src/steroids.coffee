@@ -311,13 +311,7 @@ class Steroids
           Help.deployCompleted()
 
       when "safari"
-        SafariDebug = require "./steroids/SafariDebug"
-        safariDebug = new SafariDebug
-        if otherOptions[0]
-          safariDebug.open(otherOptions[0])
-        else
-          Help.safariListingHeader()
-          safariDebug.listViews()
+        console.log "see: steroids debug"
 
       when "emulate"
         Usage = require "./steroids/usage"
@@ -325,9 +319,30 @@ class Steroids
         usage.emulate()
 
       when "debug"
-        Usage = require "./steroids/usage"
-        usage = new Usage
-        usage.debug()
+
+        switch otherOptions[0]
+          when "safari"
+            os = require "os"
+
+            unless os.type() == "Darwin"
+              console.log "Error: Safari Developer Tools debugging requires Mac OS X."
+              return
+
+            SafariDebug = require "./steroids/SafariDebug"
+            safariDebug = new SafariDebug
+            safariDebug.run
+              path: argv.location
+
+          when "chrome"
+            console.log "Not implemented yet"
+
+          when "weinre"
+            console.log "Not implemented yet"
+
+          else
+            Usage = require "./steroids/usage"
+            usage = new Usage
+            usage.debug()
 
       else
         Usage = require "./steroids/usage"

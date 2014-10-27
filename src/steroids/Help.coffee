@@ -160,9 +160,6 @@ class Help
     debugweinre: ->
       Help.printBanner(paths.banners.legacy.debugweinre, true)
 
-  @safariListingHeader: ->
-    @printBanner(paths.banners.safariListingHeader, true)
-
   @resetiOSSim: ->
     @printBanner(paths.banners.resetiOSSim, true)
 
