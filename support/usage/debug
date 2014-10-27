@@ -1,0 +1,17 @@
+#bold[#magenta[Synopsis:]] steroids debug #bold[debugger] #cyan[--options]
+
+  Launches a debugger
+
+#bold[#magenta[Available debuggers and options:]]
+
+  #bold[chrome]   Starts the Chrome Remote Dev Tools
+
+  #bold[safari]   Starts the Safari Remote Inspector (OS X only)
+    #cyan[--location=<path>]
+
+      #bold[path]   opens the view that matches "path" in its location URL
+
+    #underline[Note:] Enable Develop menu in: Safari -> Preferences -> Advanced
+
+  #bold[weinre]   Starts the Weinre debugger
+    #cyan[--i-acknowledge-that-weinre-is-not-the-best-debugger=yes]

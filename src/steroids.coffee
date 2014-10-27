@@ -324,6 +324,11 @@ class Steroids
         usage = new Usage
         usage.emulate()
 
+      when "debug"
+        Usage = require "./steroids/usage"
+        usage = new Usage
+        usage.debug()
+
       else
         Usage = require "./steroids/usage"
         usage = new Usage

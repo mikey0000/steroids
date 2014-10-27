@@ -17,4 +17,9 @@ class Usage
 
     Help.usage.emulate()
 
+  debug: ->
+    Help = require "./Help"
+
+    Help.usage.debug()
+
 module.exports = Usage
