@@ -78,7 +78,7 @@ class Steroids
     if argv.version
       firstOption = "version"
 
-    if firstOption not in ["emulate"] and argv.help
+    if firstOption not in ["emulate", "debug"] and argv.help
       firstOption = "usage"
 
     @ensureProjectIfNeededFor(firstOption, otherOptions)
