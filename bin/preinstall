@@ -125,6 +125,29 @@ var checkNPMOwnership = function() {
 
 
 var checkComponents = function() {
+
+  util.print("Checking for compatibility with Node.js version " + process.version + " ...");
+
+  if(/^v0\.10/.test(process.version)) {
+    util.print(" OK\n");
+  } else {
+    console.log("");
+    var errorBanner = fs.readFileSync(path.join(__dirname, "..", "support", "error-nocolors")).toString();
+    console.log(errorBanner);
+
+    console.log("\nIn version 3.5.11, Steroids was updated to work on Node.js version 0.10.x only. You are currently using Node.js " + process.version + ".");
+    console.log("\nIf you have NVM installed, you can use the '$ nvm install 0.10' command to install Node.js 0.10.x, and '$ nvm alias default 0.10' to make it your default Node.js version.");
+    console.log("\nSee the installation instructions at http://guides.appgyver.com/steroids/guides/steroids_npm/installing/ for more information.");
+    console.log("\nNOTE: After you have updated your Node.js version (check with '$ node -v'), you need to write '$ npm install steroids -g' (instead of 'npm update') to update Steroids npm.")
+    console.log("\n\nPress enter to continue...");
+
+    process.stdin.resume();
+    process.stdin.on('data', function (text) {
+      process.exit(1);
+    });
+  }
+
+
   console.log("Checking for required components ...\n");
 
   if (process.platform === "win32") {
@@ -205,29 +228,33 @@ var checkComponents = function() {
 
 
 
-var printMessages = function(messages, whenDone) {
-  if ( messages.length == 0 ) {
-    console.log("");
-    whenDone();
-    return;
-  }
 
-  var first = messages.splice(0, 1)[0];
-  process.stdout.write(first + " ");
 
-  setTimeout(function() {
-    printMessages(messages, whenDone)
-  }, 150);
-}
-
-message = "If you have any problems, please visit our forums at http://forums.appgyver.com\n        \nWe are now trying to detect required dependencies and problems. Some dependencies (like dtrace-provider) will print ugly warnings to the screen, but everything will be fine.\n\n  - The AppGyver team (contact@appgyver.com)\n\n"
 
 var packageJSON = require("../package.json");
 steroidsVersion = packageJSON.version;
 
 console.log("\n\n\nAppGyver Steroids "+steroidsVersion+" installation\n");
 
-printMessages(message.split(" "), function() {
-  console.log("Starting installation in 3 seconds.\n\n");
-  setTimeout(checkComponents, 3000);
-});
+console.log("If you have any problems, please visit our forums at http://forums.appgyver.com\n\
+We are now trying to detect required dependencies and problems.\n\
+Some dependencies (like dtrace-provider) will print ugly warnings to the screen, but everything should be fine.\n \
+\n \
+ - The AppGyver team (contact@appgyver.com)\n \
+\n \
+\nStarting installation in ...");
+
+var printMessages = function(messages, whenDone) {
+  if ( messages.length == 0 ) {
+    console.log("\n\n");
+    whenDone();
+    return;
+  }
+  var first = messages.splice(0, 1)[0];
+  console.log(first)
+
+  setTimeout(function() {
+    printMessages(messages, whenDone)
+  }, 1000);
+}
+printMessages(["3","2","1", 'NOW!'], checkComponents)
