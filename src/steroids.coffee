@@ -229,11 +229,19 @@ class Steroids
         else
           4567
 
+        watchExclude = if argv.watchExclude
+          argv.watchExclude.split(",")
+        else
+          []
+
+        watchEnabled = !(argv.watch == false)
+        livereloadEnabled = !(argv.livereload == false)
+
         connect = new Connect
           port: port
-          watch: argv.watch
-          livereload: argv.livereload
-          watchExclude: argv.watchExclude
+          watch: watchEnabled
+          livereload: livereloadEnabled
+          watchExclude: watchExclude
           qrcode: argv.qrcode
 
         connect.run()

@@ -59,10 +59,13 @@ class Sbawned
 
       @onExit()
 
+    return unless @spawned
+
     # windows spawn command inherits stdio from current process to get output working
     unless process.platform is "win32"
       @spawned.stdout.on "data", @onStdoutData
       @spawned.stderr.on "data", @onStderrData
+
     @spawned.on "exit", @onExit
     @spawned.on "error", (err)=>
       console.log err

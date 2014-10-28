@@ -1,27 +1,30 @@
-watchr = require "watchr"
-
 class Watcher
+  constructor: (@opts={}) ->
+    chokidar = require "chokidar"
 
-  constructor:(@options) ->
+    @watcher = chokidar.watch @opts.path,
+      ignored: (path) =>
+        return false unless @opts.ignored
 
-  watch: (path)=>
-    watchr.watch
-      paths: [path]
-      listeners:
-        change: (changeType, filePath, fileCurrentStat, filePreviousStat) =>
-          if @options.excludePaths?
-            for excludePath in @options.excludePaths
-              if filePath.indexOf(excludePath) > -1
-                steroidsCli.debug "Watcher detected #{filePath} (#{changeType}). It was excluded by '#{excludePath}' excludePaths rule."
-                return false
+        if path in @opts.ignored
+          steroidsCli.debug "watch: ignore #{path}"
+          return true
+        else
+          steroidsCli.debug "watch: monitor #{path}"
+          return false
 
-          steroidsCli.debug "Watcher detected #{filePath} (#{changeType})."
-          switch changeType
-            when "delete"
-              @options.onDelete(filePath, fileCurrentStat, filePreviousStat)
-            when "create"
-              @options.onCreate(filePath, fileCurrentStat, filePreviousStat)
-            when "update"
-              @options.onUpdate(filePath, fileCurrentStat, filePreviousStat)
+      ignoreInitial: true
+      persistent: true
+
+  on: (events, callback) ->
+    events = if events.constructor.name == "String"
+      [events]
+    else
+      events
+
+    for event in events
+      @watcher.on event, callback
+
+
 
 module.exports = Watcher

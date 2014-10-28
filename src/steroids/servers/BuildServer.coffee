@@ -104,7 +104,7 @@ class BuildServer extends Server
 
       config.archives.push zipObject
 
-      if steroidsCli.options.argv.livereload
+      if steroidsCli.options.argv.livereload != false
         config.livereload_host = "#{req.hostname}:#{@options.port}"
         config.livereload_url = "ws://#{req.hostname}:#{@options.port}/livereload"
 

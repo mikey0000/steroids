@@ -30,8 +30,6 @@ class Prompt
     console.log "... done."
 
   connectLoop: =>
-    Help.connect()
-
     console.log "\nHit #{chalk.green("[enter]")} to push updates, type #{chalk.bold("help")} for usage"
 
     onInput = (err, result) =>

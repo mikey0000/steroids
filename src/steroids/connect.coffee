@@ -14,6 +14,11 @@ class Connect
     PortChecker = require "./PortChecker"
     BuildServer = require "./servers/BuildServer"
     util = require "util"
+    Help = require "./Help"
+
+    Simulator = require "./Simulator"
+    simulatorForKillingIt = new Simulator
+    simulatorForKillingIt.killall()
 
     project = new Project
 
@@ -72,39 +77,43 @@ class Connect
 
             , 1000
 
-
             if @watch
-              steroidsCli.debug "Starting FS watcher"
               Watcher = require("./fs/watcher")
+              appWatcher = new Watcher
+                path: "app"
+                ignored: @watchExclude
+
+              wwwWatcher = new Watcher
+                path: "www"
+                ignored: @watchExclude
+
+              configWatcher = new Watcher
+                path: "config"
+                ignored: @watchExclude
 
               project = new Project
 
-              refreshAndPrompt = =>
-                console.log ""
-                util.log "File system change detected, pushing code to connected devices ..."
+              liveReloadUpdate = ->
                 project.make
                   onSuccess: =>
-                    if @livereload
-                      buildServer.triggerLiveReload()
-                    else
-                      prompt.refresh()
+                    buildServer.triggerLiveReload()
+                    prompt.refresh()
 
-              if @watchExclude?
-                excludePaths = steroidsCli.config.getCurrent().watch.exclude.concat(@watchExclude.split(","))
-              else
-                excludePaths = steroidsCli.config.getCurrent().watch.exclude
+              appWatcher.on ["add", "change", "unlink"], (path)->
+                liveReloadUpdate()
 
-              watcher = new Watcher
-                excludePaths: excludePaths
-                onCreate: refreshAndPrompt
-                onUpdate: refreshAndPrompt
-                onDelete: (file) =>
-                  steroidsCli.debug "Deleted watched file #{file}"
+              wwwWatcher.on ["add", "change", "unlink"], (path)->
+                liveReloadUpdate()
 
-              watcher.watch("./app")
-              watcher.watch("./www")
-              watcher.watch("./config")
+              configWatcher.on ["add", "change", "unlink"], (path)->
+                project.make
+                  onSuccess: =>
+                    project.package
+                      onSuccess: =>
+                        prompt.refresh()
 
+
+            Help.connect()
             prompt.connectLoop()
 
 

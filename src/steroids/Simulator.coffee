@@ -82,8 +82,8 @@ class Simulator
       @simulatorSession = sbawn
         cmd: cmd
         args: args
-        stdout: if opts.stdout? then opts.stdout  else true
-        stderr: if opts.stderr? then opts.stderr else true
+        stdout: if opts.stdout? then opts.stdout  else false
+        stderr: if opts.stderr? then opts.stderr else false
 
       @simulatorSession.on "exit", () =>
         @running = false
@@ -91,8 +91,6 @@ class Simulator
         steroidsCli.debug "Killing iOS Simulator ..."
 
         @killall()
-
-        console.log "PRO TIP: use `steroids [simulator|connect] --deviceType <device>` to specify device type, see `steroids usage` for help."
 
         return unless ( @simulatorSession.stderr.indexOf('Session could not be started') == 0 )
 
