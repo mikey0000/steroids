@@ -70,6 +70,11 @@ class Prompt
             safariDebug.listViews()
           return # Exit now and later let the callback passed to SafarDebug's constructor re-enter the loop once its methods exit.
 
+        when "g", "gen", "genymotion"
+          Genymotion = require "./emulate/genymotion"
+          genymotion = new Genymotion
+          genymotion.run()
+
         when "s", "sim", "simulator"
 
           deviceType = if commandOptions[0]

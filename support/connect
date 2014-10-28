@@ -10,6 +10,8 @@
                                 Optionally, append #cyan[@<iOS-version>] to launch with a specific iOS
                                 version; e.g. #cyan[ipad@5.1]
 
+ #bold[gen]              g             WIP: Launch Genymotion Emulator (Android)
+
  #bold[qr]               -             Show the QR code for connecting devices
 
  #bold[reload]           r             Reload the whole app (when using connect with #cyan[--livereload])

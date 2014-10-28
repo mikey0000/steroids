@@ -333,7 +333,11 @@ class Steroids
               deviceType: argv.deviceType
 
           when "genymotion"
-            console.log "Not implemented yet"
+            console.log "Warning: WIP implementation"
+
+            Genymotion = require "./steroids/emulate/genymotion"
+            genymotion = new Genymotion()
+            genymotion.run()
 
           else
             Usage = require "./steroids/usage"
