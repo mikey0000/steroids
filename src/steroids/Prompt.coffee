@@ -30,6 +30,7 @@ class Prompt
     console.log "... done."
 
   connectLoop: =>
+    Help.connect()
 
     console.log "\nHit #{chalk.green("[enter]")} to push updates, type #{chalk.bold("help")} for usage"
 
@@ -127,7 +128,7 @@ class Prompt
                 onSuccess: =>
                   @refresh()
 
-        when "help", "?", "usage"
+        when "h", "help", "?", "usage"
           Help.connect()
         else
           console.log "Did not recognize input: #{result.command}, type help for usage."
