@@ -372,6 +372,18 @@ class Steroids
             usage = new Usage
             usage.debug()
 
+      when "__watch"
+
+        Watcher = require "./steroids/fs/watcher"
+        watcher = new Watcher
+          path: otherOptions[0]
+
+        for event in ["change", "add", "unlink", "addDir", "unlinkDir", "error"]
+          do (event) ->
+            watcher.on event, (path, stats) ->
+              console.log event, path, stats
+
+
       else
         Usage = require "./steroids/usage"
         usage = new Usage

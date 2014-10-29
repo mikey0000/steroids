@@ -99,6 +99,6 @@
     "data.either": "1.2.0",
     "xmlbuilder": "2.4.4",
     "bluebird": "2.3.5",
-    "chokidar": "0.10.2"
+    "chokidar": "0.10.3"
   }
 }
