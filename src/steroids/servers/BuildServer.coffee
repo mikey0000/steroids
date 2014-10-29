@@ -92,6 +92,16 @@ class BuildServer extends Server
         files: ["dolan.js"]
 
   setRoutes: =>
+
+    helper = (method, path, f) =>
+        @app[method] path, (req, res) =>
+          res.header "Access-Control-Allow-Origin", "*"
+          res.header "Access-Control-Allow-Headers", "Content-Type"
+
+          f(req, res).catch (err) ->
+            res.status(500).json {error: "Can not do anything lol"}
+
+
     @app.get "/", (req, res) =>
       res.redirect("/__appgyver/index.html")
 
@@ -138,10 +148,9 @@ class BuildServer extends Server
       res.on "close", ()->
         clearInterval id
 
-    @app.get "/__appgyver/deploy", (req, res) =>
-      res.header "Access-Control-Allow-Origin", "*"
-      res.header "Access-Control-Allow-Headers", "Content-Type"
 
+
+    helper "get", "/__appgyver/deploy", (req, res) ->
       Deploy = require "../Deploy"
       deploy = new Deploy
         sharePage: false
