@@ -18,10 +18,12 @@ class Updater
     request endpointURL, (error, response, body) ->
       return if error
 
-      bodyObject = JSON.parse body
-      latestVersion = bodyObject.version
-
-      onSuccess latestVersion
+      try
+        bodyObject = JSON.parse body
+        latestVersion = bodyObject.version
+        onSuccess latestVersion
+      catch error
+        return
 
   getCurrentUserId: () =>
     currentToken = Login.currentToken()

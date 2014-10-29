@@ -1,3 +1,8 @@
+## 3.5.16 (TODO)
+
+Bugfixes:
+- The update checker no longer crashes CLI in the case the backend doesn't give a proper response. Closes [#584](https://github.com/AppGyver/steroids/issues/584).
+
 ## 3.5.15 (2014-10-17)
 
 Bugfixes:
