@@ -1,4 +1,7 @@
-## 3.5.16 (TODO)
+## 3.5.16 (2014-10-29)
+
+Features:
+- Updated Steroids generators to [v0.4.4](https://github.com/AppGyver/generator-steroids/blob/master/CHANGELOG.md#044-2014-10-29).
 
 Bugfixes:
 - The update checker (the one that checks that your CLI and Scanner are updated to the latest version, and gives you a notice if you need to update) no longer crashes CLI in the case the backend doesn't give a proper response. Closes [#584](https://github.com/AppGyver/steroids/issues/584).
