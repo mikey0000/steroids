@@ -49,10 +49,12 @@ class Steroids
   detectSteroidsProject: ->
     return fs.existsSync(paths.application.configDir) and (fs.existsSync(paths.application.appDir) or fs.existsSync(paths.application.wwwDir))
 
-  debug: (options = {}) =>
+  debug: (options = {}, other) =>
     return unless steroidsCli.options.debug
 
-    message = if options.constructor.name == "String"
+    message = if other?
+      options + ": " + other
+    else if options.constructor.name == "String"
       options
     else
       options.message
