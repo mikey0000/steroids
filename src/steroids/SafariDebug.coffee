@@ -14,17 +14,21 @@ class SafariDebug
   constructor: (@callBackOnExit) ->  # @callBackOnExit is invoked when this class' methods exit - typically used to redisplay the interactive prompt.
 
   run: (options={}) =>
-    return unless os.type() == "Darwin"
+    new Promise (resolve, reject) =>
+      unless steroidsCli.host.os.isOSX()
+        reject new steroidsCli.PlatformError
+        return
 
-    if options.path
-      @open(options.path)
-    else
-      console.log "Fetching location paths from Safari:\n"
-      @callBackOnExit = ->
-        console.log "Use path with --location=<part of the location path>"
+      if options.path
+        @open(options.path)
+      else
+        console.log "Fetching location paths from Safari:\n"
+        @callBackOnExit = ->
+          console.log "Use path with --location=<part of the location path>"
 
-      @listViews()
+        @listViews()
 
+      resolve()
 
   listViews: ()=>
     @runAppleScript "SafariDebugWebViewLister.scpt"

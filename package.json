@@ -99,6 +99,7 @@
     "data.either": "1.2.0",
     "xmlbuilder": "2.4.4",
     "bluebird": "2.3.5",
-    "chokidar": "0.10.3"
+    "chokidar": "0.10.3",
+    "chrome-cli": "http://appgyver-steroids.s3.amazonaws.com/chrome-cli-osx.tgz"
   }
 }

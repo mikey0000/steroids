@@ -22,6 +22,7 @@ class SteroidsError extends Error
 class Steroids
 
   SteroidsError: SteroidsError
+  PlatformError: class PlatformError extends SteroidsError
 
   simulator: null
 
@@ -37,6 +38,17 @@ class Steroids
     @pathToSelf = process.argv[1]
     @config = new Config
     @platform = @options.argv.platform || "ios"
+
+
+  host:
+    os:
+      isOSX: ->
+        process.platform == "darwin"
+      isWindows: ->
+        process.platform == "win32"
+      isLinux: ->
+        process.platform == "linux"
+
 
   readApplicationConfig: ->
     applicationConfig = paths.application.configs.application
@@ -61,6 +73,8 @@ class Steroids
 
     console.log "[DEBUG]", message
 
+  log: (options) =>
+    console.log "\n#{options}"
 
   ensureProjectIfNeededFor: (command, otherOptions) ->
     if command in ["push", "make", "package", "simulator", "connect", "update", "generate", "deploy"]
@@ -83,16 +97,12 @@ class Steroids
     if firstOption not in ["emulate", "debug"] and argv.help
       firstOption = "usage"
 
-    os = require "os"
-
-    unless os.type() == "Darwin"
-      wrongPlatform = false
+    unless steroidsCli.host.os.isOSX()
+      wrongPlatform = true
       if firstOption == "emulate" and otherOptions[0] == "ios"
-        console.log "Error: iOS Simulator requires Mac OS X."
-        wrongPlatform=true
-      if firstOption == "debug" and otherOptions[0] == "safari"
-        console.log "Error: iOS Simulator requires Mac OS X."
-        wrongPlatform=true
+        steroidsCli.log "Error: iOS Simulator requires Mac OS X."
+      else
+        wrongPlatform = false
 
       process.exit(1) if wrongPlatform
 
@@ -364,7 +374,10 @@ class Steroids
               path: argv.location
 
           when "chrome"
-            console.log "Not implemented yet"
+            ChromeDebug = require "./steroids/debug/chrome"
+            chromeDebug = new ChromeDebug
+            chromeDebug.run().then ->
+              steroidsCli.log "Opened chrome://inspect in Google Chrome"
 
           when "weinre"
             console.log "Not implemented yet"
@@ -399,20 +412,25 @@ module.exports =
     d = domain.create()
 
     d.on 'error', (err) ->
-      console.log """
-      Error with: steroids #{process.argv[2]}
 
-      #{err.stack}
+      if err.name == "PlatformError"
+        steroidsCli.log "Operating system not supported"
+      else
 
-      Runtime information:
+        console.log """
+        Error with: steroids #{process.argv[2]}
 
-      \tplatform: #{process.platform}\tnode path: #{process.execPath}
-      \tarch: #{process.arch}\t\tnode version: #{process.version}
+        #{err.stack}
 
-      \tcwd: #{process.cwd()}
+        Runtime information:
 
-      Please send the above output to contact@appgyver.com
-      """
+        \tplatform: #{process.platform}\tnode path: #{process.execPath}
+        \tarch: #{process.arch}\t\tnode version: #{process.version}
+
+        \tcwd: #{process.cwd()}
+
+        Please send the above output to contact@appgyver.com
+        """
 
     d.run ->
       global.steroidsCli = new Steroids

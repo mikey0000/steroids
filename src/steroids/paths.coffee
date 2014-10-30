@@ -114,5 +114,7 @@ class Paths
 
   @iosSim =
     path: path.join @npm, "node_modules", "ios-sim", "dist", "ios-sim"
+  @chromeCli =
+    path: path.join @npm, "node_modules", "chrome-cli", "bin", "chrome-cli"
 
 module.exports = Paths
