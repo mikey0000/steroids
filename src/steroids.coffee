@@ -74,7 +74,8 @@ class Steroids
     console.log "[DEBUG]", message
 
   log: (options) =>
-    console.log "\n#{options}"
+    #TODO: detect that we are in prompt and prepend with \n
+    console.log "#{options}"
 
   ensureProjectIfNeededFor: (command, otherOptions) ->
     if command in ["push", "make", "package", "simulator", "connect", "update", "generate", "deploy"]
@@ -346,11 +347,15 @@ class Steroids
       when "emulate"
         switch otherOptions[0]
           when "ios"
-            Simulator = require "./steroids/Simulator"
 
-            #TODO: why is it like this?
-            steroidsCli.simulator.run
-              deviceType: argv.deviceType
+            if argv.devices
+              steroidsCli.simulator.getDevicesAndSDKs()
+              .then (devices)->
+                for device in devices
+                  steroidsCli.log "#{device.name}#{chalk.grey('@'+device.sdks)}"
+            else
+              steroidsCli.simulator.run
+                device: argv.device
 
           when "genymotion"
             console.log "Warning: WIP implementation"

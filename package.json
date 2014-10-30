@@ -57,7 +57,7 @@
     "npm": ">=1.3.8"
   },
   "dependencies": {
-    "ios-sim": "git+https://git@github.com/AppGyver/ios-sim.git",
+    "ios-sim": "http://appgyver-steroids.s3.amazonaws.com/ios-sim-3.0.0-AppGyver-p0.tgz",
     "archiver": "0.4.10",
     "async": "0.2.9",
     "bower": "1.3.8",

@@ -7,8 +7,10 @@
   #bold[genymotion]   Starts the Genymotion Android Emulator
 
   #bold[ios]          Starts the iOS Simulator (OS X only)
-    #cyan[--deviceType=<type>]
-    #cyan[--deviceType=<type>@<sdk>]
+    #cyan[--devices]
+      Lists all supported devices and SDKs
 
-      #bold[type] iphone,iphone_4s,iphone_5,iphone_5s,iphone_6,iphone_6_plus,ipad_2,ipad_retina,ipad_air
-      #bold[sdk]  The iOS SDK version e.g. iphone_5s@7.1 ... assuming that it is installed
+    #cyan[--device=<type>]
+    #cyan[--device=<type>@<sdk>]
+      #bold[type] See: #[cyan --devices]
+      #bold[sdk]  The iOS SDK version e.g. iPhone-6@8.1 ... assuming that it is installed

@@ -113,7 +113,7 @@ class Paths
     functionalTestPath: path.join @applicationDir, "test", "functional"
 
   @iosSim =
-    path: path.join @npm, "node_modules", "ios-sim", "dist", "ios-sim"
+    path: path.join @npm, "node_modules", "ios-sim", "bin", "ios-sim"
   @chromeCli =
     path: path.join @npm, "node_modules", "chrome-cli", "bin", "chrome-cli"
 
