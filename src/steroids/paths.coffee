@@ -117,4 +117,8 @@ class Paths
   @chromeCli =
     path: path.join @npm, "node_modules", "chrome-cli", "bin", "chrome-cli"
 
+  @emulate:
+    android:
+      default: path.join @npm, "node_modules", "steroids-android-packages", "builds", "application.apk"
+
 module.exports = Paths

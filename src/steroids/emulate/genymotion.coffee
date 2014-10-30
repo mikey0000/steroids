@@ -3,10 +3,13 @@ sbawn = require "../sbawn"
 class Genymotion
 
   constructor: ->
+    paths = require "../paths"
+
     @genymotionBasePath = "/Applications/Genymotion.app/Contents/MacOS"
     @applicationPackage = "com.appgyver.freshandroid"
     @applicationActivity = "com.appgyver.runtime.scanner.MainActivity"
-    @apkPath = "/Users/mpa/Desktop/application.apk"
+    @apkPath = paths.emulate.android.default
+
     @vmName = "steroids"
 
   run: (opts = {}) =>
@@ -102,7 +105,7 @@ class Genymotion
 
   installApk: (opts = {}) =>
     new Promise (resolve, reject) =>
-      steroidsCli.debug "GENYMOTION", "installing APK"
+      steroidsCli.debug "GENYMOTION", "installing APK #{@apkPath}"
       cmd = "#{@genymotionBasePath}/tools/adb"
       args = ["install", @apkPath]
 
@@ -133,8 +136,14 @@ class Genymotion
               reject err #perkele
           , 1000
 
-        else
+        else if @installSession.stdout.match "Success"
+          steroidsCli.debug "GENYMOTION", "installed"
           resolve()
+        else
+          steroidsCli.debug "GENYMOTION", "Unknown error:"
+          steroidsCli.debug "GENYMOTION", @installSession.stdout
+
+          reject new Error "Install failed"
 
   startApplication: (opts = {}) =>
     new Promise (resolve, reject) =>
