@@ -44,7 +44,7 @@ class Genymotion
     .then(@unlockDevice)
     .then(@stop)
     .catch StoppedError, (err) =>
-      # all good
+      0 # nop
     .catch (err) =>
       console.log err.message
       @stop()
@@ -193,7 +193,22 @@ class Genymotion
           steroidsCli.debug "GENYMOTION", "installed failed because already exists, uninstalling again"
           @uninstallApplication()
           .then(@installApk)
-
+          .then(resolve)
+        else if @installSession.stdout.match "INSTALL_FAILED_INVALID_APK"
+          steroidsCli.debug "GENYMOTION", "installed failed because invalid apk, uninstalling again"
+          @uninstallApplication()
+          .then(@installApk)
+          .then(resolve)
+        else if @installSession.stdout.match "INSTALL_FAILED_INVALID_URI"
+          steroidsCli.debug "GENYMOTION", "installed failed because invalid URI, uninstalling again"
+          @uninstallApplication()
+          .then(@installApk)
+          .then(resolve)
+        else if @installSession.stdout.match "rm failed for /data/local/tmp/"
+          steroidsCli.debug "GENYMOTION", "installed failed on /data/local/tmp/*.apk failure, uninstalling again"
+          @uninstallApplication()
+          .then(@installApk)
+          .then(resolve)
         else if @installSession.stdout.match "Success"
           steroidsCli.debug "GENYMOTION", "installed"
           resolve()
