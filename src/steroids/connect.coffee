@@ -20,6 +20,10 @@ class Connect
     simulatorForKillingIt = new Simulator
     simulatorForKillingIt.killall()
 
+    Genymotion = require "./emulate/genymotion"
+    genymotionForKillingIt = new Genymotion
+    genymotionForKillingIt.killall()
+
     project = new Project
 
     project.push

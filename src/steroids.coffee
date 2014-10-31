@@ -24,7 +24,12 @@ class Steroids
   SteroidsError: SteroidsError
   PlatformError: class PlatformError extends SteroidsError
 
+  # move this to globals
   simulator: null
+
+  globals:
+    genymotion: null
+    simulator: null
 
   constructor: (@options = {}) ->
     Simulator = require "./steroids/Simulator"
@@ -63,6 +68,8 @@ class Steroids
 
   debug: (options = {}, other) =>
     return unless steroidsCli.options.debug
+
+    process.stdout.cursorTo(0)
 
     message = if other?
       options + ": " + other
@@ -433,6 +440,7 @@ module.exports =
         \tcwd: #{process.cwd()}
 
         Please send the above output to contact@appgyver.com
+          (Also if possible, re-run the same command with --debug and please send that output too)
         """
 
     d.run ->
