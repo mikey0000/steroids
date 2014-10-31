@@ -120,5 +120,6 @@ class Paths
   @emulate:
     android:
       default: path.join @npm, "node_modules", "steroids-android-packages", "builds", "application.apk"
+      debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug.apk"
 
 module.exports = Paths

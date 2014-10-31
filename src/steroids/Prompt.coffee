@@ -69,6 +69,11 @@ class Prompt
             safariDebug.listViews()
           return # Exit now and later let the callback passed to SafarDebug's constructor re-enter the loop once its methods exit.
 
+        when "c", "chrome"
+          ChromeDebug = require "./debug/chrome"
+          chromeDebug = new ChromeDebug
+          chromeDebug.run()
+
         when "g", "gen", "genymotion"
           Genymotion = require "./emulate/genymotion"
           genymotion = new Genymotion
@@ -76,17 +81,13 @@ class Prompt
 
         when "s", "sim", "simulator"
 
-          deviceType = if commandOptions[0]
+          device = if commandOptions[0]
             commandOptions[0]
-          else if steroidsCli.options.argv.deviceType
+          else if steroidsCli.options.argv.device
             steroidsCli.options.argv.deviceType
-          else
-            steroidsCli.simulator.DEFAULT_DEVICE_TYPE
-
-          console.log "Starting iOS Simulator of type `#{deviceType}`"
 
           steroidsCli.simulator.run
-            deviceType: deviceType
+            device: device
 
         when "qr", "qr-code", "qrcode"
           QRCode = require "./QRCode"
@@ -94,29 +95,13 @@ class Prompt
             port: @buildServer.port
 
         when "e", "edit"
-
-          if process.platform is "win32"
-            console.log "Error: launching text editor via Steroids is not supported on Windows"
+          unless process.env.EDITOR?
+            steroidsCli.log "EDITOR environment variable not set"
           else
-            editorCmd = steroidsCli.config.getCurrent().editor.cmd
-            editorArgs = steroidsCli.config.getCurrent().editor.args
-
-            acualArgs = if editorArgs
-              editorArgs
-            else
-              [paths.applicationDir]
-
-            acualCmd = if editorCmd
-              editorCmd
-            else
-              "subl"
-
             sbawn = require "./sbawn"
-            sbawn
-              cmd: acualCmd
-              args: acualArgs
-              debug: true
-              exitOnError: false
+            editor = sbawn
+              cmd: process.env.EDITOR
+              args: [paths.applicationDir]
 
         when "r", "reload"
           project = new Project

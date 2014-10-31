@@ -12,6 +12,8 @@
 
  #bold[gen]              g             WIP: Launch Genymotion Emulator (Android)
 
+ #bold[chrome]           c             WIP: Launch Chrome dev tools (Android)
+
  #bold[qr]               -             Show the QR code for connecting devices
 
  #bold[reload]           r             Reload the whole app (when using connect with #cyan[--livereload])

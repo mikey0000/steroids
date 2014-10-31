@@ -11,7 +11,7 @@ class ChromeDebug
 
       chromeCliSession = sbawn
         cmd: Paths.chromeCli.path
-        args: ["open", "chrome://inspect"]
+        args: ["open", "chrome://inspect", "-n"]
         stdout: false
 
       chromeCliSession.on "exit", ->

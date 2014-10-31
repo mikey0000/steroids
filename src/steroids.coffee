@@ -358,8 +358,6 @@ class Steroids
                 device: argv.device
 
           when "genymotion"
-            console.log "Warning: WIP implementation"
-
             Genymotion = require "./steroids/emulate/genymotion"
             genymotion = new Genymotion()
             genymotion.run()

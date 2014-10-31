@@ -4,11 +4,13 @@ class Genymotion
 
   constructor: ->
     paths = require "../paths"
-
+    @genymotionShellPath = "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell"
     @genymotionBasePath = "/Applications/Genymotion.app/Contents/MacOS"
-    @applicationPackage = "com.appgyver.freshandroid"
+
+    #@applicationPackage = "com.appgyver.freshandroid"
+    @applicationPackage = "com.appgyver.runtime.scanner"
     @applicationActivity = "com.appgyver.runtime.scanner.MainActivity"
-    @apkPath = paths.emulate.android.default
+    @apkPath = paths.emulate.android.debug
 
     @vmName = "steroids"
 
@@ -16,16 +18,28 @@ class Genymotion
 
     steroidsCli.debug "GENYMOTION", "killing previous instances of genymotion"
 
+
+    @startFailed = false
+
     @killall()
+    .then(@ensurePlayer)
     .then(@startPlayer)
     .then(@uninstallApplication)
     .then(@installApk)
     .then(@startApplication)
+    .then(@unlockDevice)
     .catch (err) ->
       console.log err.message
 
+
   startPlayer: (opts = {}) =>
     new Promise (resolve, reject) =>
+
+      fs = require "fs"
+      unless fs.existsSync @genymotionBasePath
+        reject new Error "/Applications/Genymotion.app does not exist"
+        return
+
       steroidsCli.debug "GENYMOTION", "starting player"
 
       cmd = "#{@genymotionBasePath}/player"
@@ -36,7 +50,8 @@ class Genymotion
         args: args
 
       @genymotionPlayerSession.on "exit", =>
-        reject new Error "player start failed"
+        @startFailed = true
+        reject new Error "Could not start a virtual device named steroids"
 
 
       @waitForDevice()
@@ -59,6 +74,10 @@ class Genymotion
 
       @deviceListSession.on "exit", =>
         unless @deviceListSession.stdout.match "model:steroids"
+          if @startFailed
+            reject new Error "start failed"
+            return
+
           steroidsCli.debug "GENYMOTION", "device not found, retrying"
 
           setTimeout =>
@@ -173,6 +192,22 @@ class Genymotion
               reject err #perkele
           , 1000
 
+  unlockDevice: (opts = {}) =>
+    new Promise (resolve, reject) =>
+      steroidsCli.debug "GENYMOTION", "unlocking device"
+
+      cmd = "#{@genymotionBasePath}/tools/adb"
+      args = ["shell", "input", "keyevent", "82"]
+
+      @unlockSession = sbawn
+        cmd: cmd
+        args: args
+        stdout: if opts.stdout? then opts.stdout  else false
+        stderr: if opts.stderr? then opts.stderr else false
+
+      @unlockSession.on "exit", =>
+        steroidsCli.debug "GENYMOTION", "unlock exit code: #{@unlockSession.code}"
+        resolve()
 
   killall: =>
     new Promise (resolve) ->
@@ -181,7 +216,6 @@ class Genymotion
         args: ["-9", "player"]
 
       killGenymotion.on "exit", ->
-        console.log "Genymotion killed"
         resolve()
 
 module.exports = Genymotion
