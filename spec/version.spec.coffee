@@ -13,7 +13,7 @@ describe 'version', ->
 
       versionRun.run()
 
-      runs ()=>
+      runs =>
         versionString = "AppGyver Steroids² #{@packageJSON.version}\n"
         expect( versionRun.stdout ).toMatch(versionString)
 
@@ -24,6 +24,6 @@ describe 'version', ->
 
       versionRun.run()
 
-      runs ()=>
+      runs =>
         versionString = "AppGyver Steroids² #{@packageJSON.version}\n"
         expect( versionRun.stdout ).toMatch(versionString)

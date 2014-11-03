@@ -12,16 +12,15 @@ describe 'create', ->
     afterEach =>
       @testHelper.cleanUp()
 
-    # it 'should be created', =>
-    #   session = @testHelper.run
-    #     args: ["create", "myApp"]
-    #     debug: true
-    #
-    #   runs =>
-    #     fs = require "fs"
-    #
-    #     expect( session.code ).toBe(0)
-    #     expect( fs.existsSync "myApp" ).toBe true
+    it 'should be created', =>
+      session = @testHelper.run
+        args: ["create", "myApp"]
+
+      runs =>
+        fs = require "fs"
+
+        expect( session.code ).toBe(0)
+        expect( fs.existsSync "myApp" ).toBe true
 
     it 'should be not overwrite', =>
       fs = require "fs"
