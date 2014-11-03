@@ -4,9 +4,7 @@ describe 'Steroids Cli', ->
 
   beforeEach ->
     @testHelper = new TestHelper
-
-    @testHelper.bootstrap()
-    @testHelper.changeToWorkingDirectory()
+    @testHelper.prepare()
 
   afterEach ->
     @testHelper.cleanUp()

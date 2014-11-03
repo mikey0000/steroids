@@ -17,12 +17,17 @@ class TestHelper
     @workingDirectory = path.join process.cwd(), testDirectory
     @testAppPath = path.join(@workingDirectory, @testAppName)
 
+  prepare: () =>
+    @bootstrap()
+    @changeToWorkingDirectory()
+
   bootstrap: () =>
     wrench.rmdirSyncRecursive @workingDirectory, true
     fs.mkdirSync @workingDirectory
 
   changeToWorkingDirectory: () =>
     process.chdir @workingDirectory
+
 
   cleanUp: () =>
     if process.cwd() == @workingDirectory
