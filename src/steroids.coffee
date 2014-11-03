@@ -33,7 +33,7 @@ class Steroids
 
   constructor: (@options = {}) ->
     Simulator = require "./steroids/Simulator"
-    Version = require "./steroids/Version"
+    Version = require "./steroids/version/version"
     Config = require "./steroids/Config"
 
     @simulator = new Simulator
@@ -85,15 +85,10 @@ class Steroids
     console.log "#{options}"
 
   ensureProjectIfNeededFor: (command, otherOptions) ->
-    if command in ["push", "make", "package", "simulator", "connect", "update", "generate", "deploy"]
-
+    if command in ["push", "make", "package", "connect", "update", "generate", "deploy", "debug", "emulate"]
       return if @detectSteroidsProject()
-      return if command == "generate" and otherOptions.length == 0    # displays usage
 
-      console.log """
-        Error: command '#{command}' requires to be run in a Steroids project directory.
-      """
-
+      steroidsCli.log "Error: command '#{command}' requires to be run in a Steroids project directory."
       process.exit(1)
 
   execute: =>
@@ -197,9 +192,7 @@ class Steroids
           Help.dataUsage()
 
       when "version"
-        Version = require("./steroids/version")
-        version = new Version
-        version.run()
+        steroidsCli.version.run()
 
       when "create"
 

@@ -7,13 +7,12 @@ LOCAL_NODE_MODULES=$(pwd)/node_modules
 
 if [ "$MODE" = "fast" ]; then
   echo "Mode: fast, skipping full generator tests"
-  FILES="spec/Version.spec.coffee \
-  spec/Steroids.spec.coffee \
-  spec/Packager.spec.coffee \
-  spec/Grunt.spec.coffee \
-  spec/Create.spec.coffee \
-  spec/GeneratorFast.spec.coffee \
-  spec/BuildServer.spec.coffee"
+
+  FILES="spec/version.spec.coffee \
+  spec/steroids.spec.coffee \
+  spec/packager.spec.coffee \
+  spec/create.spec.coffee"
+
 elif [ "$MODE" != "" ]; then
   echo "Mode: single file: $1"
   FILES=$1
@@ -57,6 +56,18 @@ else
     npm install
   else
     echo "not installing"
+  fi
+
+  echo "Now running: $ rm -rf __testApp && devroids create __testApp"
+
+  echo "ok? (y/N)"
+
+  read BASE_APP_OK
+
+  if [ "$BASE_APP_OK" = "y" ]; then
+    rm -rf __testApp && devroids create __testApp
+  else
+    echo "not creating"
   fi
 
   FILES=$(ls spec/*.spec.*)

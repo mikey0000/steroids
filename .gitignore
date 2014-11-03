@@ -3,6 +3,7 @@
 /testApp
 .DS_Store
 __test
+__testApp
 
 # WebStorm
 /.idea

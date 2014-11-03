@@ -2,17 +2,32 @@ wrench = require "wrench"
 fs = require "fs"
 path = require "path"
 
-CommandRunner = require "./CommandRunner"
+CommandRunner = require "./command_runner"
 
 class TestHelper
   @CommandRunner: CommandRunner
-  @steroidsBinPath: path.join __dirname, "..", "bin", "steroids"
+  @steroidsBinPath: path.join __dirname, "..", "bin", "devroids"
+
+  @run: (options={}) =>
+    options.cmd ?= TestHelper.steroidsBinPath
+
+    commandRun = new CommandRunner options
+    commandRun.run()
+
+    return commandRun
+
+  run: @run
 
   constructor: (@options = {}) ->
     testDirectory = @options.relativePath || "__test"
     @testAppName = @options.testAppName || "testApp"
+    @testBaseApp = @options.testBaseApp || "__testApp"
     @workingDirectory = path.join process.cwd(), testDirectory
     @testAppPath = path.join(@workingDirectory, @testAppName)
+
+  prepare: () =>
+    @bootstrap()
+    @copyBaseApp()
 
   bootstrap: () =>
     wrench.rmdirSyncRecursive @workingDirectory, true
@@ -21,12 +36,14 @@ class TestHelper
   changeToWorkingDirectory: () =>
     process.chdir @workingDirectory
 
+  copyBaseApp: =>
+    wrench.copyDirSyncRecursive @testBaseApp, path.join(@workingDirectory, @testAppName)
+
   cleanUp: () =>
     if process.cwd() == @workingDirectory
       process.chdir path.join process.cwd(), ".."
 
     wrench.rmdirSyncRecursive @workingDirectory, false
-
 
   createProjectSync: () =>
 
@@ -34,6 +51,7 @@ class TestHelper
       cmd: TestHelper.steroidsBinPath
       args: ["create", @testAppName]
       timeout: 20000
+      debug: @options.debug
 
     runs ()=>
       @createRun.run()
@@ -41,15 +59,14 @@ class TestHelper
     runs ()=>
       expect( @createRun.done ).toBe(true)
 
-  runInProjectSync: (command, options={})=>
+
+
+  runInProject: (options={})=>
     options.cmd ?= TestHelper.steroidsBinPath
-    options.args = [command].concat options.args
     options.cwd ?= @testAppPath
 
     commandRun = new CommandRunner options
-
-    runs ()=>
-      commandRun.run()
+    commandRun.run()
 
     return commandRun
 

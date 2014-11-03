@@ -9,9 +9,7 @@ class Help
   @usage =
     header: ->
       Help.logo()
-      Version = require("./version")
-      version = new Version
-      console.log "\t\t\t\t\t\tv#{version.getVersion()}\n"
+      console.log "\t\t\t\t\t\tv#{steroidsCli.version.getVersion()}\n"
 
     compact: ->
       Help.printBanner(paths.banners.usage.compact, true)
