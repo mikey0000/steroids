@@ -234,7 +234,7 @@ var checkComponents = function() {
 var packageJSON = require("../package.json");
 steroidsVersion = packageJSON.version;
 
-console.log("\n\n\nAppGyver Steroids "+steroidsVersion+" installation\n");
+console.log("\n\n\nAppGyver Steroids² "+steroidsVersion+" installation\n");
 
 console.log("If you have any problems, please visit our forums at http://forums.appgyver.com\n\
 We are now trying to detect required dependencies and problems.\n\

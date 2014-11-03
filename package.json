@@ -1,6 +1,6 @@
 {
   "name": "devroids",
-  "version": "4.0.0",
+  "version": "3.9.0",
   "preferGlobal": "true",
   "license": "MIT",
   "author": "AppGyver <contact@appgyver.com>",
@@ -95,7 +95,7 @@
     "winston": "0.7.3",
     "body-parser": "1.8.1",
     "steroids-connect": "git+https://jepjep:00f4fe8dd1f89e7cfa1276bfb005ac27e476312e@github.com/AppGyver/steroids-connect.git#master",
-    "tiny-lr": "git+https://github.com/AppGyver/tiny-lr.git#master",
+    "tiny-lr": "http://appgyver-steroids.s3.amazonaws.com/tiny-lr-0.1.4-AppGyver-p0.tgz",
     "lodash": "2.4.1",
     "data.either": "1.2.0",
     "xmlbuilder": "2.4.4",
