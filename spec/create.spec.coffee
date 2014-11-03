@@ -2,6 +2,16 @@ TestHelper = require "./test_helper"
 
 describe 'create', ->
 
+  describe "arguments", ->
+
+    it 'gives usage when no directory is specified', =>
+      session = TestHelper.run
+        args: ["create"]
+
+      runs =>
+        expect( session.code ).toBe 1
+        expect( session.stdout ).toMatch("Usage: steroids create <directoryName>")
+
   describe "new app", ->
 
     beforeEach =>
