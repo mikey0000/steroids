@@ -1,9 +1,9 @@
-paths = require "./paths"
-path = require "path"
-
 class Version
 
   constructor: (@options = {})->
+    paths = require "../paths"
+    path = require "path"
+
     @pathToPackageJSON = path.join paths.npm, "package.json"
 
   run: (opts={}) =>

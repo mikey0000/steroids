@@ -33,7 +33,7 @@ class Steroids
 
   constructor: (@options = {}) ->
     Simulator = require "./steroids/Simulator"
-    Version = require "./steroids/Version"
+    Version = require "./steroids/version/version"
     Config = require "./steroids/Config"
 
     @simulator = new Simulator
@@ -197,9 +197,7 @@ class Steroids
           Help.dataUsage()
 
       when "version"
-        Version = require("./steroids/version")
-        version = new Version
-        version.run()
+        steroidsCli.version.run()
 
       when "create"
 

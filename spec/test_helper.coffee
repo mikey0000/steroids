@@ -2,11 +2,14 @@ wrench = require "wrench"
 fs = require "fs"
 path = require "path"
 
-CommandRunner = require "./CommandRunner"
+CommandRunner = require "./command_runner"
+
+global.beforeAll = (f)->
+  f()
 
 class TestHelper
   @CommandRunner: CommandRunner
-  @steroidsBinPath: path.join __dirname, "..", "bin", "steroids"
+  @steroidsBinPath: path.join __dirname, "..", "bin", "devroids"
 
   constructor: (@options = {}) ->
     testDirectory = @options.relativePath || "__test"
