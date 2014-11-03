@@ -16,6 +16,8 @@ class TestHelper
 
     return commandRun
 
+  run: @run
+
   constructor: (@options = {}) ->
     testDirectory = @options.relativePath || "__test"
     @testAppName = @options.testAppName || "testApp"
