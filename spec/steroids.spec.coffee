@@ -20,8 +20,7 @@ describe 'Steroids Cli', ->
       for command in commandsThatRequireSteroidsProject
         do (command) ->
 
-          session = new TestHelper.CommandRunner
-            cmd: TestHelper.steroidsBinPath
+          session = TestHelper.run
             args: [command]
 
           session.run()

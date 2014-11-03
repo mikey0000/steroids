@@ -8,6 +8,14 @@ class TestHelper
   @CommandRunner: CommandRunner
   @steroidsBinPath: path.join __dirname, "..", "bin", "devroids"
 
+  @run: (options={}) =>
+    options.cmd ?= TestHelper.steroidsBinPath
+
+    commandRun = new CommandRunner options
+    commandRun.run()
+
+    return commandRun
+
   constructor: (@options = {}) ->
     testDirectory = @options.relativePath || "__test"
     @testAppName = @options.testAppName || "testApp"
@@ -25,9 +33,6 @@ class TestHelper
 
   changeToWorkingDirectory: () =>
     process.chdir @workingDirectory
-
-  changeToProjectDirectory: () =>
-    process.chdir @testAppPath
 
   copyBaseApp: =>
     wrench.copyDirSyncRecursive @testBaseApp, path.join(@workingDirectory, @testAppName)
@@ -51,6 +56,8 @@ class TestHelper
 
     runs ()=>
       expect( @createRun.done ).toBe(true)
+
+
 
   runInProject: (options={})=>
     options.cmd ?= TestHelper.steroidsBinPath

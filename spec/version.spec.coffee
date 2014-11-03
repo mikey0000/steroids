@@ -8,8 +8,7 @@ describe 'version', ->
   describe 'command line', =>
 
     it 'prints version with --version', =>
-      versionRun = new TestHelper.CommandRunner
-        cmd: TestHelper.steroidsBinPath
+      versionRun = TestHelper.run
         args: ["--version"]
 
       versionRun.run()
@@ -20,8 +19,7 @@ describe 'version', ->
 
     it 'prints version with version', =>
 
-      versionRun = new TestHelper.CommandRunner
-        cmd: TestHelper.steroidsBinPath
+      versionRun = TestHelper.run
         args: ["version"]
 
       versionRun.run()
