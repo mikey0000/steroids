@@ -243,11 +243,12 @@ class BuildServer extends Server
       logMsg = req.body
 
       #unused stuff coming in from Steroids.js:
-      #  logMsg.date, .screen_id, .layer_id, .view_id
+      #  .screen_id, .layer_id, .view_id
 
       logLevel = logMsg.level || "info"
       message = logMsg.message
       metadata =
+        datetime: logMsg.date
         view: logMsg.location
         deviceName: logMsg.deviceName || "Richard's iPhone" # not provided by steroids.js yet
         blob: logMsg.deviceName || null # expandable extra info for the message
