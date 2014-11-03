@@ -73,6 +73,12 @@ else
   FILES=$(ls spec/*.spec.*)
 fi
 
+
+if [ ! -d "__testApp" ]; then
+  echo "__testApp does not exists, create with bin/test"
+  exit 1
+fi
+
 ERRORS=false
 
 for FILE in $FILES; do
