@@ -2,30 +2,50 @@ TestHelper = require "./test_helper"
 
 describe 'Steroids Cli', ->
 
-  beforeEach ->
-    @testHelper = new TestHelper
-    @testHelper.prepare()
+  describe 'without being in steroids project directory', =>
 
-  afterEach ->
-    @testHelper.cleanUp()
-
-
-  describe 'without being in steroids project directory', ->
-
-    it "gives error if command requires to be run in project directory", ->
-
-      commandsThatRequireSteroidsProject = ["push", "make", "package", "debug", "emulate", "connect", "update", "generate", "deploy"]
+    it "gives error if command requires to be run in project directory", =>
+      commandsThatRequireSteroidsProject = [
+        "push"
+        "make"
+        "package"
+        "debug"
+        "emulate"
+        "connect"
+        "update"
+        "generate"
+        "deploy"
+      ]
 
       for command in commandsThatRequireSteroidsProject
         do (command) ->
 
-          requireRun = new TestHelper.CommandRunner
+          session = new TestHelper.CommandRunner
             cmd: TestHelper.steroidsBinPath
             args: [command]
 
-          requireRun.run()
+          session.run()
 
           runs ->
-            expect( requireRun.code ).toBe(1)
+            expect( session.code ).toBe(1)
+            expect( session.stdout ).toMatch /requires to be run in a Steroids project directory./
 
-            expect( requireRun.stdout ).toMatch /requires to be run in a Steroids project directory./
+
+  describe 'when in a steroids project directory', =>
+
+    beforeEach =>
+      @testHelper = new TestHelper
+      @testHelper.prepare()
+
+    it "should run the commands", =>
+      for command in [
+        "debug"
+        "emulate"
+      ]
+        do (command) =>
+
+          session = @testHelper.runInProject
+            args: [command]
+
+          runs ->
+            expect( session.code ).toBe(0)

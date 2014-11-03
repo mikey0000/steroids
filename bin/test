@@ -59,6 +59,18 @@ else
     echo "not installing"
   fi
 
+  echo "Now running: $ rm -rf __testApp && devroids create __testApp"
+
+  echo "ok? (y/N)"
+
+  read BASE_APP_OK
+
+  if [ "$BASE_APP_OK" = "y" ]; then
+    rm -rf __testApp && devroids create __testApp
+  else
+    echo "not creating"
+  fi
+
   FILES=$(ls spec/*.spec.*)
 fi
 

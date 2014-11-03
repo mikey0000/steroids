@@ -7,7 +7,7 @@ class CommandRunner
     @args = @options.args || []
     @cwd = @options.cwd || ""
 
-    @timeout = @options.timeout || 6000
+    @timeout = @options.timeout || 20000
 
     @stdout = ""
     @stderr = ""

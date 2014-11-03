@@ -2,10 +2,10 @@ TestHelper = require "./test_helper"
 
 describe 'version', ->
 
-  describe 'command line', ->
+  beforeEach =>
+    @packageJSON = require "../package.json"
 
-    beforeAll =>
-      @packageJSON = require "../package.json"
+  describe 'command line', =>
 
     it 'prints version with --version', =>
       versionRun = new TestHelper.CommandRunner
