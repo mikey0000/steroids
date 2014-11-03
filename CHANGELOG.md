@@ -1,3 +1,8 @@
+## 3.9.0 (2014-11-03)
+
+Secret changelog started. This 3.9.0 will be replaced with 4.0.0 release notes steroids^2 goes out.
+
+
 ## 3.5.15 (2014-10-17)
 
 Bugfixes:
