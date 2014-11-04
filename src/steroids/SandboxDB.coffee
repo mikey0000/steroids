@@ -1,62 +1,112 @@
-restify = require "restify"
 util = require "util"
-yaml = require 'js-yaml'
-Login = require "./Login"
-q = require "q"
 fs = require "fs"
-URL = require "url"
-http = require 'http'
-open = require "open"
-exec = require('child_process').exec
+
+restify = require "restify"
+yaml = require 'js-yaml'
+
 paths = require "./paths"
-env = require("yeoman-generator")()
-Help = require "./Help"
-chalk = require "chalk"
+Login = require "./Login"
 dataHelpers = require "./dataHelpers"
 
-data_definition_path = 'config/sandboxdb.yaml'
+configurationFilePath = 'config/sandboxdb.yaml'
 
-sandbox_db_base_url    = 'https://datastorage-api.appgyver.com'
-sandbox_db_url         = "#{sandbox_db_base_url}/v1/datastorage"
+sandboxDBBaseURL = 'https://datastorage-api.appgyver.com'
+sandboxDBURL = "#{sandboxDBBaseURL}/v1/datastorage"
 
 class SandboxDB
+  @SandboxDBError: class SandboxDBError extends steroidsCli.SteroidsError
+  @ProvisionError: class ProvisionError extends SandboxDBError
+  @WriteFileError: class WriteFileError extends SandboxDBError
+
+  providerName: "appgyver_sandbox"
 
   constructor: (@options={}) ->
-    @sandboxDBProvisionApi = restify.createJsonClient
-      url: sandbox_db_base_url
-    @sandboxDBProvisionApi.basicAuth Login.currentAccessToken(), 'X'
+    @apiClient = restify.createJsonClient
+      url: sandboxDBBaseURL
+    @apiClient.basicAuth Login.currentAccessToken(), 'X'
 
-  createBucketWithCredentials: () =>
-    deferred = q.defer()
-    data =
-      appId: dataHelpers.getAppId()
+  get: =>
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "SANDBOXDB", "Initializing Sandbox DB"
 
-    @sandboxDBProvisionApi.post('/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
-      if obj.code==201
-        deferred.resolve(obj.body)
-      else
-        deferred.reject(obj)
-    )
+      @readFromFile().then =>
+        if @existsSync() #TODO: cannot be called before @readFromFile is resolved
+          steroidsCli.debug "SANDBOXDB", "Sandbox DB already created"
+          resolve()
+        else
+          steroidsCli.debug "SANDBOXDB", "Sandbox DB not created, creating a new one."
+          @create().then resolve
 
-    return deferred.promise
+  create: =>
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "SANDBOXDB", "Creating Sandbox DB"
 
-  createSandboxDBConfig: (apikey, database, bucket_id) =>
-    deferred = q.defer()
+      @provision()
+      .then(@writeToFile)
+      .then(resolve)
 
-    doc =
-      apikey: apikey
-      bucket: database
-      bucket_id: bucket_id
+  provision: =>
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "SANDBOXDB", "Provisioning Sandbox DB"
 
-    steroidsCli.debug "Updating SandboxDB config..."
+      data =
+        appId: dataHelpers.getAppId()
 
-    dataHelpers.overwriteYamlConfig(data_definition_path, doc).then( ->
-      steroidsCli.debug "Done updating SandboxDB config."
-      deferred.resolve()
-    ).fail ->
-      deferred.reject "Could not update SandboxDB config."
+      steroidsCli.debug "SANDBOXDB", "Provisioning Sandbox DB with data: #{JSON.stringify(data)}"
+      @apiClient.post '/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
+        if obj.code == 201 #TODO: betterify this line
+          steroidsCli.debug "SANDBOXDB", "Provisioning Sandbox DB returned success: #{JSON.stringify(obj)}"
+          @fromApiSchemaDict(obj.body)
+          resolve()
+        else
+          steroidsCli.debug "SANDBOXDB", "Provisioning Sandbox DB returned failure: #{JSON.stringify(obj)}"
+          reject new ProvisionError err
 
-    return deferred.promise
+  writeToFile: =>
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{configurationFilePath}"
+      steroidsCli.debug "SANDBOXDB", "Writing configuration: #{JSON.stringify(@toConfigurationDict())}"
+
+      dataHelpers.overwriteYamlConfig(configurationFilePath, @toConfigurationDict())
+      .then =>
+        steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{configurationFilePath} was success"
+        resolve()
+      .fail (err)=>
+        steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{configurationFilePath} was failure", err
+        reject new WriteFileError err
+
+  readFromFile: =>
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "SANDBOXDB", "Reading configuration from file #{configurationFilePath}"
+
+      unless fs.existsSync(configurationFilePath)
+        steroidsCli.debug "SANDBOXDB", "Configuration file #{configurationFilePath} was missing"
+        resolve()
+        return
+
+      @fromConfigurationDict yaml.safeLoad(fs.readFileSync(configurationFilePath, 'utf8'))
+
+      resolve()
+
+  # legacy yaml format abstracted here
+  toConfigurationDict: =>
+    apikey: @apikey
+    bucket: @name
+    bucket_id: @id
+
+  # legacy yaml format abstracted here
+  fromConfigurationDict: (obj)=>
+    @apikey = obj.apikey
+    @name = obj.bucket
+    @id = obj.bucket_id
+
+  # datastore api schema abstracted here
+  fromApiSchemaDict: (obj)=>
+    @apikey = "#{obj.login}#{obj.password}"
+    @name = obj.name
+    @id = obj.datastore_bucket_id
+
+  existsSync: -> #TODO: make async
+    return @id?
 
 module.exports = SandboxDB
-

@@ -1,40 +1,34 @@
-Q = require "q"
-Bower = require "./Bower"
 open = require "open"
 URL = require "url"
+
 Providers = require "./Providers"
-chalk = require "chalk"
-Help = require "./Help"
+SandboxDB = require "./SandboxDB"
 dataHelpers = require "./dataHelpers"
 
-data_manager_url = "https://data.appgyver.com/browser/projects"
+dataManagerURL = "https://data.appgyver.com/browser/projects"
 
 class Data
+  @DataError: class DataError extends steroidsCli.SteroidsError
 
   constructor: ->
+    @sandboxDB = new SandboxDB
+    @providers = new Providers
 
   init: ->
-    providers = new Providers
-    providers.initDatabase().then( =>
-      Help.SUCCESS()
-      console.log(
-        """
-        SandboxDB database successfully initialized for your app!
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "DATA", "Initializing data for project"
 
-        """
-      )
-    ).fail (error)->
-      Help.error()
-      console.log(
-        """
-        Could not initialize Steroids Data for your app.
-
-        Error message: #{JSON.stringify(error)}
-        """
-      )
+      @sandboxDB.get()
+      .then => @providers.get(@sandboxDB)
+      .then resolve
 
   manage: (provider_name, params) ->
-    appId = dataHelpers.getAppId()
-    open URL.format "#{data_manager_url}/#{appId}"
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "DATA", "Opening Data manager from CLI"
+
+      appId = dataHelpers.getAppId()
+      open URL.format "#{dataManagerURL}/#{appId}"
+      resolve()
+
 
 module.exports = Data
