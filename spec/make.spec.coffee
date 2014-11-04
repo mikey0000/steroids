@@ -20,7 +20,6 @@ describe 'make', ->
     runs =>
       session = @testHelper.runInProject
         args: ["make"]
-        debug: true
 
       runs ->
         expect( fs.existsSync(distPath) ).toBe(true)
