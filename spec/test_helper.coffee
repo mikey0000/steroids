@@ -4,6 +4,14 @@ path = require "path"
 
 CommandRunner = require "./command_runner"
 
+global.doNotRunIfMode = (mode) ->
+  if process.env.STEROIDS_TEST_RUN_MODE == mode
+    console.log "Mode is #{mode}, skipping this test"
+    process.exit(0)
+
+global.rightHereRightNow = (f) =>
+  f()
+
 class TestHelper
   @CommandRunner: CommandRunner
   @steroidsBinPath: path.join __dirname, "..", "bin", "devroids"

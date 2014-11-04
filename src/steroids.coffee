@@ -69,7 +69,7 @@ class Steroids
   debug: (options = {}, other) =>
     return unless steroidsCli.options.debug
 
-    process.stdout.cursorTo(0)
+    process.stdout.cursorTo(0) if process.stdout.cursorTo?
 
     message = if other?
       options + ": " + other

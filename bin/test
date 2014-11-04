@@ -4,18 +4,15 @@ MODE=$1
 GLOBAL_NODE_MODULES=$(dirname $NVM_PATH)/node_modules
 LOCAL_NODE_MODULES=$(pwd)/node_modules
 
+FILES=$(ls spec/*.spec.*)
 
 if [ "$MODE" = "fast" ]; then
-  echo "Mode: fast, skipping full generator tests"
-
-  FILES="spec/version.spec.coffee \
-  spec/steroids.spec.coffee \
-  spec/packager.spec.coffee \
-  spec/create.spec.coffee"
-
+  echo "Mode: fast, skipping setup and slow tests"
 elif [ "$MODE" != "" ]; then
   echo "Mode: single file: $1"
   FILES=$1
+elif [ "$MODE" != "--no-setup" ]; then
+  echo "skipping setup"
 else
   echo "???????????????????????????????????????????????????????????????????????????"
   echo "Mode: SLOW -- are you sure you don't want to use fast mode (bin/test fast)"
@@ -69,8 +66,6 @@ else
   else
     echo "not creating"
   fi
-
-  FILES=$(ls spec/*.spec.*)
 fi
 
 
@@ -84,7 +79,7 @@ ERRORS=false
 for FILE in $FILES; do
   echo "Running $FILE"
 
-  STEROIDS_TEST_RUN=true node_modules/jasmine-node/bin/jasmine-node --verbose --coffee --color $FILE
+  STEROIDS_TEST_RUN=true STEROIDS_TEST_RUN_MODE=$MODE node_modules/jasmine-node/bin/jasmine-node --verbose --coffee --color $FILE
   if [ "$?" != 0 ]; then
     ERRORS=true
   fi
