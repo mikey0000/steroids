@@ -70,6 +70,10 @@ describe 'simulator', ->
           cmd: "pkill"
           args: ["ios-sim"]
 
+        TestHelper.run
+          cmd: "pkill"
+          args: ["iOS Simulator"]
+
     it 'launches an iPad-2', =>
       session = @testHelper.runInProject
         args: ["emulate", "ios", "--device=iPad-2", "--debug"]
