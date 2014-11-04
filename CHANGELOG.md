@@ -1,3 +1,7 @@
+## 3.9.1 (2014-11-04)
+Features:
+- Removed GIT dependency
+
 ## 3.9.0 (2014-11-03)
 
 Secret changelog started. This 3.9.0 will be replaced with 4.0.0 release notes steroids^2 goes out.
