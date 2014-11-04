@@ -14,9 +14,14 @@ describe 'make', ->
     expect(fs.existsSync(distPath)).toBeFalsy()
 
     session = @testHelper.runInProject
-      args: ["make"]
+      args: ["update"]
       debug: true
+      timeout: 600000
 
-    runs ->
-      console.log "wat", distPath
-      expect( fs.existsSync(distPath) ).toBe(true)
+    runs =>
+      session = @testHelper.runInProject
+        args: ["make"]
+        debug: true
+
+      runs ->
+        expect( fs.existsSync(distPath) ).toBe(true)

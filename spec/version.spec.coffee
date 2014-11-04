@@ -11,8 +11,6 @@ describe 'version', ->
       versionRun = TestHelper.run
         args: ["--version"]
 
-      versionRun.run()
-
       runs =>
         versionString = "AppGyver Steroids² #{@packageJSON.version}\n"
         expect( versionRun.stdout ).toMatch(versionString)
@@ -21,8 +19,6 @@ describe 'version', ->
 
       versionRun = TestHelper.run
         args: ["version"]
-
-      versionRun.run()
 
       runs =>
         versionString = "AppGyver Steroids² #{@packageJSON.version}\n"

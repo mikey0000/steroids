@@ -17,6 +17,7 @@ describe 'create', ->
     it 'should be created', =>
       session = @testHelper.run
         args: ["create", "myApp"]
+        timeout: 600000
 
       runs =>
         fs = require "fs"
