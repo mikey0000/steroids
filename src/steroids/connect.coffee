@@ -23,6 +23,8 @@ class Connect
     Genymotion = require "./emulate/genymotion"
     genymotionForKillingIt = new Genymotion
     genymotionForKillingIt.killall()
+    .then ->
+      steroidsCli.debug "Killed genymotion"
 
     project = new Project
 
