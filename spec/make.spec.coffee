@@ -15,7 +15,6 @@ describe 'make', ->
 
     session = @testHelper.runInProject
       args: ["update"]
-      debug: true
       timeout: 600000
 
     runs =>
