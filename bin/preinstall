@@ -34,11 +34,13 @@ var tryAndRun = function(cmd, success, failure, done) {
     }
   });
 };
+
 var found = function(dependency) {
   return function() {
     console.log("  Found " + dependency + ", good.");
   };
 };
+
 var notFound = function(dependency, instructions) {
   return function() {
     console.log("  ERROR: " + dependency + " not found.");
@@ -58,6 +60,7 @@ var notFound = function(dependency, instructions) {
 
   };
 };
+
 var pleaseInstall = function(dependency) {
   return ["Please install " + dependency + " and run this installer again."];
 };
@@ -116,9 +119,7 @@ var checkNPMOwnership = function() {
       console.log("\nDo not use sudo with node commands. Do you really want to ignore these words of wisdom and continue anyway? (y/N)");
       askConfirm();
     }
-
   })
-
 }
 
 var checkComponents = function() {
@@ -143,7 +144,6 @@ var checkComponents = function() {
       process.exit(1);
     });
   }
-
 
   console.log("Checking for required components ...\n");
 
@@ -182,7 +182,7 @@ var checkComponents = function() {
       }
     );
   } else {
-    // Require gcc, make
+    // Other platform - require gcc, make
     tryAndRun("gcc -v",
       found("gcc"),
       notFound("gcc", pleaseInstall("gcc")),
@@ -198,11 +198,6 @@ var checkComponents = function() {
     );
   }
 }
-
-
-
-
-
 
 var packageJSON = require("../package.json");
 steroidsVersion = packageJSON.version;
