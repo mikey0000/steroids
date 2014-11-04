@@ -43,7 +43,7 @@ class Steroids
     @pathToSelf = process.argv[1]
     @config = new Config
     @platform = @options.argv.platform || "ios"
-
+    @debugEnabled = @options.debug
 
   host:
     os:

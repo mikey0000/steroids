@@ -59,7 +59,7 @@ class Simulator
       deviceArg = deviceArg + " ,#{iOSVersion}"
 
     args.push "--devicetypeid", deviceArg
-
+    args.push "--verbose" if steroidsCli.debugEnabled
 
     @killall().then( =>
       steroidsCli.debug "Spawning #{cmd}"
@@ -68,8 +68,8 @@ class Simulator
       @simulatorSession = sbawn
         cmd: cmd
         args: args
-        stdout: if opts.stdout? then opts.stdout  else false
-        stderr: if opts.stderr? then opts.stderr else false
+        stdout: steroidsCli.debugEnabled?
+        stderr: steroidsCli.debugEnabled?
 
       @simulatorSession.on "exit", () =>
         @running = false
