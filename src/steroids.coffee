@@ -43,7 +43,7 @@ class Steroids
     @pathToSelf = process.argv[1]
     @config = new Config
     @platform = @options.argv.platform || "ios"
-    @debugEnabled = @options.debug
+
 
   host:
     os:
@@ -67,10 +67,6 @@ class Steroids
     return fs.existsSync(paths.application.configDir) and (fs.existsSync(paths.application.appDir) or fs.existsSync(paths.application.wwwDir))
 
   debug: (options = {}, other) =>
-    return unless steroidsCli.options.debug
-
-    process.stdout.cursorTo(0) if process.stdout.cursorTo?
-
     message = if other?
       options + ": " + other
     else if options.constructor.name == "String"
@@ -78,7 +74,14 @@ class Steroids
     else
       options.message
 
-    console.log "[DEBUG]", message
+    message = "#{new Date()} #{message}"
+
+    steroidsCli.debugMessages ||= []
+    steroidsCli.debugMessages.push message
+
+    if steroidsCli.options.debug
+      process.stdout.cursorTo(0) if process.stdout.cursorTo?
+      console.log "[DEBUG]", message
 
   log: (options) =>
     #TODO: detect that we are in prompt and prepend with \n
@@ -421,6 +424,9 @@ module.exports =
       else
 
         console.log """
+        Debug Log:
+        #{steroidsCli.debugMessages.join("\n")}
+
         Error with: steroids #{process.argv[2]}
 
         #{err.stack}
