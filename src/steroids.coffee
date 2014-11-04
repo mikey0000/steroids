@@ -133,66 +133,66 @@ class Steroids
     switch firstOption
 
       when "data"
-        Providers = require "./steroids/Providers"
+        Provider = require "./steroids/Provider"
         Data = require "./steroids/Data"
 
-        if otherOptions[0] is "init"
-          data = new Data
-          data.init()
+        switch otherOptions[0]
+          when "init"
+            data = new Data
+            data.init()
 
-        else if otherOptions[0] is "reset"
-          providers = new Providers
-          providers.removeDatabase()
+          when "reset"
+            providers = new Providers
+            providers.removeDatabase()
 
-        else if otherOptions[0] is "resources:list"
-          providers = new Providers
-          providers.resourcesForSandbox()
+          when "resources:list"
+            providers = new Providers
+            providers.resourcesForSandbox()
 
-        else if otherOptions[0] is "resources:add"
-          otherOptions = otherOptions.slice(1)
-          unless otherOptions?.length > 1
-            console.log "Usage: steroids data resources:add <resourceName> <columnName>:<columnType>"
-            process.exit 1
+          when "resources:add"
+            otherOptions = otherOptions.slice(1)
+            unless otherOptions?.length > 1
+              console.log "Usage: steroids data resources:add <resourceName> <columnName>:<columnType>"
+              process.exit 1
 
-          providers = new Providers
-          providers.addResource(otherOptions).fail (error) =>
-            Help.error()
-            console.log(
-              """
-              Could not add resource.
+            providers = new Providers
+            providers.addResource(otherOptions).fail (error) =>
+              Help.error()
+              console.log(
+                """
+                Could not add resource.
 
-              Error message: #{error}
-              """
-            )
+                Error message: #{error}
+                """
+              )
 
-        else if otherOptions[0] is "resources:remove"
-          otherOptions = otherOptions.slice(1)
-          unless otherOptions?.length is 1
-            console.log "Usage: steroids data resources:remove <resourceName>"
-            process.exit 1
+          when "resources:remove"
+            otherOptions = otherOptions.slice(1)
+            unless otherOptions?.length is 1
+              console.log "Usage: steroids data resources:remove <resourceName>"
+              process.exit 1
 
-          providers = new Providers
-          providers.removeResource(otherOptions[0]).fail (error)=>
-            Help.error()
-            console.log error
+            providers = new Providers
+            providers.removeResource(otherOptions[0]).fail (error)=>
+              Help.error()
+              console.log error
 
-        else if otherOptions[0] is "manage"
-          data = new Data
-          data.manage()
+          when "manage"
+            data = new Data
+            data.manage()
 
-        else if otherOptions[0] is "scaffold"
-          otherOptions = otherOptions.slice(1)
-          unless otherOptions?.length is 1
-            console.log "Usage: steroids data scaffold <resourceName>"
-            process.exit 1
+          when "scaffold"
+            otherOptions = otherOptions.slice(1)
+            unless otherOptions?.length is 1
+              console.log "Usage: steroids data scaffold <resourceName>"
+              process.exit 1
 
-          providers = new Providers
-          providers.scaffoldResource(otherOptions[0]).fail (error)=>
-            Help.error()
-            console.log error
-
-        else
-          Help.dataUsage()
+            providers = new Providers
+            providers.scaffoldResource(otherOptions[0]).fail (error)=>
+              Help.error()
+              console.log error
+          else
+            Help.dataUsage()
 
       when "version"
         steroidsCli.version.run()

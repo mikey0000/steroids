@@ -19,6 +19,7 @@ class SandboxDB
   @WriteFileError: class WriteFileError extends SandboxDBError
 
   providerName: "appgyver_sandbox"
+  providerTypeId: 6
 
   constructor: (@options={}) ->
     @apiClient = restify.createJsonClient
@@ -52,7 +53,7 @@ class SandboxDB
       data =
         appId: dataHelpers.getAppId()
 
-      steroidsCli.debug "SANDBOXDB", "Provisioning Sandbox DB with data: #{JSON.stringify(data)}"
+      steroidsCli.debug "SANDBOXDB", "POSTing data: #{JSON.stringify(data)} to path: /v1/credentials/provision"
       @apiClient.post '/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
         if obj.code == 201 #TODO: betterify this line
           steroidsCli.debug "SANDBOXDB", "Provisioning Sandbox DB returned success: #{JSON.stringify(obj)}"
@@ -87,6 +88,11 @@ class SandboxDB
       @fromConfigurationDict yaml.safeLoad(fs.readFileSync(configurationFilePath, 'utf8'))
 
       resolve()
+
+  configurationKeysForProxy: =>
+    bucket_id: @id
+    steroids_api_key: @apikey
+    bucket_name: @name
 
   # legacy yaml format abstracted here
   toConfigurationDict: =>

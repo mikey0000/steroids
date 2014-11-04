@@ -1,7 +1,7 @@
 open = require "open"
 URL = require "url"
 
-Providers = require "./Providers"
+Provider = require "./Provider"
 SandboxDB = require "./SandboxDB"
 dataHelpers = require "./dataHelpers"
 
@@ -12,14 +12,13 @@ class Data
 
   constructor: ->
     @sandboxDB = new SandboxDB
-    @providers = new Providers
 
   init: ->
     return new Promise (resolve, reject) =>
       steroidsCli.debug "DATA", "Initializing data for project"
 
       @sandboxDB.get()
-      .then => @providers.get(@sandboxDB)
+      .then => Provider.forBackend(@sandboxDB)
       .then resolve
 
   manage: (provider_name, params) ->
