@@ -34,13 +34,11 @@ var tryAndRun = function(cmd, success, failure, done) {
     }
   });
 };
-
 var found = function(dependency) {
   return function() {
     console.log("  Found " + dependency + ", good.");
   };
 };
-
 var notFound = function(dependency, instructions) {
   return function() {
     console.log("  ERROR: " + dependency + " not found.");
@@ -60,7 +58,6 @@ var notFound = function(dependency, instructions) {
 
   };
 };
-
 var pleaseInstall = function(dependency) {
   return ["Please install " + dependency + " and run this installer again."];
 };
@@ -119,8 +116,13 @@ var checkNPMOwnership = function() {
       console.log("\nDo not use sudo with node commands. Do you really want to ignore these words of wisdom and continue anyway? (y/N)");
       askConfirm();
     }
+
   })
+
 }
+
+
+
 
 var checkComponents = function() {
 
@@ -145,13 +147,22 @@ var checkComponents = function() {
     });
   }
 
+
   console.log("Checking for required components ...\n");
 
   if (process.platform === "win32") {
-    checkForPython();
+
+    tryAndRun("git --version",
+      found('git'),
+      notFound("command 'git'", pleaseInstall("git")),
+      function() {
+        checkForPython();
+      }
+    );
+
   } else if (process.platform === "darwin") {
 
-    // Require XCode, XCode Command Line Tools
+    // Require XCode, XCode Command Line Tools and git
     tryAndRun("pkgutil --pkgs='com\.apple\.pkg\.Xcode.*'",
       found("XCode"),
       notFound("XCode", [
@@ -175,14 +186,24 @@ var checkComponents = function() {
             );
           },
           function() {
-            console.log("\nDependencies ok!");
-            checkNPMOwnership();
+            tryAndRun("git --version",
+              found('git'),
+              notFound("git", [
+                "For Git installation, we recommend using homebrew, see http://mxcl.github.com/homebrew/",
+                "Once homebrew is installed, install git with: brew install git",
+                "Run this installer again once you have git installed."
+              ]),
+              function() {
+                console.log("\nDependencies ok!");
+                checkNPMOwnership();
+              }
+            );
           }
         );
       }
     );
   } else {
-    // Other platform - require gcc, make
+    // Require gcc, make and git
     tryAndRun("gcc -v",
       found("gcc"),
       notFound("gcc", pleaseInstall("gcc")),
@@ -191,13 +212,24 @@ var checkComponents = function() {
           found("make"),
           notFound("make", pleaseInstall("make")),
           function() {
-            console.log("\nDependencies ok!");
+            tryAndRun("git --version",
+              found("git"),
+              notFound("git", pleaseInstall("git")),
+              function() {
+                console.log("\nDependencies ok!");
+              }
+            );
           }
         );
       }
     );
   }
 }
+
+
+
+
+
 
 var packageJSON = require("../package.json");
 steroidsVersion = packageJSON.version;
