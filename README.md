@@ -12,18 +12,15 @@ AppGyver Steroids is PhoneGap on Steroids, providing native UI elements, multipl
 
 #### Windows
 
-* Git ( http://git-scm.com/downloads )
 * Python 2.7 or greater ( http://www.python.org/getit/ )
 
 #### OS X
 
 * Xcode and command-line tools (Mac app store)
-* Git with homebrew or git Mac installer (if using the installer, remember to includ git in your $PATH)
 * Python 2.7 or greater (preinstalled on OS X Lion and newer)
 
 #### Linux
 
-* Git
 * Python 2.7 or greater
 
 ### Installing With Node Version Manager (for OS X and Linux)
