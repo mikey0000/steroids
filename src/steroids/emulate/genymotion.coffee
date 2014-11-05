@@ -279,11 +279,15 @@ class Genymotion
 
   killall: =>
     new Promise (resolve) ->
-      killGenymotion = sbawn
-        cmd: "/usr/bin/pkill"
-        args: ["-9", "player"]
 
-      killGenymotion.on "exit", ->
-        setTimeout resolve, 500
+      if steroidsCli.host.os.isOSX()
+        killGenymotion = sbawn
+          cmd: "/usr/bin/pkill"
+          args: ["-9", "player"]
+
+        killGenymotion.on "exit", ->
+          setTimeout resolve, 500
+      else
+       resolve
 
 module.exports = Genymotion

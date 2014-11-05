@@ -97,12 +97,15 @@ class Simulator
   killall: ()=>
     deferred = Q.defer()
 
-    killSimulator = sbawn
-      cmd: "/usr/bin/pkill"
-      args: ["-9", "imulator"]
+    if steroidsCli.host.os.isOSX()
+      killSimulator = sbawn
+        cmd: "/usr/bin/pkill"
+        args: ["-9", "imulator"]
 
-    killSimulator.on "exit", () =>
-      steroidsCli.debug "Killed iOS Simulator."
+      killSimulator.on "exit", () =>
+        steroidsCli.debug "Killed iOS Simulator."
+        deferred.resolve()
+    else
       deferred.resolve()
 
     return deferred.promise

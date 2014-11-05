@@ -11,6 +11,9 @@ class Sbawned
     if not @options.exitOnError?
       @options.exitOnError = true
 
+    if not @options.appendNode?
+      @options.appendNode = true
+
     @done = false
 
   onStdoutData: (buffer) =>
@@ -45,8 +48,14 @@ class Sbawned
       if process.platform is "win32"
         originalCmd = @options.cmd
         @options.cmd = process.env.comspec
-        args = ["/c", "node", originalCmd].concat(args)
+
+        if @options.appendNode
+          args = ["/c", "node", originalCmd].concat(args)
+        else
+          args = ["/c", originalCmd].concat(args)
+
         @spawned = spawn @options.cmd, args, { cwd: @options.cwd, stdio: 'inherit' }
+
       else
         @spawned = spawn @options.cmd, args, { cwd: @options.cwd }
     catch e

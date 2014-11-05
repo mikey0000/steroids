@@ -158,21 +158,21 @@ class Steroids
         steroidsCli.version.run()
 
       when "create"
-
         folder = otherOptions[0]
 
         unless folder
-
-          console.log "Usage: steroids create <directoryName>"
-
+          steroidsCli.log "Usage: steroids create <directoryName>"
           process.exit(1)
 
         ProjectCreator = require("./steroids/ProjectCreator")
         projectCreator = new ProjectCreator
-          debug: @options.debug
 
-        projectCreator.generate(folder)
-
+        projectCreator.generate(folder).then ->
+          projectCreator.update().then ->
+            steroidsCli.log "\n#{chalk.bold.green('\nSuccesfully created a new Steroids project!')}"
+          .catch (err) ->
+            steroidsCli.log err.message
+            process.exit 1
 
       when "push"
         Project = require "./steroids/Project"
