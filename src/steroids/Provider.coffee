@@ -3,18 +3,17 @@ restify = require "restify"
 Login = require "./Login"
 dataHelpers = require "./dataHelpers"
 
-raml_path            = 'www/cloud.raml'
-cloud_json_path      = 'config/cloud.json'
-configapi_url        = 'https://config-api.appgyver.com'
+ramlPath = 'config/cloud.raml'
+configApiBaseUrl = 'https://config-api.appgyver.com'
 
 class Provider
   @ProviderError: class ProviderError extends steroidsCli.SteroidsError
   @CloudReadError: class CloudReadError extends ProviderError
   @CloudWriteError: class CloudWriteError extends ProviderError
 
-  @config_api = restify.createJsonClient
-    url: configapi_url
-  @config_api.headers["Authorization"] = Login.currentAccessToken()
+  @apiClient = restify.createJsonClient
+    url: configApiBaseUrl
+  @apiClient.headers["Authorization"] = Login.currentAccessToken()
 
   @forBackend: (backend) =>
     return new Promise (resolve, reject) =>
@@ -23,7 +22,7 @@ class Provider
       @getAll().then (providers)=>
         steroidsCli.debug "PROVIDER", "Got some providers: #{JSON.stringify(providers)}"
 
-        # providers.find { |p| p.providerTypeId == backend.providerTypeId }
+        # provider = providers.find (p)=> p.providerTypeId == backend.providerTypeId
         provider = null
         providers.forEach (p)=>
           provider = p if p.providerTypeId == backend.providerTypeId
@@ -39,12 +38,43 @@ class Provider
           provider.create()
           .then resolve(provider)
 
+  @readRamlFromCloud: =>
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "PROVIDER", "getting current data configuration from cloud"
+
+      url = "/app/#{dataHelpers.getAppId()}/raml.yaml?identification_hash=#{dataHelpers.getIdentificationHash()}"
+
+      steroidsCli.debug "PROVIDER", "GETting from URL: #{url}"
+      @apiClient.get url, (err, req, res, obj) =>
+        @apiClient.close()
+
+        if err?
+          steroidsCli.debug "PROVIDER", "Getting current data configuration from cloud returned failure: #{err}"
+          reject new CloudReadError err
+          return
+
+        if res.statusCode != 200
+          steroidsCli.debug "PROVIDER", "Getting current data configuration from cloud returned failure: #{res['body']}"
+          reject new CloudReadError res['body']
+          return
+
+        steroidsCli.debug "PROVIDER", "Getting current data configuration from cloud returned success"
+        resolve(res['body'])
+
+  @writeRamlToFile: (raml)=>
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "PROVIDER", "writing current data configuration to file: #{ramlPath}"
+
+      dataHelpers.overwriteFile(ramlPath, raml).then =>
+        steroidsCli.debug "PROVIDER", "Wrote current data configuration to file: #{ramlPath}"
+        resolve()
+
   @getAll: =>
     return new Promise (resolve, reject) =>
       steroidsCli.debug "PROVIDER", "Getting providers from cloud"
 
-      @config_api.get "/app/#{dataHelpers.getAppId()}/service_providers.json", (err, req, res, obj) =>
-        @config_api.close() #TODO: wat
+      @apiClient.get "/app/#{dataHelpers.getAppId()}/service_providers.json", (err, req, res, obj) =>
+        @apiClient.close() #TODO: wat
 
         if err?
           steroidsCli.debug "PROVIDER", "Getting providers from cloud returned failure: #{JSON.stringify(obj)}"
@@ -55,9 +85,7 @@ class Provider
         resolve obj
 
   constructor: (@options={}) ->
-    @config_api = restify.createJsonClient
-      url: configapi_url
-    @config_api.headers["Authorization"] = Login.currentAccessToken()
+    @apiClient = Provider.apiClient
 
     @backend = @options.backend
     @name = @backend.providerName
@@ -74,7 +102,7 @@ class Provider
 
       url = "/app/#{dataHelpers.getAppId()}/service_providers.json"
       steroidsCli.debug "PROVIDER", "POSTing #{JSON.stringify(data)} to URL #{url}"
-      @config_api.post url, data, (err, req, res, obj) =>
+      @apiClient.post url, data, (err, req, res, obj) =>
         if obj['uid']
           steroidsCli.debug "PROVIDER", "Creating a new provider #{@name} ID: #{@typeId} to cloud returned success: #{JSON.stringify(obj)}"
           resolve()
@@ -82,7 +110,7 @@ class Provider
           steroidsCli.debug "PROVIDER", "Creating a new provider #{@name} ID: #{@typeId} to cloud returned failure: #{JSON.stringify(obj)}"
           reject new CloudWriteError err
 
-        @config_api.close()
+        @apiClient.close()
 
 
 module.exports = Provider

@@ -136,9 +136,9 @@ class Steroids
         Provider = require "./steroids/Provider"
         Data = require "./steroids/Data"
 
+        data = new Data
         switch otherOptions[0]
           when "init"
-            data = new Data
             data.init()
 
           #TODO impl
@@ -147,8 +147,10 @@ class Steroids
           #   providers.removeDatabase()
 
           when "manage"
-            data = new Data
             data.manage()
+
+          when "sync"
+            data.sync()
 
           else
             Help.dataUsage()

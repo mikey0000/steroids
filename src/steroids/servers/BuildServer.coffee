@@ -181,6 +181,14 @@ class BuildServer extends Server
       data.init().then ->
         res.status(200).send "Success!"
 
+    @app.post "/__appgyver/data/sync", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      data = new Data
+      data.sync().then ->
+        res.status(200).send "Success!"
+
     @app.get "/__appgyver/launch_simulator", (req, res) ->
       simulator = new Simulator()
       simulator.run

@@ -21,6 +21,15 @@ class Data
       .then => Provider.forBackend(@sandboxDB)
       .then resolve
 
+  sync: ->
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "DATA", "Synchronizing data configuration from cloud to project"
+
+      steroidsCli.debug "DATA", "Reading data configuration from cloud"
+      Provider.readRamlFromCloud().then (raml)=>
+        steroidsCli.debug "DATA", "Writing data configuration to project"
+        Provider.writeRamlToFile(raml)
+
   manage: (provider_name, params) ->
     return new Promise (resolve, reject) =>
       steroidsCli.debug "DATA", "Opening Data manager from CLI"
