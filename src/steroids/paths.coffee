@@ -7,6 +7,7 @@ class Paths
 
   @npm: path.join __dirname, "..", ".."
   @applicationDir: process.cwd()
+  @steroids: path.join @npm, "bin", "steroids"
 
   @globalPrefix: (cb) ->
     npm =  require "npm"
