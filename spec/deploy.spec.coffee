@@ -4,10 +4,6 @@ describe 'deploy', ->
 
   doNotRunIfMode("fast")
 
-  beforeEach =>
-    @testHelper = new TestHelper
-    @testHelper.prepare()
-
   afterEach ->
     if @testRunDone
       console.log "DONNNEEE"
@@ -18,7 +14,6 @@ describe 'deploy', ->
     @testHelper.prepare()
 
     @testRunDone = false
-
 
   it "starts the deployment and makes", =>
     @session = @testHelper.runInProject
