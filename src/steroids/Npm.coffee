@@ -26,18 +26,17 @@ class Npm
 
           """
         )
+      argsToRun = ["install"]
 
       if args?
         argsToRun = argsToRun.concat(args)
 
       sbawn = require "./sbawn"
-      args = ["install"]
-
       npmRun = sbawn
         cmd: "npm"
         args: argsToRun
         appendNode: false
-        stdout: false
+        stdout: true
         stderr: true
 
       npmRun.on "exit", =>
