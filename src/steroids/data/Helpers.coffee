@@ -1,5 +1,5 @@
 fs = require "fs"
-Help = require "./Help"
+Help = require "../Help"
 Q = require "q"
 yaml = require 'js-yaml'
 
