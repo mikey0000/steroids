@@ -26,33 +26,15 @@ class ProjectCreator
         cmd: steroids_cmd
         args: ["update"]
         debug: steroidsCli.debugEnabled
+        stdout: true
+        stderr: true
 
       steroidsCli.log  "\nChecking for Steroids updates and installing project NPM dependencies. Please wait."
 
-      staleCounter = 0
-      lastLine = session.stdout.toString().split('\n').slice(-1)[0]
-
-      loading = setInterval () =>
-        latestLastLine = session.stdout.toString().split('\n').slice(-1)[0]
-        if latestLastLine == lastLine
-          staleCounter++
-
-          if staleCounter > @maxStaleUpdateCount
-            clearInterval(loading)
-            steroidsCli.debug session.stdout
-            reject new Error "\nSetup up took too long - try running 'steroids update' manually in the project directory."
-        else
-          staleCounter = 0
-
-        process.stdout.write('.')
-      , @updateLoadingInterval
-
       session.on 'exit', ->
-        clearInterval(loading)
         steroidsCli.debug "#{session.cmd} exited with code #{session.code}"
 
         if session.code != 0 || session.stdout.match(/npm ERR!/)
-          steroidsCli.log session.stdout
           reject new Error "\nSomething went wrong - try running 'steroids update' manually in the project directory."
 
         resolve()
