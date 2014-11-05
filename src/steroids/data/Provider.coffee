@@ -37,8 +37,9 @@ class Provider
           provider = new Provider
             backend: backend
 
-          provider.create()
-          .then resolve(provider)
+          provider.create().then =>
+            steroidsCli.debug "PROVIDER", "provider for backend #{backend.providerTypeId} created"
+            resolve(provider)
 
   @forResource: (name) =>
     return new Promise (resolve, reject) =>
