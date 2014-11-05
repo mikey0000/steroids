@@ -67,10 +67,6 @@ class Steroids
     return fs.existsSync(paths.application.configDir) and (fs.existsSync(paths.application.appDir) or fs.existsSync(paths.application.wwwDir))
 
   debug: (options = {}, other) =>
-    return unless steroidsCli.options.debug
-
-    process.stdout.cursorTo(0) if process.stdout.cursorTo?
-
     message = if other?
       options + ": " + other
     else if options.constructor.name == "String"
@@ -78,7 +74,14 @@ class Steroids
     else
       options.message
 
-    console.log "[DEBUG]", message
+    message = "#{new Date()} #{message}"
+
+    steroidsCli.debugMessages ||= []
+    steroidsCli.debugMessages.push message
+
+    if steroidsCli.options.debug
+      process.stdout.cursorTo(0) if process.stdout.cursorTo?
+      console.log "[DEBUG]", message
 
   log: (options) =>
     #TODO: detect that we are in prompt and prepend with \n
@@ -130,66 +133,25 @@ class Steroids
     switch firstOption
 
       when "data"
-        Providers = require "./steroids/Providers"
+        Provider = require "./steroids/Provider"
         Data = require "./steroids/Data"
 
-        if otherOptions[0] is "init"
-          data = new Data
-          data.init()
+        switch otherOptions[0]
+          when "init"
+            data = new Data
+            data.init()
 
-        else if otherOptions[0] is "reset"
-          providers = new Providers
-          providers.removeDatabase()
+          #TODO impl
+          # when "reset"
+          #   providers = new Providers
+          #   providers.removeDatabase()
 
-        else if otherOptions[0] is "resources:list"
-          providers = new Providers
-          providers.resourcesForSandbox()
+          when "manage"
+            data = new Data
+            data.manage()
 
-        else if otherOptions[0] is "resources:add"
-          otherOptions = otherOptions.slice(1)
-          unless otherOptions?.length > 1
-            console.log "Usage: steroids data resources:add <resourceName> <columnName>:<columnType>"
-            process.exit 1
-
-          providers = new Providers
-          providers.addResource(otherOptions).fail (error) =>
-            Help.error()
-            console.log(
-              """
-              Could not add resource.
-
-              Error message: #{error}
-              """
-            )
-
-        else if otherOptions[0] is "resources:remove"
-          otherOptions = otherOptions.slice(1)
-          unless otherOptions?.length is 1
-            console.log "Usage: steroids data resources:remove <resourceName>"
-            process.exit 1
-
-          providers = new Providers
-          providers.removeResource(otherOptions[0]).fail (error)=>
-            Help.error()
-            console.log error
-
-        else if otherOptions[0] is "manage"
-          data = new Data
-          data.manage()
-
-        else if otherOptions[0] is "scaffold"
-          otherOptions = otherOptions.slice(1)
-          unless otherOptions?.length is 1
-            console.log "Usage: steroids data scaffold <resourceName>"
-            process.exit 1
-
-          providers = new Providers
-          providers.scaffoldResource(otherOptions[0]).fail (error)=>
-            Help.error()
-            console.log error
-
-        else
-          Help.dataUsage()
+          else
+            Help.dataUsage()
 
       when "version"
         steroidsCli.version.run()
@@ -421,6 +383,9 @@ module.exports =
       else
 
         console.log """
+        Debug Log:
+        #{steroidsCli.debugMessages.join("\n")}
+
         Error with: steroids #{process.argv[2]}
 
         #{err.stack}
