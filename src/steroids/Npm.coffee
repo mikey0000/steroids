@@ -1,6 +1,4 @@
-sbawn = require "./sbawn"
 chalk = require "chalk"
-Q = require "q"
 
 class Npm
 
@@ -29,10 +27,11 @@ class Npm
           """
         )
 
-      argsToRun = ["install"]
-
       if args?
         argsToRun = argsToRun.concat(args)
+
+      sbawn = require "./sbawn"
+      args = ["install"]
 
       npmRun = sbawn
         cmd: "npm"
