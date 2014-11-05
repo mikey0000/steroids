@@ -88,7 +88,7 @@ We want to get your feedback! Drop us a mail at contact@appgyver.com
 
 To run all unit tests:
 
-    $ npm test
+    $ ./bin/test
 
 To run unit tests without time-consuming Generator tests:
 
