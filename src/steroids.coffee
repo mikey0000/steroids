@@ -141,56 +141,15 @@ class Steroids
             data = new Data
             data.init()
 
-          when "reset"
-            providers = new Providers
-            providers.removeDatabase()
-
-          when "resources:list"
-            providers = new Providers
-            providers.resourcesForSandbox()
-
-          when "resources:add"
-            otherOptions = otherOptions.slice(1)
-            unless otherOptions?.length > 1
-              console.log "Usage: steroids data resources:add <resourceName> <columnName>:<columnType>"
-              process.exit 1
-
-            providers = new Providers
-            providers.addResource(otherOptions).fail (error) =>
-              Help.error()
-              console.log(
-                """
-                Could not add resource.
-
-                Error message: #{error}
-                """
-              )
-
-          when "resources:remove"
-            otherOptions = otherOptions.slice(1)
-            unless otherOptions?.length is 1
-              console.log "Usage: steroids data resources:remove <resourceName>"
-              process.exit 1
-
-            providers = new Providers
-            providers.removeResource(otherOptions[0]).fail (error)=>
-              Help.error()
-              console.log error
+          #TODO impl
+          # when "reset"
+          #   providers = new Providers
+          #   providers.removeDatabase()
 
           when "manage"
             data = new Data
             data.manage()
 
-          when "scaffold"
-            otherOptions = otherOptions.slice(1)
-            unless otherOptions?.length is 1
-              console.log "Usage: steroids data scaffold <resourceName>"
-              process.exit 1
-
-            providers = new Providers
-            providers.scaffoldResource(otherOptions[0]).fail (error)=>
-              Help.error()
-              console.log error
           else
             Help.dataUsage()
 
