@@ -94,4 +94,6 @@ describe 'deploy', ->
 
     runs ->
       expect( teamSupportAnnounced ).toBeTruthy()
-      @testRunDone = true
+
+  it "kills the testrun", =>
+    @testRunDone = true
