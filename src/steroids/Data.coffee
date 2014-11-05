@@ -1,9 +1,9 @@
 open = require "open"
 URL = require "url"
 
-Provider = require "./Provider"
-SandboxDB = require "./SandboxDB"
-dataHelpers = require "./dataHelpers"
+Provider = require "./data/Provider"
+SandboxDB = require "./data/SandboxDB"
+dataHelpers = require "./data/Helpers"
 
 dataManagerURL = "https://data.appgyver.com/browser/projects"
 

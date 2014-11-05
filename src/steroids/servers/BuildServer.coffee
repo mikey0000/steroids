@@ -19,8 +19,6 @@ Deploy = require "../Deploy"
 Data = require "../Data"
 Simulator = require "../Simulator"
 
-Provider = require "../Provider"
-
 class ClientResolver
 
   constructor: (@request) ->

@@ -1,7 +1,7 @@
 restify = require "restify"
 
-Login = require "./Login"
-dataHelpers = require "./dataHelpers"
+Login = require "../Login"
+dataHelpers = require "./Helpers"
 
 ramlPath = 'config/cloud.raml'
 configApiBaseUrl = 'https://config-api.appgyver.com'

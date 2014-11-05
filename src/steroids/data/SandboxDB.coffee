@@ -4,9 +4,9 @@ fs = require "fs"
 restify = require "restify"
 yaml = require 'js-yaml'
 
-paths = require "./paths"
-Login = require "./Login"
-dataHelpers = require "./dataHelpers"
+paths = require "../paths"
+Login = require "../Login"
+dataHelpers = require "./Helpers"
 
 configurationFilePath = 'config/sandboxdb.yaml'
 

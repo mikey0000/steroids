@@ -133,7 +133,6 @@ class Steroids
     switch firstOption
 
       when "data"
-        Provider = require "./steroids/Provider"
         Data = require "./steroids/Data"
 
         data = new Data
