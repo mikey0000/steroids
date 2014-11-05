@@ -1,7 +1,5 @@
 steroidsGenerator = require "generator-steroids"
 
-q = require "q"
-
 class ProjectCreator
 
   constructor: ->
@@ -10,59 +8,53 @@ class ProjectCreator
 
   generate: (targetDirectory) ->
 
-    deferred = q.defer()
+    new Promise (resolve, reject) ->
+      steroidsGenerator.app({
+        skipInstall: true
+        projectName: targetDirectory
+      }, resolve)
 
-    steroidsGenerator.app({
-      skipInstall: true
-      projectName: targetDirectory
-    }, deferred.resolve)
+  update: =>
 
-    return deferred.promise
+    new Promise (resolve, reject) =>
+      paths = require './paths'
+      steroids_cmd = paths.steroids
+      steroidsCli.debug "Running #{steroids_cmd} update"
 
-  update: ->
+      sbawn = require './sbawn'
+      session = sbawn
+        cmd: steroids_cmd
+        args: ["update"]
+        debug: steroidsCli.debugEnabled
 
-    deferred = q.defer()
+      steroidsCli.log  "\nChecking for Steroids updates and installing project NPM dependencies. Please wait."
 
-    steroids_cmd = process.argv[1]
-    steroidsCli.debug "Running #{steroids_cmd} update"
+      staleCounter = 0
+      lastLine = session.stdout.toString().split('\n').slice(-1)[0]
 
-    sbawn = require './sbawn'
-    session = sbawn
-      cmd: steroids_cmd
-      args: ["update"]
-      debug: steroidsCli.debugEnabled
+      loading = setInterval () =>
+        latestLastLine = session.stdout.toString().split('\n').slice(-1)[0]
+        if latestLastLine == lastLine
+          staleCounter++
 
-    steroidsCli.log  "\nChecking for Steroids updates and installing project NPM dependencies. Please wait."
+          if staleCounter > @maxStaleUpdateCount
+            clearInterval(loading)
+            steroidsCli.debug session.stdout
+            reject new Error "\nSetup up took too long - try running 'steroids update' manually in the project directory."
+        else
+          staleCounter = 0
 
-    staleCounter = 0
-    lastLine = session.stdout.toString().split('\n').slice(-1)[0]
+        process.stdout.write('.')
+      , @updateLoadingInterval
 
-    loading = setInterval () ->
-      latestLastLine = session.stdout.toString().split('\n').slice(-1)[0]
+      session.on 'exit', ->
+        clearInterval(loading)
+        steroidsCli.debug "#{session.cmd} exited with code #{session.code}"
 
-      if latestLastLine == lastLine
-        staleCounter++
+        if session.code != 0 || session.stdout.match(/npm ERR!/)
+          steroidsCli.log session.stdout
+          reject new Error "\nSomething went wrong - try running 'steroids update' manually in the project directory."
 
-        if staleCounter > @maxStaleUpdateCount
-          clearInterval(loading)
-          steroidsCli.debug session.stdout
-          deferred.reject(new Error "\nSetup up took too long - try running 'steroids update' manually in the project directory.")
-      else
-        staleCounter = 0
-
-      process.stdout.write('.')
-    , @updateLoadingInterval
-
-    session.on 'exit', ->
-      clearInterval(loading)
-      steroidsCli.debug "Exit with: #{session.code}"
-
-      if session.code != 0 || session.stdout.match(/npm ERR!/)
-        steroidsCli.log session.stdout
-        deferred.reject(new Error "\nSomething went wrong - try running 'steroids update' manually in the project directory.")
-
-      deferred.resolve()
-
-    return deferred.promise
+        resolve()
 
 module.exports = ProjectCreator

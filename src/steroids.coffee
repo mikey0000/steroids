@@ -207,7 +207,7 @@ class Steroids
         projectCreator.generate(folder).then ->
           projectCreator.update().then ->
             steroidsCli.log "\nSuccesfully created a new Steroids project!"
-          .fail (err) ->
+          .catch (err) ->
             steroidsCli.log err.message
             process.exit 1
 
