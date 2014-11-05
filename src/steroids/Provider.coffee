@@ -1,16 +1,6 @@
-# util = require "util"
-# fs = require "fs"
-# http = require 'http'
-
-# env = require("yeoman-generator")()
-
 restify = require "restify"
-# yaml = require 'js-yaml'
-# q = require "q"
 
-# paths = require "./paths"
 Login = require "./Login"
-# DataModuleGenerator = require "./generators/DataModule"
 dataHelpers = require "./dataHelpers"
 
 raml_path            = 'www/cloud.raml'
