@@ -6,7 +6,7 @@ chalk = require "chalk"
 module.exports = class ModuleGenerator extends Base
 
   constructor: (@options) ->
-    @moduleName = @options.otherOptions?[0] || 'example'
+    @moduleName = @options.name || 'example'
 
   @usageParams: ->
     "<moduleName>"
