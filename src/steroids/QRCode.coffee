@@ -11,14 +11,15 @@ class QRCode
       qrcode.generate @options.data, (terminalQRCode) ->
         console.log terminalQRCode
     else
+      steroidsCli.debug "QRCODE", "options data: #{@options.data}"
       urlToOpen = "http://localhost:#{@options.port}/test/testbench.html?qrcode=#{encodeURIComponent(@options.data)}"
 
       steroidsCli.debug "Opening URL #{urlToOpen} in default web browser..."
       open urlToOpen
 
   @showLocal: (options={}) =>
-    interfaces = steroidsCli.server.interfaces()
-    ips = steroidsCli.server.ipAddresses()
+    ips = steroidsCli.server.ipAddresses().slice(0, 3)
+    steroidsCli.debug "QRCODE", "IPs: #{ips}"
 
     encodedJSONIPs = encodeURIComponent(JSON.stringify(ips))
     encodedPort = encodeURIComponent(options.port)
@@ -29,9 +30,5 @@ class QRCode
       port: options.port
 
     code.show(options)
-
-
-
-
 
 module.exports = QRCode
