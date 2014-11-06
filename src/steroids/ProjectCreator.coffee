@@ -49,7 +49,7 @@ class ProjectCreator
         steroidsCli.debug "#{session.cmd} exited with code #{session.code}"
 
         if session.code != 0 || session.stdout.match(/npm ERR!/)
-          reject new Error "\nSomething went wrong - try running 'steroids update' manually in the project directory."
+          reject new Error "\nSomething went wrong - try running #{chalk.bold('steroids update')} manually in the project directory."
 
         resolve()
 
