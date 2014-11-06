@@ -53,7 +53,7 @@ class Connect
               QRCode.showLocal
                 port: @port
 
-              util.log "Waiting for the client to connect, scan the QR code visible in your browser ..."
+              steroidsCli.debug "connect", "Waiting for the client to connect, scan the QR code visible in your browser ..."
 
             setInterval () ->
               activeClients = 0;
@@ -65,20 +65,18 @@ class Connect
                 if (delta > 4000)
                   needsRefresh = true
                   delete buildServer.clients[ip]
-                  console.log ""
-                  util.log "Client disconnected: #{client.ipAddress} - #{client.userAgent}"
+                  steroidsCli.debug "connect", "Client disconnected: #{client.ipAddress} - #{client.userAgent}"
                 else if client.new
                   needsRefresh = true
                   activeClients++
                   client.new = false
 
-                  console.log ""
-                  util.log "New client: #{client.ipAddress} - #{client.userAgent}"
+                  steroidsCli.debug "connect", "New client: #{client.ipAddress} - #{client.userAgent}"
                 else
                   activeClients++
 
               if needsRefresh
-                util.log "Number of clients connected: #{activeClients}"
+                steroidsCli.debug "connect", "Number of clients connected: #{activeClients}"
                 prompt.refresh()
 
             , 1000
