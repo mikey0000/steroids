@@ -88,7 +88,20 @@ class Steroids
     console.log "#{options}"
 
   ensureProjectIfNeededFor: (command, otherOptions) ->
-    if command in ["push", "make", "package", "connect", "update", "generate", "deploy", "debug", "emulate"]
+    commands = [
+      "push"
+      "make"
+      "package"
+      "connect"
+      "update"
+      "generate"
+      "deploy"
+      "debug"
+      "emulate"
+      "data"
+    ]
+
+    if command in commands
       return if @detectSteroidsProject()
 
       steroidsCli.log "Error: command '#{command}' requires to be run in a Steroids project directory."
