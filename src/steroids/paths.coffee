@@ -81,6 +81,7 @@ class Paths
     structure: path.join @application.configDir, "structure.coffee"
     data:
       sandboxdb: path.join @application.configDir, "sandboxdb.yaml"
+      raml: path.join @application.configDir, "cloud.raml"
     legacy:
       bower: path.join @application.configDir, "bower.json"
 
