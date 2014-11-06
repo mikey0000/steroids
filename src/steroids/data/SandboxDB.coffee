@@ -8,8 +8,6 @@ paths = require "../paths"
 Login = require "../Login"
 dataHelpers = require "./Helpers"
 
-configurationFilePath = 'config/sandboxdb.yaml'
-
 sandboxDBBaseURL = 'https://datastorage-api.appgyver.com'
 sandboxDBURL = "#{sandboxDBBaseURL}/v1/datastorage"
 
@@ -65,27 +63,27 @@ class SandboxDB
 
   writeToFile: =>
     return new Promise (resolve, reject) =>
-      steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{configurationFilePath}"
+      steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{paths.application.configs.data.sandboxdb}"
       steroidsCli.debug "SANDBOXDB", "Writing configuration: #{JSON.stringify(@toConfigurationDict())}"
 
-      dataHelpers.overwriteYamlConfig(configurationFilePath, @toConfigurationDict())
+      dataHelpers.overwriteYamlConfig(paths.application.configs.data.sandboxdb, @toConfigurationDict())
       .then =>
-        steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{configurationFilePath} was success"
+        steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{paths.application.configs.data.sandboxdb} was success"
         resolve()
       .fail (err)=>
-        steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{configurationFilePath} was failure", err
+        steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{paths.application.configs.data.sandboxdb} was failure", err
         reject new WriteFileError err
 
   readFromFile: =>
     return new Promise (resolve, reject) =>
-      steroidsCli.debug "SANDBOXDB", "Reading configuration from file #{configurationFilePath}"
+      steroidsCli.debug "SANDBOXDB", "Reading configuration from file #{paths.application.configs.data.sandboxdb}"
 
-      unless fs.existsSync(configurationFilePath)
-        steroidsCli.debug "SANDBOXDB", "Configuration file #{configurationFilePath} was missing"
+      unless fs.existsSync(paths.application.configs.data.sandboxdb)
+        steroidsCli.debug "SANDBOXDB", "Configuration file #{paths.application.configs.data.sandboxdb} was missing"
         resolve()
         return
 
-      @fromConfigurationDict yaml.safeLoad(fs.readFileSync(configurationFilePath, 'utf8'))
+      @fromConfigurationDict yaml.safeLoad(fs.readFileSync(paths.application.configs.data.sandboxdb, 'utf8'))
 
       resolve()
 

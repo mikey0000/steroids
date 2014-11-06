@@ -154,7 +154,7 @@ class BuildServer extends Server
         sharePage: false
 
       deploy.run().then () ->
-        res.status(200).end ""
+        res.json deploy.cloudConfig
       .catch Deploy.DeployError, (err) ->
         res.status(500).json {error: "Can not deploy project"}
 
@@ -171,18 +171,17 @@ class BuildServer extends Server
 
         res.status(404).json {error: error}
 
-    @app.post "/__appgyver/data/init", (req, res) =>
-      res.header "Access-Control-Allow-Origin", "*"
-      res.header "Access-Control-Allow-Headers", "Content-Type"
+    helper "get", "/__appgyver/data/config", (req, res) =>
+      data = new Data
+      data.getConfig().then (config)->
+        res.json config
 
+    helper "post", "/__appgyver/data/init", (req, res) =>
       data = new Data
       data.init().then ->
         res.status(200).send "Success!"
 
-    @app.post "/__appgyver/data/sync", (req, res) =>
-      res.header "Access-Control-Allow-Origin", "*"
-      res.header "Access-Control-Allow-Headers", "Content-Type"
-
+    helper "post", "/__appgyver/data/sync", (req, res) =>
       data = new Data
       data.sync().then ->
         res.status(200).send "Success!"

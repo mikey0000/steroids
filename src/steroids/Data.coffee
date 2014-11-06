@@ -1,6 +1,9 @@
 open = require "open"
 URL = require "url"
 
+paths = require "./paths"
+Deploy = require "./Deploy"
+
 Provider = require "./data/Provider"
 SandboxDB = require "./data/SandboxDB"
 dataHelpers = require "./data/Helpers"
@@ -17,6 +20,12 @@ class Data
     return new Promise (resolve, reject) =>
       steroidsCli.debug "DATA", "Initializing data for project"
 
+      deploy = new Deploy
+      unless deploy.cloudConfig?
+        steroidsCli.debug "DATA", "Initializing data for project failed: not deployed"
+        reject new DataError "Project must be deployed first"
+        return
+
       @sandboxDB.get()
       .then => Provider.forBackend(@sandboxDB)
       .then resolve
@@ -29,6 +38,18 @@ class Data
       Provider.readRamlFromCloud().then (raml)=>
         steroidsCli.debug "DATA", "Writing data configuration to project"
         Provider.writeRamlToFile(raml)
+
+  getConfig: ->
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "DATA", "Getting data configuration from disk"
+      result = {}
+
+      @sandboxDB.readFromFile().then =>
+        steroidsCli.debug "DATA", "Got data configuration from disk"
+        result.initialized = @sandboxDB.apikey?
+        result.sandboxdb = @sandboxDB.configurationKeysForProxy()
+
+        resolve(result)
 
   manage: (provider_name, params) ->
     return new Promise (resolve, reject) =>

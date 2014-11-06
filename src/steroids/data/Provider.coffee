@@ -1,11 +1,11 @@
 restify = require "restify"
 
+paths = require "../paths"
 Login = require "../Login"
 
 Resource = require "./Resource"
 dataHelpers = require "./Helpers"
 
-ramlPath = 'config/cloud.raml'
 configApiBaseUrl = 'https://config-api.appgyver.com'
 
 class Provider
@@ -101,10 +101,10 @@ class Provider
 
   @writeRamlToFile: (raml)=>
     return new Promise (resolve, reject) =>
-      steroidsCli.debug "PROVIDER", "writing current data configuration to file: #{ramlPath}"
+      steroidsCli.debug "PROVIDER", "writing current data configuration to file: #{paths.application.config.data.raml}"
 
-      dataHelpers.overwriteFile(ramlPath, raml).then =>
-        steroidsCli.debug "PROVIDER", "Wrote current data configuration to file: #{ramlPath}"
+      dataHelpers.overwriteFile(paths.application.config.data.raml, raml).then =>
+        steroidsCli.debug "PROVIDER", "Wrote current data configuration to file: #{paths.application.config.data.raml}"
         resolve()
 
   @getAll: =>
