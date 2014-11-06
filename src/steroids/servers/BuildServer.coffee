@@ -186,6 +186,29 @@ class BuildServer extends Server
       data.sync().then ->
         res.status(200).send "Success!"
 
+    helper "post", "/__appgyver/generate", (req, res) =>
+      Generators = require "../Generators"
+
+      opts =
+        name: req.body.name
+        generatorOptions:
+          name: req.body.parameters.name
+          otherOptions: req.body.parameters.options
+
+      unless Generators[opts.name]?
+        error = "No such generator: #{opts.name}"
+        res.status(404).json {error: error}
+        return
+
+      generator = new Generators[opts.name](opts.generatorOptions)
+
+      generator.generate()
+      .then ->
+        res.status(200).send "Success!"
+      .catch (error)->
+        message = "Could not generate successfully. #{error.message}"
+        res.status(404).json {error: message}
+
     @app.get "/__appgyver/launch_simulator", (req, res) ->
       simulator = new Simulator()
       simulator.run

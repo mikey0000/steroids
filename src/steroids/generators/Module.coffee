@@ -3,7 +3,7 @@ steroidsGenerators = require 'generator-steroids'
 Base = require "./Base"
 chalk = require "chalk"
 
-module.exports = class ModuleGenerator extends Base
+class ModuleGenerator extends Base
 
   constructor: (@options) ->
     @moduleName = @options.name || 'example'
@@ -24,6 +24,14 @@ module.exports = class ModuleGenerator extends Base
     """
 
   generate: ->
-    steroidsGenerators.module {
-      @moduleName
-    }
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "ModuleGenerator", "Generating generator Module"
+
+      steroidsGenerators.module {
+        @moduleName
+      }, ->
+        steroidsCli.debug "ModuleGenerator", "Generated generator Module"
+        resolve()
+
+
+module.exports = ModuleGenerator
