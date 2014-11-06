@@ -1,13 +1,11 @@
 steroidsSimulators = require "steroids-simulators"
 spawn = require("child_process").spawn
 
-sbawn = require("./sbawn")
+sbawn = require "./sbawn"
 Help = require "./Help"
 
 os = require "os"
 paths = require "./paths"
-
-Q = require "q"
 
 class Simulator
 
@@ -18,8 +16,8 @@ class Simulator
   getDevicesAndSDKs: () ->
     new Promise (resolve, reject) ->
       showDevicesSession = sbawn
-          cmd: paths.iosSim.path
-          args: ["showdevicetypes"]
+        cmd: paths.iosSim.path
+        args: ["showdevicetypes"]
 
       showDevicesSession.on "exit", ->
         [deviceRows..., crap] = showDevicesSession.stderr.split("\n")
@@ -35,7 +33,7 @@ class Simulator
         resolve(devices)
 
   run: (opts={}) =>
-    unless os.type() == "Darwin"
+    unless steroidsCli.host.os.isOSX()
       return false
 
     @stop()
@@ -85,29 +83,26 @@ class Simulator
 
         setTimeout () =>
           resetSimulator = sbawn
-                    cmd: steroidsSimulators.iosSimPath
-                    args: ["start"]
-                    debug: true
+            cmd: steroidsSimulators.iosSimPath
+            args: ["start"]
+            debug: true
         , 250
     )
 
   stop: () =>
     @simulatorSession.kill() if @simulatorSession
 
-  killall: ()=>
-    deferred = Q.defer()
+  killall: () ->
+    new Promise (resolve) ->
+      if steroidsCli.host.os.isOSX()
+        killSimulator = sbawn
+          cmd: "/usr/bin/pkill"
+          args: ["-9", "imulator"]
 
-    if steroidsCli.host.os.isOSX()
-      killSimulator = sbawn
-        cmd: "/usr/bin/pkill"
-        args: ["-9", "imulator"]
-
-      killSimulator.on "exit", () =>
-        steroidsCli.debug "Killed iOS Simulator."
-        deferred.resolve()
-    else
-      deferred.resolve()
-
-    return deferred.promise
+        killSimulator.on "exit", () ->
+          steroidsCli.debug "Killed iOS Simulator."
+          resolve()
+      else
+        resolve()
 
 module.exports = Simulator
