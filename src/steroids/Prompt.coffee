@@ -33,6 +33,8 @@ class Prompt
     console.log "\nHit #{chalk.green("[enter]")} to push updates, type #{chalk.bold("help")} for usage"
 
     onInput = (err, result) =>
+      skipLoop = false
+
       command = if result? and result.command?
         result.command
       else
@@ -114,9 +116,19 @@ class Prompt
         when "h", "help", "?", "usage"
           Help.connect()
         else
-          console.log "Did not recognize input: #{result.command}, type help for usage."
+          skipLoop = true
 
-      @connectLoop()
+          sbawn = require "./sbawn"
+          cmd = sbawn
+            cmd: mainCommand
+            cwd: paths.applicationDir
+            stdout: true
+            stderr: true
+            onExit: @connectLoop
+            args: commandOptions
+
+      unless skipLoop
+        @connectLoop()
 
     @get
       onInput: onInput

@@ -101,10 +101,10 @@ class Provider
 
   @writeRamlToFile: (raml)=>
     return new Promise (resolve, reject) =>
-      steroidsCli.debug "PROVIDER", "writing current data configuration to file: #{paths.application.config.data.raml}"
+      steroidsCli.debug "PROVIDER", "writing current data configuration to file: #{paths.application.configs.data.raml}"
 
-      dataHelpers.overwriteFile(paths.application.config.data.raml, raml).then =>
-        steroidsCli.debug "PROVIDER", "Wrote current data configuration to file: #{paths.application.config.data.raml}"
+      dataHelpers.overwriteFile(paths.application.configs.data.raml, raml).then =>
+        steroidsCli.debug "PROVIDER", "Wrote current data configuration to file: #{paths.application.configs.data.raml}"
         resolve()
 
   @getAll: =>

@@ -14,6 +14,9 @@ class Sbawned
     if not @options.appendNode?
       @options.appendNode = true
 
+    if @options.onExit?
+      @on "exit", @options.onExit
+
     @done = false
 
   onStdoutData: (buffer) =>

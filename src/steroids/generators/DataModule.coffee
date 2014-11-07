@@ -3,7 +3,7 @@ Base = require "./Base"
 
 Provider = require "../data/Provider"
 
-module.exports = class DataModuleGenerator extends Base
+class DataModuleGenerator extends Base
 
   constructor: (@options) ->
     @resourceName = @options.name || 'myResource'
@@ -18,15 +18,21 @@ module.exports = class DataModuleGenerator extends Base
     """
 
   generate: ->
-    steroidsCli.debug "DATAMODULEGENERATOR", "Generating scaffold for resource: #{@resourceName}"
+    return new Promise (resolve, reject) =>
+      steroidsCli.debug "DataModuleGenerator", "Generating scaffold for resource: #{@resourceName}"
 
-    #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
-    Provider.resourceForName(@resourceName).then (resource)=>
-      @fields = resource.getFieldNamesSync()
-      steroidsCli.debug "DATAMODULEGENERATOR", "Generating scaffold with name: #{@resourceName} modulename: #{@modulename} and fields: #{JSON.stringify(@fields)}"
+      #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
+      Provider.resourceForName(@resourceName).then (resource)=>
+        @fields = resource.getFieldNamesSync()
+        steroidsCli.debug "DataModuleGenerator", "Generating scaffold with name: #{@resourceName} modulename: #{@modulename} and fields: #{JSON.stringify(@fields)}"
 
-      steroidsGenerators.dataModule {
-        @moduleName
-        @resourceName
-        @fields
-      }
+        steroidsGenerators.dataModule {
+          @moduleName
+          @resourceName
+          @fields
+        }, ->
+          steroidsCli.debug "ModuleGenerator", "Generated generator Module"
+          resolve()
+
+
+module.exports = DataModuleGenerator
