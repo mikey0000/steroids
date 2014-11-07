@@ -18,6 +18,8 @@ class Genymotion
     @running = false
 
   run: (opts = {}) =>
+    steroidsCli.log "Staring Genymotion"
+
     if steroidsCli.globals.genymotion?.running
       steroidsCli.debug "GENYMOTION", "previous genymotion found that is running, trying to stop it"
 
@@ -288,6 +290,6 @@ class Genymotion
         killGenymotion.on "exit", ->
           setTimeout resolve, 500
       else
-       resolve
+       resolve()
 
 module.exports = Genymotion

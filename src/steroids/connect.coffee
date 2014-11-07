@@ -7,6 +7,8 @@ class Connect
     @livereload = opts.livereload
     @watchExclude = opts.watchExclude
 
+    @prompt = null
+
   run: (opts={}) =>
     return new Promise (resolve, reject) =>
       Simulator = require "./Simulator"
@@ -18,6 +20,12 @@ class Connect
       genymotionForKillingIt.killall()
       .then ->
         steroidsCli.debug "Killed genymotion"
+
+      Android = require "./emulate/android"
+      androidForKillingIt = new Android
+      androidForKillingIt.killall()
+      .then ->
+        steroidsCli.debug "Killed android"
 
       Project = require "./Project"
       @project = new Project
@@ -64,27 +72,20 @@ class Connect
 
       refreshLoop = ()=>
         activeClients = 0;
-        needsRefresh = false
 
         for ip, client of @buildServer.clients
           delta = Date.now() - client.lastSeen
 
           if (delta > 4000)
-            needsRefresh = true
             delete @buildServer.clients[ip]
             steroidsCli.debug "connect", "Client disconnected: #{client.ipAddress} - #{client.userAgent}"
           else if client.new
-            needsRefresh = true
             activeClients++
             client.new = false
 
             steroidsCli.debug "connect", "New client: #{client.ipAddress} - #{client.userAgent}"
           else
             activeClients++
-
-        if needsRefresh
-          steroidsCli.debug "connect", "Number of clients connected: #{activeClients}"
-          @prompt.refresh()
 
       setInterval refreshLoop, 1000
 
@@ -116,7 +117,8 @@ class Connect
         project.make
           onSuccess: =>
             @buildServer.triggerLiveReload()
-            prompt.refresh()
+            #TODO: maybe not needed anymore?
+            #@prompt.refresh()
           onFailure: (error)=>
             if error.message.match /Parse error/ # coffee parser errors are of class Error
               console.log "Error parsing application configuration files: #{error.message}"
@@ -143,6 +145,8 @@ class Connect
 
       Help = require "./Help"
       Help.connect()
+      chalk = require "chalk"
+      console.log "\nHit #{chalk.green("[enter]")} to push updates, type #{chalk.bold("help")} for usage"
 
       @prompt.connectLoop()
 

@@ -30,8 +30,6 @@ class Prompt
     console.log "... done."
 
   connectLoop: =>
-    console.log "\nHit #{chalk.green("[enter]")} to push updates, type #{chalk.bold("help")} for usage"
-
     onInput = (err, result) =>
       skipLoop = false
 
@@ -49,8 +47,8 @@ class Prompt
           console.log "Bye"
 
           process.exit(0)
-        when "", "push", "p"
-          console.log "Updating code on all connected devices ..."
+        when "", "push"
+          steroidsCli.log "Updating code on all connected devices ..."
           project = new Project
           project.make
             onSuccess: =>
@@ -75,6 +73,11 @@ class Prompt
           ChromeDebug = require "./debug/chrome"
           chromeDebug = new ChromeDebug
           chromeDebug.run()
+
+        when "a", "and", "android"
+          Android = require "./emulate/android"
+          android = new Android
+          android.run()
 
         when "g", "gen", "genymotion"
           Genymotion = require "./emulate/genymotion"

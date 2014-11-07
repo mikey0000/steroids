@@ -36,6 +36,8 @@ class Simulator
     unless steroidsCli.host.os.isOSX()
       return false
 
+    steroidsCli.log "Starting Simulator"
+
     @stop()
     @running = true
 

@@ -45,6 +45,8 @@ class Steroids
     @platform = @options.argv.platform || "ios"
     @debugEnabled = @options.debug
 
+    @connect = null
+
   host:
     os:
       isOSX: ->
@@ -84,8 +86,14 @@ class Steroids
       console.log "[DEBUG]", message
 
   log: (options) =>
-    #TODO: detect that we are in prompt and prepend with \n
-    console.log "#{options}"
+    prepend = ""
+    if @connect?.prompt?
+      prepend = "\n"
+
+    console.log "#{prepend}#{options}"
+
+    if @connect?.prompt?
+      @connect?.prompt?.refresh()
 
   ensureProjectIfNeededFor: (command, otherOptions) ->
     commands = [
@@ -226,14 +234,14 @@ class Steroids
         watchEnabled = !(argv.watch == false)
         livereloadEnabled = !(argv.livereload == false)
 
-        connect = new Connect
+        @connect = new Connect
           port: port
           watch: watchEnabled
           livereload: livereloadEnabled
           watchExclude: watchExclude
           qrcode: argv.qrcode
 
-        connect.run()
+        @connect.run()
         .catch (error)=>
           if error.message.match /Parse error/ # coffee parser errors are of class Error
             console.log "Error parsing application configuration files: #{error.message}"
@@ -328,6 +336,12 @@ class Steroids
 
       when "emulate"
         switch otherOptions[0]
+          when "android"
+
+            Android = require "./steroids/emulate/android"
+            android = new Android()
+            android.run()
+
           when "ios"
 
             if argv.devices
