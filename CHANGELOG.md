@@ -1,3 +1,9 @@
+## 3.5.17 (2014-11-07)
+
+Features:
+- Updated Steroids generators to [v0.4.5](https://github.com/AppGyver/generator-steroids/blob/master/CHANGELOG.md#045-2014-11-05)
+- Steroids simulator updated to iOS Native Runtime v4.0.1
+
 ## 3.5.16 (2014-10-29)
 
 Features:
