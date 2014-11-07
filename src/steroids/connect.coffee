@@ -1,5 +1,7 @@
 class Connect
 
+  @ParseError: class ParseError extends steroidsCli.SteroidsError
+
   constructor:(opts={}) ->
     @port = opts.port
     @showQRCode = opts.qrcode
@@ -113,35 +115,72 @@ class Connect
       Project = require "./Project"
       project = new Project
 
-      liveReloadUpdate = =>
-        project.make
-          onSuccess: =>
-            @buildServer.triggerLiveReload()
-            #TODO: maybe not needed anymore?
-            #@prompt.refresh()
-          onFailure: (error)=>
-            if error.message.match /Parse error/ # coffee parser errors are of class Error
-              console.log "Error parsing application configuration files: #{error.message}"
-            else
-              throw error
+      canBeLiveReload = true
+      shouldMake = false
+      isMaking = false
 
-      appWatcher.on ["add", "change", "unlink"], (path)=>
-        liveReloadUpdate()
-
-      wwwWatcher.on ["add", "change", "unlink"], (path)=>
-        liveReloadUpdate()
-
-      configWatcher.on ["add", "change", "unlink"], (path)=>
-        project.make
-          onSuccess: =>
-            project.package
-              onSuccess: =>
-                @prompt.refresh()
-          onFailure: (error)=>
+      doMake = =>
+        new Promise (resolve, reject)=>
+          steroidsCli.debug "connect", "doMake"
+          project.make
+            onSuccess: =>
+              steroidsCli.debug "connect", "doMake succ"
+              resolve()
+            onFailure: (error)=>
+              steroidsCli.debug "connect", "doMake fail"
               if error.message.match /Parse error/ # coffee parser errors are of class Error
                 console.log "Error parsing application configuration files: #{error.message}"
+                reject new ParseError error.message
               else
-                throw error
+                reject error
+
+      doLiveReload = =>
+        new Promise (resolve, reject)=>
+          steroidsCli.debug "connect", "doLiveReload"
+
+          @buildServer.triggerLiveReload()
+          #TODO: maybe not needed anymore?
+          #@prompt.refresh()
+
+          steroidsCli.debug "connect", "doLiveReload succ"
+          resolve()
+
+      doFullReload = =>
+        new Promise (resolve, reject)=>
+          steroidsCli.debug "connect", "doFullReload"
+          project.package
+            onSuccess: =>
+              steroidsCli.debug "connect", "doFullReload succ"
+              @prompt.refresh()
+              resolve()
+
+      maker = =>
+        return if isMaking
+        return unless shouldMake
+
+        shouldMake = false
+        isMaking = true
+
+        doMake()
+        .then =>
+          if canBeLiveReload
+            doLiveReload()
+          else
+            doFullReload()
+        .then =>
+          isMaking = false
+
+      setInterval maker, 100
+
+      appWatcher.on ["add", "change", "unlink"], (path)=>
+        shouldMake = true
+
+      wwwWatcher.on ["add", "change", "unlink"], (path)=>
+        shouldMake = true
+
+      configWatcher.on ["add", "change", "unlink"], (path)=>
+        canBeLiveReload = false
+        shouldMake = true
 
       Help = require "./Help"
       Help.connect()
