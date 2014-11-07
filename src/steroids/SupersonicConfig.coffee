@@ -2,7 +2,7 @@ _ = require "lodash"
 
 paths = require "./paths"
 
-module.exports = class SupersonicConfig
+class SupersonicConfig
 
   defaults:
     copyToUserFiles: []
@@ -15,22 +15,25 @@ module.exports = class SupersonicConfig
         args: null
 
   constructor: ->
-    appConfigPath = paths.application.configs.app
-    structureConfigPath = paths.application.configs.structure
+    @appConfigPath = paths.application.configs.app
+    @structureConfigPath = paths.application.configs.structure
 
-    delete require.cache[appConfigPath] if require.cache[appConfigPath]
-    delete require.cache[structureConfigPath] if require.cache[structureConfigPath]
+    delete require.cache[@appConfigPath] if require.cache[@appConfigPath]
+    delete require.cache[@structureConfigPath] if require.cache[@structureConfigPath]
 
-    appConfig = require appConfigPath
+  getCurrent: ->
+    appConfig = require @appConfigPath
     structureConfig =
-      structure: require structureConfigPath
+      structure: require @structureConfigPath
 
     @currentConfig = _.merge appConfig, structureConfig
 
     @setDefaults @currentConfig
 
-  getCurrent: ->
     @currentConfig
 
   setDefaults: ->
     @currentConfig = _.merge @currentConfig, @defaults
+
+
+module.exports = SupersonicConfig

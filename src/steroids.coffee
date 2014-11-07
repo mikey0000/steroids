@@ -234,6 +234,12 @@ class Steroids
           qrcode: argv.qrcode
 
         connect.run()
+        .catch (error)=>
+          if error.message.match /Parse error/ # coffee parser errors are of class Error
+            console.log "Error parsing application configuration files: #{error.message}"
+            console.log "Fix the syntax error and re-run the steroids connect command"
+          else
+            throw error
 
       when "update"
         Updater = require "./steroids/Updater"

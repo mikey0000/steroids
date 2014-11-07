@@ -12,6 +12,7 @@ ConfigXmlGenerator = require "./ConfigXmlGenerator"
 class Project
 
   constructor: (@options={}) ->
+    @config = steroidsCli.config.getCurrent()
 
   initialize: (options={}) =>
     options.onSuccess()
@@ -20,22 +21,20 @@ class Project
     steroidsCli.debug "Starting push"
 
     @make
+      onFailure: options.onFailure
       onSuccess: =>
         @package
           onSuccess: () =>
             options.onSuccess.call() if options.onSuccess?
-      onFailure: options.onFailure
 
   preMake: (options = {}) =>
-    config = steroidsCli.config.getCurrent()
+    if @config.hooks.preMake.cmd and @config.hooks.preMake.args
 
-    if config.hooks.preMake.cmd and config.hooks.preMake.args
-
-      util.log "preMake starting: #{config.hooks.preMake.cmd} with #{config.hooks.preMake.args}"
+      util.log "preMake starting: #{@config.hooks.preMake.cmd} with #{@config.hooks.preMake.args}"
 
       preMakeSbawn = sbawn
-        cmd: config.hooks.preMake.cmd
-        args: config.hooks.preMake.args
+        cmd: @config.hooks.preMake.cmd
+        args: @config.hooks.preMake.args
         stdout: true
         stderr: true
 
@@ -44,7 +43,7 @@ class Project
       preMakeSbawn.on "exit", =>
         errorCode = preMakeSbawn.code
 
-        if errorCode == 137 and config.hooks.preMake.cmd == "grunt"
+        if errorCode == 137 and @config.hooks.preMake.cmd == "grunt"
           util.log "command was grunt build which exists with 137 when success, setting error code to 0"
           errorCode = 0
 
@@ -61,15 +60,13 @@ class Project
 
 
   postMake: (options = {}) =>
-    config = steroidsCli.config.getCurrent()
-
-    if config.hooks.postMake.cmd and config.hooks.postMake.args
+    if @config.hooks.postMake.cmd and @config.hooks.postMake.args
 
       util.log "postMake started"
 
       postMakeSbawn = sbawn
-        cmd: config.hooks.postMake.cmd
-        args: config.hooks.postMake.args
+        cmd: @config.hooks.postMake.cmd
+        args: @config.hooks.postMake.args
         stdout: true
         stderr: true
 
@@ -100,15 +97,21 @@ class Project
       console.log errorMessage
       process.exit(1)
 
-
-
   make: (options = {}) => # with pre- and post-make hooks
 
     steroidsCli.debug "Making with hooks."
 
+    try
+      @config = steroidsCli.config.getCurrent()
+    catch e
+      options.onFailure(e) if options.onFailure?
+      return
+
     @preMake
+      onFailure: options.onFailure
       onSuccess: =>
         @makeOnly
+          onFailure: options.onFailure
           onSuccess: =>
             @postMake options
 

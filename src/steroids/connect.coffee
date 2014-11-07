@@ -8,119 +8,145 @@ class Connect
     @watchExclude = opts.watchExclude
 
   run: (opts={}) =>
-    Project = require "./Project"
-    Serve = require "./Serve"
-    Server = require "./Server"
-    PortChecker = require "./PortChecker"
-    BuildServer = require "./servers/BuildServer"
-    util = require "util"
-    Help = require "./Help"
+    return new Promise (resolve, reject) =>
+      Simulator = require "./Simulator"
+      simulatorForKillingIt = new Simulator
+      simulatorForKillingIt.killall()
 
-    Simulator = require "./Simulator"
-    simulatorForKillingIt = new Simulator
-    simulatorForKillingIt.killall()
+      Genymotion = require "./emulate/genymotion"
+      genymotionForKillingIt = new Genymotion
+      genymotionForKillingIt.killall()
+      .then ->
+        steroidsCli.debug "Killed genymotion"
 
-    Genymotion = require "./emulate/genymotion"
-    genymotionForKillingIt = new Genymotion
-    genymotionForKillingIt.killall()
-    .then ->
-      steroidsCli.debug "Killed genymotion"
+      Project = require "./Project"
+      @project = new Project
 
-    project = new Project
+      @project.push
+        onFailure: reject
+        onSuccess: =>
+          @startServer()
+          .then resolve
 
-    project.push
-      onSuccess: =>
+  startServer: ()=>
+    return new Promise (resolve, reject) =>
+      Server = require "./Server"
+      BuildServer = require "./servers/BuildServer"
 
-        server = Server.start
+      @server = Server.start
+        port: @port
+        callback: ()=>
+          global.steroidsCli.server = @server
+
+          @buildServer = new BuildServer
+            server: @server
+            path: "/"
+            port: @port
+
+          @server.mount(@buildServer)
+
+          @startPrompt()
+          .then resolve
+
+  startPrompt: ()=>
+    return new Promise (resolve, reject) =>
+      Prompt = require "./Prompt"
+      @prompt = new Prompt
+        context: @
+        buildServer: @buildServer
+
+      unless @showQRCode is false
+        QRCode = require "./QRCode"
+        QRCode.showLocal
           port: @port
-          callback: ()=>
-            global.steroidsCli.server = server
 
-            buildServer = new BuildServer
-                                server: server
-                                path: "/"
-                                port: @port
+        steroidsCli.debug "connect", "Waiting for the client to connect, scan the QR code visible in your browser ..."
 
-            server.mount(buildServer)
+      refreshLoop = ()=>
+        activeClients = 0;
+        needsRefresh = false
 
-            Prompt = require("./Prompt")
-            prompt = new Prompt
-              context: @
-              buildServer: buildServer
+        for ip, client of @buildServer.clients
+          delta = Date.now() - client.lastSeen
 
-            unless @showQRCode is false
-              QRCode = require "./QRCode"
-              QRCode.showLocal
-                port: @port
+          if (delta > 4000)
+            needsRefresh = true
+            delete @buildServer.clients[ip]
+            steroidsCli.debug "connect", "Client disconnected: #{client.ipAddress} - #{client.userAgent}"
+          else if client.new
+            needsRefresh = true
+            activeClients++
+            client.new = false
 
-              steroidsCli.debug "connect", "Waiting for the client to connect, scan the QR code visible in your browser ..."
+            steroidsCli.debug "connect", "New client: #{client.ipAddress} - #{client.userAgent}"
+          else
+            activeClients++
 
-            setInterval () ->
-              activeClients = 0;
-              needsRefresh = false
+        if needsRefresh
+          steroidsCli.debug "connect", "Number of clients connected: #{activeClients}"
+          @prompt.refresh()
 
-              for ip, client of buildServer.clients
-                delta = Date.now() - client.lastSeen
+      setInterval refreshLoop, 1000
 
-                if (delta > 4000)
-                  needsRefresh = true
-                  delete buildServer.clients[ip]
-                  steroidsCli.debug "connect", "Client disconnected: #{client.ipAddress} - #{client.userAgent}"
-                else if client.new
-                  needsRefresh = true
-                  activeClients++
-                  client.new = false
+      if @watch
+        @startWatcher()
+        .then resolve
+      else
+        resolve()
 
-                  steroidsCli.debug "connect", "New client: #{client.ipAddress} - #{client.userAgent}"
-                else
-                  activeClients++
+  startWatcher: ()=>
+    return new Promise (resolve, reject) =>
+      Watcher = require "./fs/watcher"
+      appWatcher = new Watcher
+        path: "app"
+        ignored: @watchExclude
 
-              if needsRefresh
-                steroidsCli.debug "connect", "Number of clients connected: #{activeClients}"
-                prompt.refresh()
+      wwwWatcher = new Watcher
+        path: "www"
+        ignored: @watchExclude
 
-            , 1000
+      configWatcher = new Watcher
+        path: "config"
+        ignored: @watchExclude
 
-            if @watch
-              Watcher = require("./fs/watcher")
-              appWatcher = new Watcher
-                path: "app"
-                ignored: @watchExclude
+      Project = require "./Project"
+      project = new Project
 
-              wwwWatcher = new Watcher
-                path: "www"
-                ignored: @watchExclude
+      liveReloadUpdate = =>
+        project.make
+          onSuccess: =>
+            @buildServer.triggerLiveReload()
+            prompt.refresh()
+          onFailure: (error)=>
+            if error.message.match /Parse error/ # coffee parser errors are of class Error
+              console.log "Error parsing application configuration files: #{error.message}"
+            else
+              throw error
 
-              configWatcher = new Watcher
-                path: "config"
-                ignored: @watchExclude
+      appWatcher.on ["add", "change", "unlink"], (path)=>
+        liveReloadUpdate()
 
-              project = new Project
+      wwwWatcher.on ["add", "change", "unlink"], (path)=>
+        liveReloadUpdate()
 
-              liveReloadUpdate = ->
-                project.make
-                  onSuccess: =>
-                    buildServer.triggerLiveReload()
-                    prompt.refresh()
+      configWatcher.on ["add", "change", "unlink"], (path)=>
+        project.make
+          onSuccess: =>
+            project.package
+              onSuccess: =>
+                @prompt.refresh()
+          onFailure: (error)=>
+              if error.message.match /Parse error/ # coffee parser errors are of class Error
+                console.log "Error parsing application configuration files: #{error.message}"
+              else
+                throw error
 
-              appWatcher.on ["add", "change", "unlink"], (path)->
-                liveReloadUpdate()
+      Help = require "./Help"
+      Help.connect()
 
-              wwwWatcher.on ["add", "change", "unlink"], (path)->
-                liveReloadUpdate()
+      @prompt.connectLoop()
 
-              configWatcher.on ["add", "change", "unlink"], (path)->
-                project.make
-                  onSuccess: =>
-                    project.package
-                      onSuccess: =>
-                        prompt.refresh()
-
-
-            Help.connect()
-            prompt.connectLoop()
-
-
+      resolve()
 
 
 module.exports = Connect
