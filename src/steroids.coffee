@@ -85,14 +85,32 @@ class Steroids
       process.stdout.cursorTo(0) if process.stdout.cursorTo?
       console.log "[DEBUG]", message
 
+
   log: (options) =>
-    prepend = ""
-    if @connect?.prompt?
+
+    [tagMessage, message, refresh, prepend, newline] = if options.constructor.name == "String"
+      [undefined, options,true, true, true]
+    else
+      [options.tag, options.message, (options.refresh != false), (options.prepend != false), (options.newline != false)]
+
+    tag = if tagMessage
+      "[#{tagMessage}] "
+    else
+      ""
+
+    prefix = if prepend and @connect?.prompt?
       prepend = "\n"
+    else
+      ""
 
-    console.log "#{prepend}#{options}"
+    suffix = if newline
+      suffix = "\n"
+    else
+      ""
 
-    if @connect?.prompt?
+    util.print "#{prefix}#{tag}#{message}#{suffix}"
+
+    if refresh and @connect?.prompt?
       @connect?.prompt?.refresh()
 
   ensureProjectIfNeededFor: (command, otherOptions) ->

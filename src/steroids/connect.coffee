@@ -137,10 +137,11 @@ class Connect
       doLiveReload = =>
         new Promise (resolve, reject)=>
           steroidsCli.debug "connect", "doLiveReload"
+          steroidsCli.log
+            message: "Detected change, running make ..."
+            refresh: false
 
           @buildServer.triggerLiveReload()
-          #TODO: maybe not needed anymore?
-          #@prompt.refresh()
 
           steroidsCli.debug "connect", "doLiveReload succ"
           resolve()
