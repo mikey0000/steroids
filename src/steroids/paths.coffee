@@ -39,6 +39,7 @@ class Paths
       footer: path.join @bannersDir, "usage", "footer"
       emulate: path.join @bannersDir, "usage", "emulate"
       debug: path.join @bannersDir, "usage", "debug"
+      log: path.join @bannersDir, "usage", "log"
     ready: path.join @bannersDir, "ready"
     resetiOSSim: path.join @bannersDir, "iossim-reset"
     newVersionAvailable: path.join @bannersDir, "new-version-available"
@@ -128,5 +129,8 @@ class Paths
     android:
       default: path.join @npm, "node_modules", "steroids-android-packages", "builds", "application.apk"
       debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug.apk"
+
+  @android:
+    adb: path.join @userHome, "android-sdk-macosx", "platform-tools", "adb"
 
 module.exports = Paths

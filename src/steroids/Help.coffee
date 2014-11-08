@@ -26,6 +26,9 @@ class Help
     debug: ->
       Help.printBanner(paths.banners.usage.debug, true)
 
+    log: ->
+      Help.printBanner(paths.banners.usage.log, true)
+
   @dataUsage: ->
     @printBanner(paths.banners.dataUsage, true)
 

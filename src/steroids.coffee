@@ -404,6 +404,33 @@ class Steroids
             usage = new Usage
             usage.debug()
 
+      when "log"
+
+        switch otherOptions[0]
+          when "steroids"
+            SteroidsLog = require "./steroids/log/steroids_log"
+            steroidsLog = new SteroidsLog
+            steroidsLog.run()
+
+          when "logcat"
+            LogCat = require "./steroids/log/logcat"
+            logCat = new LogCat
+
+            if argv.tail
+              logCat.run
+                tail: true
+            else
+              logCat.run()
+              .then (logLines) ->
+                for line in logLines
+                  do (line) ->
+                    steroidsCli.log line
+
+          else
+            Usage = require "./steroids/usage"
+            usage = new Usage
+            usage.log()
+
       when "__watch"
 
         Watcher = require "./steroids/fs/watcher"

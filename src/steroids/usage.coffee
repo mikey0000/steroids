@@ -1,3 +1,5 @@
+Help = require "./Help"
+
 class Usage
 
   constructor: (@opts={}) ->
@@ -8,18 +10,23 @@ class Usage
     Help.usage.header()
     Help.usage.compact()
 
-    Help.usage.extended() if @opts.extended
+    if @opts.extended
+      Help.usage.extended()
+      Help.usage.emulate()
+      Help.usage.log()
+      console.log "\n\nGenerator usage:"
+      Help.listGenerators()
+      console.log "\n\n"
 
     Help.usage.footer()
 
   emulate: ->
-    Help = require "./Help"
-
     Help.usage.emulate()
 
   debug: ->
-    Help = require "./Help"
-
     Help.usage.debug()
+
+  log: ->
+    Help.usage.log()
 
 module.exports = Usage
