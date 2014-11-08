@@ -119,18 +119,27 @@ class Prompt
 
         when "h", "help", "?", "usage"
           Help.connect()
-        else
+
+        when "$"
           skipLoop = true
+
+          cmd = commandOptions[0]
+          args = commandOptions.splice(1)
 
           sbawn = require "./sbawn"
           cmd = sbawn
-            cmd: mainCommand
+            cmd: cmd
+            args: args
             cwd: paths.applicationDir
             stdout: true
             stderr: true
-            onExit: @connectLoop
-            args: commandOptions
-
+            onExit: =>
+              console.log ""
+              setTimeout =>
+                @connectLoop()
+              , 10
+        else
+          steroidsCli.log "Unknown command: #{mainCommand}, did you mean:\n\t$ #{mainCommand} #{commandOptions.join(' ')}"
       unless skipLoop
         @connectLoop()
 

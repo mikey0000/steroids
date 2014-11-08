@@ -12,8 +12,3 @@
       #bold[path]   opens the view that matches "path" in its location URL
 
     #underline[Note:] Enable Develop menu in: Safari -> Preferences -> Advanced
-
-  #bold[weinre]   Starts the Weinre debugger
-    #cyan[--i-acknowledge-that-weinre-is-not-the-best-debugger=<answer>]
-
-      #bold[answer]   "yes" if you have to use it anyway
