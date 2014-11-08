@@ -228,9 +228,17 @@ class Genymotion
 
       steroidsCli.debug "GENYMOTION", "starting application"
 
-      cmd = "#{@genymotionBasePath}/tools/adb"
-      args = ["shell", "am", "start", "-n", "#{@applicationPackage}/#{@applicationActivity}"]
+      ips = steroidsCli.server.ipAddresses
+      port = steroidsCli.server.port
+      encodedJSONIPs = encodeURIComponent(JSON.stringify(ips))
+      encodedPort = encodeURIComponent(port)
 
+      launchUrl = "appgyver://?ips=#{encodedJSONIPs}&port=#{encodedPort}"
+
+      cmd = "#{@genymotionBasePath}/tools/adb"
+      args = ["shell", "am", "start", "-n", "#{@applicationPackage}/#{@applicationActivity}", "-d", launchUrl]
+
+      steroidsCli.debug "GENYMOTION", "Running #{cmd} with args: #{args}}"
       @startSession = sbawn
         cmd: cmd
         args: args
