@@ -138,9 +138,9 @@ class Connect
         new Promise (resolve, reject)=>
           steroidsCli.debug "connect", "doLiveReload"
 
+          steroidsCli.log "Notified all connected devices to refresh"
+
           @buildServer.triggerLiveReload()
-          #TODO: maybe not needed anymore?
-          #@prompt.refresh()
 
           steroidsCli.debug "connect", "doLiveReload succ"
           resolve()
@@ -161,6 +161,9 @@ class Connect
         shouldMake = false
         isMaking = true
 
+        steroidsCli.log
+          message: "Detected change, running make ..."
+          refresh: false
         doMake()
         .then =>
           if canBeLiveReload

@@ -48,17 +48,18 @@ class Prompt
 
           process.exit(0)
         when "", "push"
-          steroidsCli.log "Updating code on all connected devices ..."
           project = new Project
           project.make
             onSuccess: =>
+              # TODO: legacy if?
               if steroidsCli.options.argv.livereload
                 @buildServer.triggerLiveReload()
-                @refresh()
               else
                 project.package
                   onSuccess: =>
-                    @refresh()
+                    steroidsCli.log
+                      message: "Restarting all connected devices ..."
+                      refresh: true
 
         when "d", "debug"
           SafariDebug = require "./SafariDebug"
