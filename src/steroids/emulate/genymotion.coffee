@@ -95,7 +95,7 @@ class Genymotion
       @deviceListSession = sbawn
         cmd: cmd
         args: args
-        stdout: if opts.stdout? then opts.stdout  else false
+        stdout: if opts.stdout? then opts.stdout else false
         stderr: if opts.stderr? then opts.stderr else false
 
       @deviceListSession.on "exit", =>
@@ -126,7 +126,7 @@ class Genymotion
       @uninstallSession = sbawn
         cmd: cmd
         args: args
-        stdout: if opts.stdout? then opts.stdout  else false
+        stdout: if opts.stdout? then opts.stdout else false
         stderr: if opts.stderr? then opts.stderr else false
 
       @uninstallSession.on "exit", =>
@@ -233,7 +233,7 @@ class Genymotion
       encodedJSONIPs = encodeURIComponent(JSON.stringify(ips))
       encodedPort = encodeURIComponent(port)
 
-      launchUrl = "appgyver://?ips=#{encodedJSONIPs}&port=#{encodedPort}"
+      launchUrl = "'appgyver://?ips=#{encodedJSONIPs}\&port=#{encodedPort}'"
 
       cmd = "#{@genymotionBasePath}/tools/adb"
       args = ["shell", "am", "start", "-n", "#{@applicationPackage}/#{@applicationActivity}", "-d", launchUrl]
@@ -242,7 +242,8 @@ class Genymotion
       @startSession = sbawn
         cmd: cmd
         args: args
-        stdout: if opts.stdout? then opts.stdout  else false
+        debug: steroidsCli.debugEnabled
+        stdout: if opts.stdout? then opts.stdout else false
         stderr: if opts.stderr? then opts.stderr else false
 
       @startSession.on "exit", =>
@@ -272,7 +273,7 @@ class Genymotion
       @unlockSession = sbawn
         cmd: cmd
         args: args
-        stdout: if opts.stdout? then opts.stdout  else false
+        stdout: if opts.stdout? then opts.stdout else false
         stderr: if opts.stderr? then opts.stderr else false
 
       @unlockSession.on "exit", =>
