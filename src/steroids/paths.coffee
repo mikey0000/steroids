@@ -133,4 +133,10 @@ class Paths
   @android:
     adb: path.join @userHome, "android-sdk-macosx", "platform-tools", "adb"
 
+  if process.env.ANDROID_SDK_HOME?
+    @androidSDK =
+      home: process.env.ANDROID_SDK_HOME
+      tools: path.join process.env.ANDROID_SDK_HOME, "tools"
+      platformTools: path.join process.env.ANDROID_SDK_HOME, "platform-tools"
+
 module.exports = Paths
