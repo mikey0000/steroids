@@ -9,6 +9,16 @@ class LogCat
     paths = require "../paths"
 
     new Promise (resolve, reject) =>
+
+      unless paths.androidSDK?
+        reject new Error """
+          Cannot start Android Logcat.
+
+              Environment variable ANDROID_SDK_HOME not set.
+
+          Please see documentation for setting up Android SDK.
+          """
+
       sbawn = require "../sbawn"
 
       args = ["logcat"]
@@ -23,7 +33,7 @@ class LogCat
       args.push "*:V"
 
       session = sbawn
-        cmd: paths.android.adb
+        cmd: paths.androidSDK.adb
         args: args
         debug: debug
 

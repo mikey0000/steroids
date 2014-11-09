@@ -428,6 +428,10 @@ class Steroids
                 for line in logLines
                   do (line) ->
                     steroidsCli.log line
+              .catch (error) ->
+                Help.error()
+                steroidsCli.log
+                  message: error.message
 
           else
             Usage = require "./steroids/usage"

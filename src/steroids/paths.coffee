@@ -130,13 +130,12 @@ class Paths
       default: path.join @npm, "node_modules", "steroids-android-packages", "builds", "application.apk"
       debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug.apk"
 
-  @android:
-    adb: path.join @userHome, "android-sdk-macosx", "platform-tools", "adb"
-
   if process.env.ANDROID_SDK_HOME?
+    sdk = process.env.ANDROID_SDK_HOME
     @androidSDK =
-      home: process.env.ANDROID_SDK_HOME
-      tools: path.join process.env.ANDROID_SDK_HOME, "tools"
-      platformTools: path.join process.env.ANDROID_SDK_HOME, "platform-tools"
+      home: sdk
+      tools: path.join sdk, "tools"
+      platformTools: path.join sdk, "platform-tools"
+      adb: path.join sdk, "platform-tools", "adb"
 
 module.exports = Paths
