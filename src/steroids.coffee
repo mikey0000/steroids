@@ -358,7 +358,10 @@ class Steroids
 
             Android = require "./steroids/emulate/android"
             android = new Android()
-            android.run()
+            android.run().catch (error) ->
+              Help.error()
+              steroidsCli.log
+                message: error.message
 
           when "ios"
 

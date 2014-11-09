@@ -78,7 +78,10 @@ class Prompt
         when "a", "and", "android"
           Android = require "./emulate/android"
           android = new Android
-          android.run()
+          android.run().catch (error) ->
+            Help.error()
+            steroidsCli.log
+              message: error.message
 
         when "g", "gen", "genymotion"
           Genymotion = require "./emulate/genymotion"

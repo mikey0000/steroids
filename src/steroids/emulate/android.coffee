@@ -1,14 +1,14 @@
 sbawn = require '../sbawn'
+paths = require "../paths"
 
 class Android
   StoppedError: class StoppedError extends steroidsCli.SteroidsError
 
   constructor: ->
-    paths = require "../paths"
-
-    @androidCmd = path.join paths.userHome, "android-sdk-macosx/tools/android"
-    @emulatorCmd = path.join paths.userHome, "android-sdk-macosx/tools/emulator"
-    @adbCmd = path.join paths.userHome, "android-sdk-macosx/platform-tools/adb"
+    return null unless paths.androidSDK?
+    @androidCmd = path.join paths.androidSDK.tools, "android"
+    @emulatorCmd = path.join paths.androidSDK.tools, "emulator"
+    @adbCmd = path.join paths.androidSDK.platformTools, "adb"
 
     @applicationPackage = "com.appgyver.runtime.scanner"
     @applicationActivity = "com.appgyver.runtime.scanner.MainActivity"
@@ -18,17 +18,28 @@ class Android
     @emulatorSession = null
 
   run: =>
-    steroidsCli.log "Staring Android Emulator"
-    @killall()
-    .then(@restartAdbServer)
-    .then(@findDevice)
-    .then(@resetTimeout)
-    .then(@startEmulator)
-    .then(@ensureDeviceStarted)
-    .then(@uninstallAPK)
-    .then(@installAPK)
-    .then(@startApplication)
-    .then(@unlockDevice)
+    new Promise (resolve, reject) =>
+
+      unless paths.androidSDK?
+        reject new Error """
+          Cannot start Android Emulator.
+
+              Environment variable ANDROID_SDK_HOME not set.
+
+          Please see documentation on how to setup Android Emulator.
+          """
+        return
+      @killall()
+      .then(@restartAdbServer)
+      .then(@findDevice)
+      .then(@resetTimeout)
+      .then(@startEmulator)
+      .then(@ensureDeviceStarted)
+      .then(@uninstallAPK)
+      .then(@installAPK)
+      .then(@startApplication)
+      .then(@unlockDevice)
+      resolve()
 
   restartAdbServer: =>
     new Promise (resolve, reject) =>
@@ -65,7 +76,7 @@ class Android
 
   startEmulator: =>
     new Promise (resolve, reject) =>
-      steroidsCli.log "Staring emulator"
+      steroidsCli.log "Starting Android Emulator"
 
       @emulatorSession = sbawn
         cmd: @emulatorCmd
@@ -163,9 +174,17 @@ class Android
   startApplication: =>
     new Promise (resolve, reject) =>
 
+      ips = steroidsCli.server.ipAddresses()
+      port = steroidsCli.server.port
+      encodedJSONIPs = encodeURIComponent(JSON.stringify(ips))
+      encodedPort = encodeURIComponent(port)
+
+      launchUrl = "'appgyver://?ips=#{encodedJSONIPs}\&port=#{encodedPort}'"
+      args = ["shell", "am", "start", "-n", "#{@applicationPackage}/#{@applicationActivity}", "-d", launchUrl]
+
       session = sbawn
         cmd: @adbCmd
-        args: ["shell", "am", "start", "-n", "#{@applicationPackage}/#{@applicationActivity}"]
+        args: args
 
       session.on "exit", =>
         if session.stdout.match "Starting: Intent"
