@@ -250,7 +250,7 @@ class Steroids
           []
 
         watchEnabled = !(argv.watch == false)
-        livereloadEnabled = !(argv.livereload == false)
+        livereloadEnabled = (argv.livereload == true)
 
         @connect = new Connect
           port: port
@@ -260,6 +260,14 @@ class Steroids
           qrcode: argv.qrcode
 
         @connect.run()
+        .then =>
+          Help = require "./steroids/Help"
+          Help.connect()
+
+          chalk = require "chalk"
+          console.log "\nHit #{chalk.green("[enter]")} to push updates, type #{chalk.bold("help")} for usage"
+
+          @connect.prompt.connectLoop()
         .catch (error)=>
           if error.message.match /Parse error/ # coffee parser errors are of class Error
             console.log "Error parsing application configuration files: #{error.message}"

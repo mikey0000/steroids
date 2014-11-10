@@ -1,9 +1,14 @@
 #bold[#magenta[Extended usage information:]]
 
+  Disable options wiht #cyan[--no-option] eg. #cyan[--no-watch]
+
   #bold[connect]]
 
     #cyan[--no-qrcode]
       Do not open the QR code in a separate browser window.
+
+    #cyan[--livereload]
+      Use (experimental) live reloading
 
     #cyan[--watch <path>]
       Watch additional directories for changes.

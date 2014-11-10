@@ -171,7 +171,8 @@ class Connect
           refresh: false
         doMake()
         .then =>
-          if canBeLiveReload
+          steroidsCli.debug "connect", "livereload: #{@livereload} and can be livereloaded: #{canBeLiveReload}"
+          if @livereload and canBeLiveReload
             doLiveReload()
           else
             doFullReload()
@@ -204,13 +205,6 @@ class Connect
           watcher.on ["add", "change", "unlink"], (path)=>
             canBeLiveReload = false
             shouldMake = true
-
-      Help = require "./Help"
-      Help.connect()
-      chalk = require "chalk"
-      console.log "\nHit #{chalk.green("[enter]")} to push updates, type #{chalk.bold("help")} for usage"
-
-      @prompt.connectLoop()
 
       resolve()
 

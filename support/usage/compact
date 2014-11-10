@@ -18,3 +18,5 @@
 
   #bold[emulate]    Starts the Android Emulator or iOS Simulator
   #bold[debug]      Chrome Dev Tools (Android) or Safari Remote Web Inspector (OS X only)
+
+  #cyan[--help]     Extended usage information
