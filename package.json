@@ -61,7 +61,7 @@
     "coffeelint": "0.5.7"
   },
   "dependencies": {
-    "ios-sim": "http://appgyver-steroids.s3.amazonaws.com/ios-sim-3.0.0-AppGyver-p0.tgz",
+    "ios-sim": "http://appgyver-steroids.s3.amazonaws.com/ios-sim-3.0.0-AppGyver-p1.tgz",
     "steroids-android-packages": "http://appgyver-steroids.s3.amazonaws.com/steroids-android-packages-0.0.3.tgz",
     "steroids-ios-packages": "http://appgyver-steroids.s3.amazonaws.com/steroids-ios-packages-4.0.2.tgz",
     "archiver": "0.4.10",
