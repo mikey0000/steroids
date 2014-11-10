@@ -123,7 +123,7 @@ class Prompt
         when "h", "help", "?", "usage"
           Help.connect()
 
-        when "$"
+        when "$", "§"
           skipLoop = true
 
           cmd = commandOptions[0]
