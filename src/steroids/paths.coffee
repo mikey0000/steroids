@@ -129,6 +129,8 @@ class Paths
     android:
       default: path.join @npm, "node_modules", "steroids-android-packages", "builds", "application.apk"
       debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug.apk"
+      chromium:
+        debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug-chromium.apk"
 
   if process.env.ANDROID_SDK_HOME?
     sdk = process.env.ANDROID_SDK_HOME

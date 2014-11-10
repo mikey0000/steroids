@@ -13,7 +13,7 @@ class Android
     @applicationPackage = "com.appgyver.runtime.scanner"
     @applicationActivity = "com.appgyver.runtime.scanner.MainActivity"
 
-    @apkPath = paths.emulate.android.debug
+    @apkPath = paths.emulate.android.chromium.debug
 
     @emulatorSession = null
 
