@@ -22,9 +22,9 @@ class Android
 
       unless paths.androidSDK?
         reject new Error """
-          Cannot start Android Emulator.
+          Unable to start Android Emulator.
 
-              Environment variable ANDROID_SDK_HOME not set.
+              Environment variable ANDROID_HOME not set.
 
           Please see documentation on how to setup Android Emulator.
           """

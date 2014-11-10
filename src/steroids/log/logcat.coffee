@@ -12,9 +12,9 @@ class LogCat
 
       unless paths.androidSDK?
         reject new Error """
-          Cannot start Android Logcat.
+          Unable to start Android Logcat.
 
-              Environment variable ANDROID_SDK_HOME not set.
+              Environment variable ANDROID_HOME not set.
 
           Please see documentation for setting up Android SDK.
           """
