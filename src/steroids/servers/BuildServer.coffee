@@ -148,6 +148,8 @@ class BuildServer extends Server
 
     # Used for heartbeat
     @app.get "/__appgyver/ping", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
       res.status(200).send "Pong!"
 
     helper "get", "/__appgyver/deploy", (req, res) ->
