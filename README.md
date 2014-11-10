@@ -1,8 +1,7 @@
-AppGyver Steroids
------------------
+AppGyver Steroids CLI
+---------------------
 
 AppGyver Steroids is PhoneGap on Steroids, providing native UI elements, multiple WebViews and enhancements for better developer productivity.
-
 
 ## Installation and requirements
 
@@ -17,7 +16,7 @@ AppGyver Steroids is PhoneGap on Steroids, providing native UI elements, multipl
 
 #### OS X
 
-* Xcode and command-line tools (Mac app store)
+* Xcode and command-line tools (Mac App store)
 * Git with homebrew or git Mac installer (if using the installer, remember to includ git in your $PATH)
 * Python 2.7 or greater (preinstalled on OS X Lion and newer)
 
