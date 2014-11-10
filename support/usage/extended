@@ -3,5 +3,10 @@
   #bold[connect]]
 
     #cyan[--no-qrcode]
-
       Do not open the QR code in a separate browser window.
+
+    #cyan[--watch <path>]
+      Watch additional directories for changes.
+
+    #cyan[--watchExclude <matcher>]
+      Ignore files from watching

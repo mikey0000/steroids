@@ -190,6 +190,21 @@ class Connect
         canBeLiveReload = false
         shouldMake = true
 
+      userPaths = if steroidsCli.options.argv.watch
+        [].concat(steroidsCli.options.argv.watch)
+      else
+        []
+
+      for userPath in userPaths
+        do (userPath) =>
+          watcher = new Watcher
+            path: userPath
+            ignored: @watchExclude
+
+          watcher.on ["add", "change", "unlink"], (path)=>
+            canBeLiveReload = false
+            shouldMake = true
+
       Help = require "./Help"
       Help.connect()
       chalk = require "chalk"
