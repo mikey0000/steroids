@@ -13,6 +13,18 @@ class Simulator
 
   constructor: (@options = {}) ->
 
+  validXCodeVersion: (cb) ->
+    minimumXcodeVersion = /Xcode 6./
+
+    xcodeVersionSession = sbawn
+      cmd: "xcodebuild"
+      args: ["-version"]
+
+    xcodeVersionSession.on "exit", ->
+      valid = xcodeVersionSession.stdout.match(minimumXcodeVersion)
+      version = xcodeVersionSession.stdout.split("\n").splice(0, 1)
+      cb valid, version
+
   getDevicesAndSDKs: () ->
     new Promise (resolve, reject) ->
       showDevicesSession = sbawn
@@ -38,62 +50,67 @@ class Simulator
         reject new Error "Simulator only supported in OS X"
         return
 
-      steroidsCli.log "Starting Simulator"
+      @validXCodeVersion (valid, version) =>
+        unless valid
+          reject new Error "Unsupported XCode version installed (#{version}). Please update."
+          return
 
-      @stop()
-      @running = true
+        steroidsCli.log "Starting Simulator"
 
-      cmd = paths.iosSim.path
-      args = ["launch", steroidsSimulators.latestSimulatorPath]
+        @stop()
+        @running = true
+
+        cmd = paths.iosSim.path
+        args = ["launch", steroidsSimulators.latestSimulatorPath]
 
 
-      device = "iPhone-6"
-      iOSVersion = undefined
+        device = "iPhone-6"
+        iOSVersion = undefined
 
-      if opts.device?
-        # Split into device type and optional, '@'-separated suffix specifying the iOS version (SDK version; e.g., '5.1').
-        [device, iOSVersion] = opts.device.split('@')
+        if opts.device?
+          # Split into device type and optional, '@'-separated suffix specifying the iOS version (SDK version; e.g., '5.1').
+          [device, iOSVersion] = opts.device.split('@')
 
-      deviceArg = "com.apple.CoreSimulator.SimDeviceType.#{device}"
+        deviceArg = "com.apple.CoreSimulator.SimDeviceType.#{device}"
 
-      if iOSVersion?
-        deviceArg = deviceArg + " ,#{iOSVersion}"
+        if iOSVersion?
+          deviceArg = deviceArg + " ,#{iOSVersion}"
 
-      args.push "--devicetypeid", deviceArg
-      args.push "--verbose" if steroidsCli.debugEnabled
+        args.push "--devicetypeid", deviceArg
+        args.push "--verbose" if steroidsCli.debugEnabled
 
-      @killall().then( =>
-        steroidsCli.debug "Spawning #{cmd}"
-        steroidsCli.debug "with params: #{args}"
+        @killall().then( =>
+          steroidsCli.debug "Spawning #{cmd}"
+          steroidsCli.debug "with params: #{args}"
 
-        @simulatorSession = sbawn
-          cmd: cmd
-          args: args
-          stdout: steroidsCli.debugEnabled?
-          stderr: true
+          @simulatorSession = sbawn
+            cmd: cmd
+            args: args
+            stdout: steroidsCli.debugEnabled?
+            stderr: true
 
-        @simulatorSession.on "exit", () =>
-          @running = false
+          @simulatorSession.on "exit", () =>
+            @running = false
 
-          steroidsCli.debug "Killing iOS Simulator ..."
+            steroidsCli.debug "Killing iOS Simulator ..."
 
-          @killall()
+            @killall()
 
-          unless ( @simulatorSession.stderr.indexOf('Session could not be started') == 0 )
-            resolve()
-            return
+            unless ( @simulatorSession.stderr.indexOf('Session could not be started') == 0 )
+              resolve()
+              return
 
-          Help.attention()
-          Help.resetiOSSim()
+            Help.attention()
+            Help.resetiOSSim()
 
-          setTimeout () =>
-            resetSimulator = sbawn
-              cmd: steroidsSimulators.iosSimPath
-              args: ["start"]
-              debug: true
-          , 250
-      )
-      resolve()
+            setTimeout () =>
+              resetSimulator = sbawn
+                cmd: steroidsSimulators.iosSimPath
+                args: ["start"]
+                debug: true
+            , 250
+        )
+        resolve()
 
   stop: () =>
     @simulatorSession.kill() if @simulatorSession
