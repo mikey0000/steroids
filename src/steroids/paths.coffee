@@ -19,7 +19,7 @@ class Paths
   @steroidsGenerator: path.join @npm, "node_modules", "generator-steroids", "generators", "app"
 
   @staticFiles: path.join @npm, "public"
-  @connectStaticFiles: path.join @npm, "node_modules", "steroids-connect"
+  @connectStaticFiles: path.join @npm, "node_modules", "steroids-connect", "dist"
   @appgyverStaticFiles: path.join @staticFiles, "__appgyver"
   @oauthSuccessHTML: path.join @appgyverStaticFiles, "login", "oauth2_success.html"
 
