@@ -147,7 +147,7 @@ class BuildServer extends Server
         clearInterval id
 
     # Used for heartbeat
-    helper "get", "/__appgyver/ping", (req, res) =>
+    @app.get "/__appgyver/ping", (req, res) =>
       res.status(200).send "Pong!"
 
     helper "get", "/__appgyver/deploy", (req, res) ->
