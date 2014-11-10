@@ -371,8 +371,12 @@ class Steroids
                 for device in devices
                   steroidsCli.log "#{device.name}#{chalk.grey('@'+device.sdks)}"
             else
-              steroidsCli.simulator.run
+              steroidsCli.simulator.run(
                 device: argv.device
+              ).catch (error) ->
+                  Help.error()
+                  steroidsCli.log
+                    message: error.message
 
           when "genymotion"
             Genymotion = require "./steroids/emulate/genymotion"

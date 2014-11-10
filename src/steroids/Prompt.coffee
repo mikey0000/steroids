@@ -95,8 +95,12 @@ class Prompt
           else if steroidsCli.options.argv.device
             steroidsCli.options.argv.deviceType
 
-          steroidsCli.simulator.run
+          steroidsCli.simulator.run(
             device: device
+          ).catch (error) ->
+            Help.error()
+            steroidsCli.log
+              message: error.message
 
         when "qr", "qr-code", "qrcode"
           QRCode = require "./QRCode"

@@ -17,7 +17,6 @@ Updater = require "../Updater"
 Project = require "../Project"
 Deploy = require "../Deploy"
 Data = require "../Data"
-Simulator = require "../Simulator"
 
 class ClientResolver
 
@@ -213,15 +212,16 @@ class BuildServer extends Server
         message = "Could not generate successfully. #{error.message}"
         res.status(404).json {error: message}
 
-    @app.get "/__appgyver/launch_simulator", (req, res) ->
+    helper "get", "/__appgyver/launch_simulator", (req, res) =>
+      Simulator = require "../Simulator"
       simulator = new Simulator()
-      simulator.run
-        deviceType: "iphone_retina_4_inch"
 
-      res.header "Access-Control-Allow-Origin", "*"
-      res.header "Access-Control-Allow-Headers", "Content-Type"
-
-      res.end ''
+      simulator.run().then () ->
+        steroidsCli.log "Simulator started"
+        res.status(200).send 'Launched'
+      .catch (err) ->
+        steroidsCli.log err.message
+        res.status(500).json { error: err.message }
 
     @app.options "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
