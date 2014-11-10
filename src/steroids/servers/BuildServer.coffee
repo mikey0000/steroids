@@ -190,6 +190,9 @@ class BuildServer extends Server
         res.status(200).send "Success!"
 
     helper "post", "/__appgyver/generate", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
       Generators = require "../Generators"
 
       opts =
