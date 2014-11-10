@@ -1,4 +1,4 @@
-steroidsSimulators = require "steroids-simulators"
+steroidsSimulators = require "steroids-ios-packages"
 spawn = require("child_process").spawn
 
 sbawn = require "./sbawn"

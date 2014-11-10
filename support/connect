@@ -12,7 +12,7 @@
  #bold[debug <path>]     d             Open Safari debugger for matching path in URL location
                                 #underline[Note:] Enable Develop menu in: Safari -> Preferences -> Advanced
 
- $ <cmd>                        Any other command will be run in the project directory
-                                Note: Command is not run in a shell. Aliases etc. will not work.
+ $ <cmd> <args>                        Command will be run in the project directory.
+ § <cmd> <args>
 
  #bold[quit]             q             Exits connect. Also: exit
