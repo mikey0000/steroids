@@ -130,6 +130,7 @@ class Prompt
           args = commandOptions.splice(1)
 
           sbawn = require "./sbawn"
+
           cmd = sbawn
             cmd: cmd
             args: args
@@ -141,6 +142,7 @@ class Prompt
               setTimeout =>
                 @connectLoop()
               , 10
+
         else
           steroidsCli.log "Unknown command: #{mainCommand}, did you mean:\n\t$ #{mainCommand} #{commandOptions.join(' ')}"
       unless skipLoop

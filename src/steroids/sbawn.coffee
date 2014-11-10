@@ -58,9 +58,9 @@ class Sbawned
           args = ["/c", originalCmd].concat(args)
 
         @spawned = spawn @options.cmd, args, { cwd: @options.cwd, stdio: 'inherit' }
-
       else
         @spawned = spawn @options.cmd, args, { cwd: @options.cwd }
+
     catch e
       console.log "Failed to spawn a process, error: #{e.code}"
 
@@ -80,7 +80,12 @@ class Sbawned
 
     @spawned.on "exit", @onExit
     @spawned.on "error", (err)=>
-      console.log err
+      if err.code == "ENOENT"
+        steroidsCli.log "Failed to run: #{@options.cmd} #{args.join(' ')}"
+      else
+        steroidsCli.log "Error: #{err}"
+
+      @onExit()
 
   kill: () =>
     @spawned.kill("SIGKILL")
