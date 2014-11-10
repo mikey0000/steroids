@@ -46,6 +46,11 @@ class Login
       @settings.tokenPath)
 
   run: =>
+    Updater = require "./Updater"
+    updater = new Updater
+    updater.check
+      from: "login"
+
     return new Promise (resolve, reject) =>
       @loginPromise =
         resolve: resolve

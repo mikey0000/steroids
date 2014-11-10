@@ -30,6 +30,11 @@ class Deploy
       url: ankaURL
 
   run: () =>
+    Updater = require "./Updater"
+    updater = new Updater
+    updater.check
+      from: "deploy"
+
     return new Promise (resolve, reject) =>
       Project = require "./Project"
 

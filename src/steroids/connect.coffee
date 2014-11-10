@@ -12,6 +12,11 @@ class Connect
     @prompt = null
 
   run: (opts={}) =>
+    Updater = require "./Updater"
+    updater = new Updater
+    updater.check
+      from: "connect"
+
     return new Promise (resolve, reject) =>
       Simulator = require "./Simulator"
       simulatorForKillingIt = new Simulator
