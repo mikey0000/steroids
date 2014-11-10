@@ -20,12 +20,28 @@ class ProjectCreator
         ]
         default: "mpa"
 
-      inquirer.prompt appTypePrompt, (answers) =>
+      scriptExtPrompt =
+        type: "list"
+        name: "scriptExt"
+        message: "Do you want your project to be generated with CoffeeScript or JavaScript files?"
+        choices: [
+          { name: "CoffeeScript", value: "coffee" }
+          { name: "JavaScript", value: "js"}
+        ]
+        default: "coffee"
+
+      promptList = [
+        appTypePrompt
+        scriptExtPrompt
+      ]
+
+      inquirer.prompt promptList, (answers) =>
 
         steroidsGenerator.app {
           skipInstall: true
           projectName: targetDirectory
           appType: answers.appType
+          scriptExt: answers.scriptExt
         }, resolve
 
   update: =>
