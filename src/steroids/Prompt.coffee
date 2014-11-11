@@ -83,10 +83,10 @@ class Prompt
             steroidsCli.log
               message: error.message
 
-        when "g", "gen", "genymotion"
-          Genymotion = require "./emulate/genymotion"
-          genymotion = new Genymotion
-          genymotion.run()
+        # when "g", "gen", "genymotion"
+#           Genymotion = require "./emulate/genymotion"
+#           genymotion = new Genymotion
+#           genymotion.run()
 
         when "s", "sim", "simulator"
 

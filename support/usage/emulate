@@ -4,7 +4,7 @@
 
 #bold[#magenta[Available modes and options:]]
 
-  #bold[genymotion]   Starts the Genymotion Android Emulator
+  #bold[android]   Starts the Android Emulator
 
   #bold[ios]          Starts the iOS Simulator (OS X only)
     #cyan[--devices]

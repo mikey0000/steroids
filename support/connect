@@ -4,7 +4,6 @@
  #bold[push]             <enter>       Push code to connected devices
  #bold[sim]              s             Launch the iOS Simulator (OS X only)
  #bold[and]              a             Launch Android Emulator
- #bold[gen]              g             Launch Genymotion Emulator (Android)
  #bold[chrome]           c             Launch Chrome dev tools (Android)
  #bold[qr]               -             Show the QR code for connecting devices
  #bold[reload]           r             Reload the whole app (when using connect with #cyan[--livereload])

@@ -386,10 +386,10 @@ class Steroids
                   steroidsCli.log
                     message: error.message
 
-          when "genymotion"
-            Genymotion = require "./steroids/emulate/genymotion"
-            genymotion = new Genymotion()
-            genymotion.run()
+          # when "genymotion"
+#             Genymotion = require "./steroids/emulate/genymotion"
+#             genymotion = new Genymotion()
+#             genymotion.run()
 
           else
             Usage = require "./steroids/usage"
