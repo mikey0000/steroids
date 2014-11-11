@@ -208,7 +208,11 @@ class Steroids
 
         projectCreator.generate(folder).then ->
           projectCreator.update().then ->
-            steroidsCli.log "\n#{chalk.bold.green('\nSuccesfully created a new Steroids project!')}"
+            steroidsCli.log """
+              #{chalk.bold.green('\nSuccesfully created a new Steroids project!')}
+
+              Run #{chalk.bold("cd "+ folder)} and then #{chalk.bold('steroids connect')} to start building your app!
+            """
           .catch (err) ->
             steroidsCli.log err.message
             process.exit 1
