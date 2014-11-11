@@ -91,6 +91,14 @@ var checkNPMOwnership = function() {
 
   console.log("\n\nChecking $HOME/.npm ownership, that '"+currentUser+"' owns everything...\n");
 
+  var home = process.env['HOME'];
+  exists = fs.existsSync(path.resolve(home, ".npmm"));
+
+  // Check if .npm exists, if not - assume fresh install and precede
+  if (!exists) {
+    return;
+  }
+
   var cmdToFindFilesNotOwnedByUser = "find $HOME/.npm \! -user $USER -print";
 
   cp.exec(cmdToFindFilesNotOwnedByUser, function(error, stdout, stderr) {
