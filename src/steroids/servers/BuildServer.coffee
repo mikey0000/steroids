@@ -235,6 +235,17 @@ class BuildServer extends Server
         steroidsCli.log err.message
         res.status(500).json { error: err.message }
 
+    helper "get", "/__appgyver/launch_emulator", (req, res) =>
+      Android = require "../emulate/android"
+      android = new Android()
+
+      android.run().then () ->
+        steroidsCli.log "Android Emulator started"
+        res.status(200).send 'Launched'
+      .catch (err) ->
+        steroidsCli.log err.message
+        res.status(500).json { error: err.message }
+
     @app.options "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
