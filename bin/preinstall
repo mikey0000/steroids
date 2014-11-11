@@ -87,17 +87,18 @@ var checkForPython = function() {
 }
 
 var checkNPMOwnership = function() {
-  var currentUser = process.env['USER'];
-
-  console.log("\n\nChecking $HOME/.npm ownership, that '"+currentUser+"' owns everything...\n");
 
   var home = process.env['HOME'];
-  exists = fs.existsSync(path.resolve(home, ".npmm"));
+  exists = fs.existsSync(path.resolve(home, ".npm"));
 
   // Check if .npm exists, if not - assume fresh install and precede
   if (!exists) {
     return;
   }
+
+  var currentUser = process.env['USER'];
+
+  console.log("\n\nChecking $HOME/.npm ownership, that '"+currentUser+"' owns everything...\n");
 
   var cmdToFindFilesNotOwnedByUser = "find $HOME/.npm \! -user $USER -print";
 
