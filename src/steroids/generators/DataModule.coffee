@@ -7,14 +7,14 @@ class DataModuleGenerator extends Base
 
   constructor: (@options) ->
     @resourceName = @options.name || 'myResource'
-    @moduleName = "#{@resourceName}s"
+    @moduleName = "#{@resourceName.toLowerCase()}"
 
   @usageParams: ->
     "<resourceName> <fields...>"
 
   @usage: ->
     """
-    Generates a CRUD scaffold for your SandboxDB resource.
+    Generates a CRUD scaffold for a Supersonic Data resource.
     """
 
   generate: ->
@@ -31,7 +31,7 @@ class DataModuleGenerator extends Base
           @resourceName
           @fields
         }, ->
-          steroidsCli.debug "ModuleGenerator", "Generated generator Module"
+          steroidsCli.debug "DataModuleGenerator", "Generated Scaffold for #{@resourceName}"
           resolve()
 
 
