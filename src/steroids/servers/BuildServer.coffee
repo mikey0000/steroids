@@ -161,6 +161,15 @@ class BuildServer extends Server
       .catch Deploy.DeployError, (err) ->
         res.status(500).json {error: "Can not deploy project"}
 
+    @app.get "/__appgyver/app_config", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      if fs.existsSync Paths.application.configs.app
+        appConfig = require Paths.application.configs.app
+        res.status(200).json appConfig
+      else
+        res.status(204).send ''
 
     @app.get "/__appgyver/cloud_config", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
