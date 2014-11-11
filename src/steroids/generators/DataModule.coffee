@@ -19,7 +19,17 @@ class DataModuleGenerator extends Base
 
   generate: ->
     return new Promise (resolve, reject) =>
+      path = require "path"
+      paths = require "../paths"
+      fs = require "fs"
+
       steroidsCli.debug "DataModuleGenerator", "Generating scaffold for resource: #{@resourceName}"
+
+      intendedModulePath = path.join paths.application.appDir, @moduleName
+
+      if fs.existsSync intendedModulePath
+        reject new Error "Scaffold already exists for resource #{@resourceName}."
+        return
 
       #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
       Provider.resourceForName(@resourceName).then (resource)=>
