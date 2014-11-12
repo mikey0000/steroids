@@ -13,7 +13,8 @@ class Android
     @applicationPackage = "com.appgyver.runtime.scanner"
     @applicationActivity = "com.appgyver.runtime.scanner.MainActivity"
 
-    @apkPath = paths.emulate.android.chromium.debug
+    @apkPath = paths.emulate.android.debug
+    @avd = "steroids"
 
     @emulatorSession = null
 
@@ -68,11 +69,11 @@ class Android
         args: ["list"]
 
       session.on "exit", =>
-        if session.stdout.match "Name: steroids"
-          steroidsCli.debug "ANDROID", "found device named steroids"
+        if session.stdout.match "Name: #{@avd}"
+          steroidsCli.debug "ANDROID", "found device named #{@avd}"
           resolve()
         else
-          reject new Error "Could not find an Android virtual device named steroids"
+          reject new Error "Could not find an Android virtual device named #{@avd}"
 
   startEmulator: =>
     new Promise (resolve, reject) =>
@@ -80,7 +81,7 @@ class Android
 
       @emulatorSession = sbawn
         cmd: @emulatorCmd
-        args: ["@steroids"]
+        args: ["@#{@avd}"]
 
       waitForEmulatorInterval = setInterval =>
         if @emulatorSession.stderr.match "HAX is working and emulator runs in fast virt mode"
@@ -177,11 +178,11 @@ class Android
       ips = steroidsCli.server.ipAddresses()
       port = steroidsCli.server.port
       encodedJSONIPs = encodeURIComponent(JSON.stringify(ips))
-      encodedPort = encodeURIComponent(port)
 
-      launchUrl = "'appgyver://?ips=#{encodedJSONIPs}\&port=#{encodedPort}'"
-      args = ["shell", "am", "start", "-n", "#{@applicationPackage}/#{@applicationActivity}", "-d", launchUrl]
+      launchUrl = "appgyver://?ips=#{encodedJSONIPs}\&port=#{port}"
+      steroidsCli.debug "ANDROID", "starting application with launchUrl: '#{launchUrl}'"
 
+      args = ["shell", "am start '#{launchUrl}'"]
       session = sbawn
         cmd: @adbCmd
         args: args
