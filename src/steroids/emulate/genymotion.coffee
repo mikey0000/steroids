@@ -8,8 +8,8 @@ class Genymotion
     @genymotionShellPath = paths.genymotion.shellPath
     @genymotionBasePath = paths.genymotion.basePath
 
-    @applicationPackage = "com.appgyver.runtime.scanner"
-    @applicationActivity = "com.appgyver.runtime.scanner.MainActivity"
+    @applicationPackage = "com.appgyver.runtime.scanner.steroidscli"
+    @applicationActivity = "com.appgyver.runtime.scanner.steroidscli.MainActivity"
     @apkPath = paths.emulate.android.debug
 
     @vmName = "steroids"
@@ -229,12 +229,12 @@ class Genymotion
       ips = steroidsCli.server.ipAddresses()
       port = steroidsCli.server.port
       encodedJSONIPs = encodeURIComponent(JSON.stringify(ips))
-      encodedPort = encodeURIComponent(port)
 
-      launchUrl = "'appgyver://?ips=#{encodedJSONIPs}\&port=#{encodedPort}'"
+      launchUrl = "appgyver://?ips=#{encodedJSONIPs}\&port=#{port}"
+      steroidsCli.debug "GENYMOTION", "starting application with launchUrl: '#{launchUrl}'"
 
       cmd = "#{@genymotionBasePath}/tools/adb"
-      args = ["shell", "am", "start", "-n", "#{@applicationPackage}/#{@applicationActivity}", "-d", launchUrl]
+      args = ["shell", "am start '#{launchUrl}'"]
 
       steroidsCli.debug "GENYMOTION", "Running #{cmd} with args: #{args}"
       @startSession = sbawn
