@@ -465,6 +465,32 @@ class Steroids
             watcher.on event, (path, stats) ->
               console.log event, path, stats
 
+      when "__banner"
+        # devroids __banner steroids --font Graffiti --horizontalLayout 'universal smushing'
+        Banner = require("./steroids/banner/banner")
+        banner = new Banner
+          font: argv.font
+          horizontalLayout: argv.horizontalLayout
+          verticalLayout: argv.verticalLayout
+
+
+
+        if argv.all
+          banner.availableFonts()
+          .then (fonts) ->
+            for font in fonts
+              banner.font = font
+              console.log font
+              console.log banner.makeSync otherOptions.join " "
+        else
+          text = banner.makeSync otherOptions.join " "
+
+          colorized = if argv.color
+            chalk[argv.color](text)
+          else
+            text
+
+          console.log colorized
 
       else
         Usage = require "./steroids/usage"
