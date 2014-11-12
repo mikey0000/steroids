@@ -5,10 +5,9 @@ class Genymotion
 
   constructor: ->
     paths = require "../paths"
-    @genymotionShellPath = "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell"
-    @genymotionBasePath = "/Applications/Genymotion.app/Contents/MacOS"
+    @genymotionShellPath = paths.genymotion.shellPath
+    @genymotionBasePath = paths.genymotion.basePath
 
-    #@applicationPackage = "com.appgyver.freshandroid"
     @applicationPackage = "com.appgyver.runtime.scanner"
     @applicationActivity = "com.appgyver.runtime.scanner.MainActivity"
     @apkPath = paths.emulate.android.debug
@@ -35,7 +34,6 @@ class Genymotion
     @running = true
 
     steroidsCli.globals.genymotion = @
-
 
     @killall()
     .then(@ensurePlayer)

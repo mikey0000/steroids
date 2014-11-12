@@ -127,7 +127,11 @@ class Paths
 
   @emulate:
     android:
-      debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug.apk"
+     debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug.apk"
+
+  @genymotion:
+    shellPath: "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell"
+    basePath: "/Applications/Genymotion.app/Contents/MacOS"
 
   if process.env.ANDROID_HOME?
     sdk = process.env.ANDROID_HOME
