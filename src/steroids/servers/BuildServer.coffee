@@ -45,9 +45,10 @@ class ClientResolver
       osVersion = androidVersionMatch[1] if androidVersionMatch
 
     if ios
-      iosVersionMatch = @request.headers["user-agent"].match(/(iPod|iPad|iPhone) OS ([^\s]*)/)
-      device = iosVersionMatch[1] if iosVersionMatch
-      osVersion = iosVersionMatch[2] if iosVersionMatch
+      iosDeviceMatch = @request.headers["user-agent"].match(/(iPod|iPad|iPhone)/)
+      device = iosDeviceMatch[0] || null
+      iosOsVersionMatch = @request.headers["user-agent"].match(/OS ([^\s]*) like/)
+      osVersion = iosOsVersionMatch[1] || null
 
     return {
       isIOS: ios
@@ -278,13 +279,16 @@ class BuildServer extends Server
       #unused stuff coming in from Steroids.js:
       #  .screen_id, .layer_id, .view_id
 
+      clientResolver = new ClientResolver(req)
+      resolvedClient = clientResolver.resolve()
+
       logLevel = logMsg.level || "info"
       message = logMsg.message
       metadata =
         datetime: logMsg.date
         view: logMsg.location
-        deviceName: logMsg.deviceName || "Richard's iPhone" # not provided by steroids.js yet
-        blob: logMsg.deviceName || null # expandable extra info for the message
+        host: req.headers.host
+        device: resolvedClient.device
 
       winston.log logLevel, message, metadata
 
