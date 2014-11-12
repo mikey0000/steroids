@@ -1,6 +1,4 @@
-
-
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'packager', ->
 
@@ -25,7 +23,7 @@ describe 'packager', ->
           args: ["package"]
 
       runs =>
-        Paths = require "../src/steroids/paths"
+        Paths = require "../../src/steroids/paths"
         fs = require "fs"
 
         expect(fs.existsSync Paths.temporaryZip).toBe true

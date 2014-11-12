@@ -1,4 +1,4 @@
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'data', ->
 
@@ -82,4 +82,3 @@ describe 'data', ->
 
     it "kills the testrun", =>
       @testRunDone = true
-

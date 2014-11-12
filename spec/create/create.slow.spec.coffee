@@ -1,4 +1,4 @@
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'create', ->
 

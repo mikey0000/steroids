@@ -1,4 +1,4 @@
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'connect', ->
 
@@ -64,6 +64,14 @@ describe 'connect', ->
 
       runs =>
         expect( killedGenymotion ).toBeTruthy()
+
+    it "kills genymotion", =>
+      killedAndroid = false
+      waitsFor =>
+        killedAndroid = @session.stdout.match("Killed android")
+
+      runs =>
+        expect( killedAndroid ).toBeTruthy()
 
     it "shows help", =>
       helpShown = false

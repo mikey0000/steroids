@@ -1,72 +1,70 @@
 #!/usr/bin/env sh
 
 MODE=$1
-GLOBAL_NODE_MODULES=$(dirname $NVM_PATH)/node_modules
-LOCAL_NODE_MODULES=$(pwd)/node_modules
 
-FILES=$(ls spec/*.spec.*)
+FILES=$(ls spec/**/*.spec.*)
 
 if [ "$MODE" = "fast" ]; then
-  echo "Mode: fast, skipping setup and slow tests"
-elif [ "$MODE" == "--no-setup" ]; then
-  echo "skipping setup"
-elif [ "$MODE" != "" ]; then
-  echo "Mode: single file: $1"
-  FILES=$1
-else
-  echo "???????????????????????????????????????????????????????????????????????????"
-  echo "Mode: SLOW -- are you sure you don't want to use fast mode (bin/test fast)"
-  echo "           -- or run a single test?"
-  echo "???????????????????????????????????????????????????????????????????????????"
+  bin/steroids __banner fast --color green
+elif [ "$MODE" == "release" ]; then
+  bin/steroids __banner release --color yellow
 
   echo "\nTo ensure clean node_modules in everywhere, we'll uninstall everything else than 'npm' from $GLOBAL_NODE_MODULES"
-  echo "ok? (y/N)"
+  echo "ok? (Y/n)"
 
   read UNINSTALL_GLOBAL_OK
 
-  if [ "$UNINSTALL_GLOBAL_OK" = "y" ]; then
+  if [ "$UNINSTALL_GLOBAL_OK" != "n" ]; then
     echo "deleting other than 'npm' from global.."
     npm ls -gp | awk -F/ '/node_modules/&&!/node_modules.*node_modules/&&!/npm/{print $NF}' | xargs npm rm -g
+    echo "clearing cache"
     npm cache clear -g
   else
     echo "not uninstalling"
   fi
 
-
-  echo "\nThen deleting everything from: $LOCAL_NODE_MODULES"
-  echo "ok? (y/N)"
+  echo "\nThen deleting everything from: ./node_modules"
+  echo "ok? (Y/n)"
 
   read DELETE_LOCAL_OK
 
-  if [ "$DELETE_LOCAL_OK" = "y" ]; then
+  if [ "$DELETE_LOCAL_OK" != "n" ]; then
     echo "deleting local.."
-    rm -rf $LOCAL_NODE_MODULES
+    rm -rf ./node_modules
   else
     echo "not deleting"
   fi
 
-  echo "Now running: $ npm install"
-  echo "ok? (y/N)"
+  echo "Now running: $ npm install --force"
+  echo "ok? (Y/n)"
 
   read INSTALL_OK
 
-  if [ "$INSTALL_OK" = "y" ]; then
-    npm install
+  if [ "$INSTALL_OK" != "n" ]; then
+    npm install --force
   else
     echo "not installing"
   fi
 
+
   echo "Now running: $ rm -rf __testApp && devroids create __testApp"
 
-  echo "ok? (y/N)"
+  echo "ok? (Y/n)"
 
   read BASE_APP_OK
 
-  if [ "$BASE_APP_OK" = "y" ]; then
+  if [ "$BASE_APP_OK" != "n" ]; then
     rm -rf __testApp && devroids create __testApp
   else
     echo "not creating"
   fi
+
+elif [ "$MODE" != "" ]; then
+  bin/steroids __banner single --color cyan
+  FILES=$1
+  MODE=single
+else
+  MODE=full
 fi
 
 
@@ -74,6 +72,8 @@ if [ ! -d "__testApp" ]; then
   echo "__testApp does not exists, create with bin/test"
   exit 1
 fi
+
+
 
 ERRORS=false
 
@@ -90,10 +90,14 @@ done
 
 echo "\n\n"
 if [ "$ERRORS" = true ]; then
+
+  bin/steroids __banner "ERRORS" --color bgRed
+
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   echo "  TEST RUN HAD ERRORS"
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   exit 1
 else
-  echo "BUMAYE, good to go!"
+  bin/steroids __banner "BUMAYE" --color bgGreen
+  echo "good to go!"
 fi

@@ -1,9 +1,9 @@
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'version', ->
 
   beforeEach =>
-    @packageJSON = require "../package.json"
+    @packageJSON = require "../../package.json"
 
   describe 'command line', =>
 
