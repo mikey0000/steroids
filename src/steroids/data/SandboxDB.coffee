@@ -16,7 +16,7 @@ class SandboxDB
   @ProvisionError: class ProvisionError extends SandboxDBError
   @WriteFileError: class WriteFileError extends SandboxDBError
 
-  providerName: "appgyver_sandbox"
+  providerName: "AppGyver Sandbox Database"
   providerTypeId: 6
 
   constructor: (@options={}) ->
