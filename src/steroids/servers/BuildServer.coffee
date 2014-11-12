@@ -222,7 +222,7 @@ class BuildServer extends Server
       .then ->
         res.status(200).send "Success!"
       .catch (error)->
-        message = "Could not generate successfully. #{error.message}"
+        message = "#{error.message}"
         res.status(404).json {error: message}
 
     helper "get", "/__appgyver/emulators/:emulator/:action", (req, res) =>
