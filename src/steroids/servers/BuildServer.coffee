@@ -333,6 +333,11 @@ class BuildServer extends Server
           firstSeen: Date.now()
           userAgent: req.headers["user-agent"]
           new: true
+          platform: platform
+          version: resolvedClient.version
+          osVersion: resolvedClient.osVersion
+          device: resolvedClient.device
+          simulator: resolvedClient.isSimulator
         }
 
       client.lastSeen = Date.now()
