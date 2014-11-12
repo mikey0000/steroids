@@ -9,17 +9,13 @@ describe 'make', ->
   it 'creates the dist', =>
     fs = require "fs"
     path = require "path"
+    wrench = require "wrench"
 
     distPath = path.join(@testHelper.testAppPath, "dist")
-    expect(fs.existsSync(distPath)).toBeFalsy()
+    wrench.rmdirSyncRecursive(distPath, true)
 
     session = @testHelper.runInProject
-      args: ["update"]
-      timeout: 600000
+      args: ["make"]
 
-    runs =>
-      session = @testHelper.runInProject
-        args: ["make"]
-
-      runs ->
-        expect( fs.existsSync(distPath) ).toBe(true)
+    runs ->
+      expect( fs.existsSync(distPath) ).toBe(true)
