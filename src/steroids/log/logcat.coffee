@@ -11,13 +11,8 @@ class LogCat
     new Promise (resolve, reject) =>
 
       unless paths.androidSDK?
-        reject new Error """
-          Unable to start Android Logcat.
-
-              Environment variable ANDROID_HOME not set.
-
-          Please see documentation for setting up Android SDK.
-          """
+        Android = require "../emulate/android"
+        reject new Android.MissingAndroidSDKError
 
       sbawn = require "../sbawn"
 

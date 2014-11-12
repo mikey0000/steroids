@@ -3,6 +3,15 @@ paths = require "../paths"
 
 class Android
   StoppedError: class StoppedError extends steroidsCli.SteroidsError
+  @MissingAndroidSDKError: class MissingAndroidSDKError extends steroidsCli.SteroidsError
+    constructor: ->
+      @message = """
+          Unable to start Android Emulator.
+
+              Environment variable ANDROID_HOME not set.
+
+          Please see documentation on how to setup Android Emulator.
+          """
 
   constructor: ->
     return null unless paths.androidSDK?
@@ -22,13 +31,7 @@ class Android
     new Promise (resolve, reject) =>
 
       unless paths.androidSDK?
-        reject new Error """
-          Unable to start Android Emulator.
-
-              Environment variable ANDROID_HOME not set.
-
-          Please see documentation on how to setup Android Emulator.
-          """
+        reject new MissingAndroidSDKError
         return
       @killall()
       .then(@restartAdbServer)
