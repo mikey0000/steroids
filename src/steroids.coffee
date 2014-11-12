@@ -297,13 +297,14 @@ class Steroids
 
         watchEnabled = !(argv.watch == false)
         livereloadEnabled = (argv.livereload == true)
+        showConnectScreen = !(argv['connect-screen'] == false)
 
         @connect = new Connect
           port: port
           watch: watchEnabled
           livereload: livereloadEnabled
           watchExclude: watchExclude
-          qrcode: argv.qrcode
+          connectScreen: showConnectScreen
 
         @connect.run()
         .then =>

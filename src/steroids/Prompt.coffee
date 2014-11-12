@@ -102,7 +102,7 @@ class Prompt
             steroidsCli.log
               message: error.message
 
-        when "qr", "qr-code", "qrcode"
+        when "conn", "-", "qr"
           QRCode = require "./QRCode"
           QRCode.showLocal
             port: @buildServer.port

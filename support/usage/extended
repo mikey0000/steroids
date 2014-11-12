@@ -1,17 +1,17 @@
 #bold[#magenta[Extended usage information:]]
 
-  Disable options with #cyan[--no-option] e.g. #cyan[--no-watch]
+  Disable options wiht #cyan[--no-option] e.g. #cyan[--no-connect-screen]
 
   #bold[connect]]
 
-    #cyan[--no-qrcode]
-      Do not open the QR code in a separate browser window.
+    #cyan[--connect-screen]
+      Open Steroids Connect screen in a separate browser window. (Default: true)
 
     #cyan[--livereload]
-      Use (experimental) live reloading.
+      Use (experimental) live reloading. (Default: false)
 
     #cyan[--watch <path>]
-      Watch additional directories for changes.
+      Watch additional directories for changes. (Default: '')
 
     #cyan[--watchExclude <matcher>]
-      Ignore files from watching.
+      Ignore files from watching. (Default: '')

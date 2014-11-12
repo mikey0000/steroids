@@ -4,7 +4,7 @@ class Connect
 
   constructor:(opts={}) ->
     @port = opts.port
-    @showQRCode = opts.qrcode
+    @showConnectScreen = opts.connectScreen
     @watch = opts.watch
     @livereload = opts.livereload
     @watchExclude = opts.watchExclude
@@ -70,7 +70,7 @@ class Connect
         context: @
         buildServer: @buildServer
 
-      unless @showQRCode is false
+      if @showConnectScreen
         QRCode = require "./QRCode"
         QRCode.showLocal
           port: @port

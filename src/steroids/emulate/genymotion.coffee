@@ -17,7 +17,7 @@ class Genymotion
     @running = false
 
   run: (opts = {}) =>
-    steroidsCli.log "Staring Genymotion"
+    steroidsCli.log "Starting Genymotion Emulator. Please wait for Scanner to load..."
 
     if steroidsCli.globals.genymotion?.running
       steroidsCli.debug "GENYMOTION", "previous genymotion found that is running, trying to stop it"
