@@ -253,7 +253,7 @@ class Steroids
               steroidsCli.log """
                 #{chalk.bold.green('\nSuccesfully created a new Steroids project!')}
 
-                Run #{chalk.bold("cd "+ folder)} and then #{chalk.bold('steroids connect')} to start building your app!
+                Run #{chalk.bold("cd "+ options.targetDirectory)} and then #{chalk.bold('steroids connect')} to start building your app!
               """
             .catch (err) ->
               steroidsCli.log err.message

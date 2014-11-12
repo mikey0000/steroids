@@ -81,4 +81,4 @@ describe 'create', ->
 
         it 'has structure.coffee with \'location: "example#getting-started"\'', =>
           expect(@readContentsSync(@configPath,"structure.coffee"))
-          .toMatch(/location: "common#getting-started"/)
+          .toMatch(/location: "example#getting-started"/)
