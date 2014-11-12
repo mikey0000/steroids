@@ -80,6 +80,7 @@ elif [ "$MODE" == "release" ]; then
 
   if [ "$BASE_APP_OK" != "n" ]; then
     rm -rf __testApp && devroids create __testApp --type=mpa --language=coffee
+    cd __testApp && devroids make && cd ..
   else
     echo "not creating"
   fi
