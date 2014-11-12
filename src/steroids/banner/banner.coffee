@@ -1,5 +1,25 @@
 class Banner
 
+  @print: (message, speed) ->
+    new Promise (resolve, reject) ->
+
+      printter = (chars, speed) ->
+        if chars.length == 0
+          console.log ""
+          resolve()
+          return
+
+        char = chars.shift()
+        process.stdout.write char
+
+        setTimeout ->
+          printter(chars, speed)
+        , speed
+
+      printter message.split(""), speed
+
+
+
   constructor: (@options = {}) ->
     @figlet = require "figlet"
 
@@ -7,7 +27,7 @@ class Banner
     @horizontalLayout = @options.horizontalLayout || 'default'
     @verticalLayout = @options.verticalLayout || 'default'
 
-  makeSync: (opts={}) ->  
+  makeSync: (opts={}) ->
     text = if opts.constructor.name == "String"
       opts
     else

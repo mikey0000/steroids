@@ -43,7 +43,9 @@ class Steroids
     @pathToSelf = process.argv[1]
     @config = new Config
     @platform = @options.argv.platform || "ios"
+
     @debugEnabled = @options.debug
+    @debugMessages = []
 
     @connect = null
 
@@ -77,8 +79,6 @@ class Steroids
       options.message
 
     message = "#{new Date()} #{message}"
-
-    steroidsCli.debugMessages ||= []
     steroidsCli.debugMessages.push message
 
     if steroidsCli.options.debug
@@ -490,7 +490,10 @@ class Steroids
           else
             text
 
-          console.log colorized
+          if argv.speed
+            Banner.print(colorized, argv.speed)
+          else
+            console.log colorized
 
       else
         Usage = require "./steroids/usage"
@@ -509,10 +512,11 @@ module.exports =
       if err.name == "PlatformError"
         steroidsCli.log "Operating system not supported"
       else
+        console.log "Steroids Error"
 
         console.log """
         Debug Log:
-        #{steroidsCli.debugMessages.join("\n")}
+        #{steroidsCli.debugMessages?.join("\n")}
 
         Error with: steroids #{process.argv[2]}
 

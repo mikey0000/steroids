@@ -1,22 +1,43 @@
 #!/usr/bin/env sh
 
 MODE=$1
+YES=$2
 
 FILES=$(ls spec/**/*.spec.*)
 
+function betterRead() {
+  if [ "$YES" == "" ]; then
+    read $1
+  else
+    set $1="y"
+    echo "YEP"
+  fi
+}
+
+function banner() {
+  bin/steroids __banner "$@"
+}
+
 if [ "$MODE" = "fast" ]; then
-  bin/steroids __banner fast --color green
+  banner fast --color green
 elif [ "$MODE" == "release" ]; then
-  bin/steroids __banner release --color yellow
+  banner release --color yellow
+
+  if [ "$YES" == "" ]; then
+    echo "You are not using: bin/test release y"
+    echo "why? (Y)"
+    read
+  fi
 
   echo "\nTo ensure clean node_modules in everywhere, we'll uninstall everything else than 'npm' from $GLOBAL_NODE_MODULES"
   echo "ok? (Y/n)"
 
-  read UNINSTALL_GLOBAL_OK
+  betterRead UNINSTALL_GLOBAL_OK
 
   if [ "$UNINSTALL_GLOBAL_OK" != "n" ]; then
     echo "deleting other than 'npm' from global.."
     npm ls -gp | awk -F/ '/node_modules/&&!/node_modules.*node_modules/&&!/npm/{print $NF}' | xargs npm rm -g
+
     echo "clearing cache"
     npm cache clear -g
   else
@@ -26,7 +47,7 @@ elif [ "$MODE" == "release" ]; then
   echo "\nThen deleting everything from: ./node_modules"
   echo "ok? (Y/n)"
 
-  read DELETE_LOCAL_OK
+  betterRead DELETE_LOCAL_OK
 
   if [ "$DELETE_LOCAL_OK" != "n" ]; then
     echo "deleting local.."
@@ -38,7 +59,7 @@ elif [ "$MODE" == "release" ]; then
   echo "Now running: $ npm install --force"
   echo "ok? (Y/n)"
 
-  read INSTALL_OK
+  betterRead INSTALL_OK
 
   if [ "$INSTALL_OK" != "n" ]; then
     npm install --force
@@ -51,7 +72,7 @@ elif [ "$MODE" == "release" ]; then
 
   echo "ok? (Y/n)"
 
-  read BASE_APP_OK
+  betterRead BASE_APP_OK
 
   if [ "$BASE_APP_OK" != "n" ]; then
     rm -rf __testApp && devroids create __testApp
@@ -59,11 +80,16 @@ elif [ "$MODE" == "release" ]; then
     echo "not creating"
   fi
 
+  banner "3" --color red --speed 8
+  banner "2" --color yellow --speed 3
+  banner "1" --color green
+
 elif [ "$MODE" != "" ]; then
-  bin/steroids __banner single --color cyan
+  banner single --color cyan
   FILES=$1
   MODE=single
 else
+  banner "FULL" --color bold --speed 5
   MODE=full
 fi
 
@@ -91,13 +117,13 @@ done
 echo "\n\n"
 if [ "$ERRORS" = true ]; then
 
-  bin/steroids __banner "ERRORS" --color bgRed
+  banner "ERRORS" --color bgRed
 
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   echo "  TEST RUN HAD ERRORS"
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   exit 1
 else
-  bin/steroids __banner "BUMAYE" --color bgGreen
+  banner "BUMAYE" --color bgGreen
   echo "good to go!"
 fi
