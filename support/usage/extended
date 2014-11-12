@@ -1,6 +1,6 @@
 #bold[#magenta[Extended usage information:]]
 
-  Disable options wiht #cyan[--no-option] eg. #cyan[--no-watch]
+  Disable options with #cyan[--no-option] e.g. #cyan[--no-watch]
 
   #bold[connect]]
 
@@ -8,10 +8,10 @@
       Do not open the QR code in a separate browser window.
 
     #cyan[--livereload]
-      Use (experimental) live reloading
+      Use (experimental) live reloading.
 
     #cyan[--watch <path>]
       Watch additional directories for changes.
 
     #cyan[--watchExclude <matcher>]
-      Ignore files from watching
+      Ignore files from watching.

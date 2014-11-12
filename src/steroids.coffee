@@ -197,25 +197,67 @@ class Steroids
         steroidsCli.version.run()
 
       when "create"
-        folder = otherOptions[0]
+        options =
+          targetDirectory: otherOptions[0]
 
-        unless folder
+        unless options.targetDirectory
           steroidsCli.log "Usage: steroids create <directoryName>"
           process.exit(1)
 
-        ProjectCreator = require("./steroids/ProjectCreator")
-        projectCreator = new ProjectCreator
+        fullPath = path.join process.cwd(), options.targetDirectory
+        steroidsCli.debug "Creating a new project in #{chalk.bold fullPath}..."
 
-        projectCreator.generate(folder).then ->
-          projectCreator.update().then ->
-            steroidsCli.log """
-              #{chalk.bold.green('\nSuccesfully created a new Steroids project!')}
+        if fs.existsSync fullPath
+          Help.error()
+          steroidsCli.log "Directory #{chalk.bold(options.targetDirectory)} already exists. Remove it to continue."
+          process.exit(1)
 
-              Run #{chalk.bold("cd "+ folder)} and then #{chalk.bold('steroids connect')} to start building your app!
-            """
-          .catch (err) ->
-            steroidsCli.log err.message
-            process.exit 1
+        prompts = []
+
+        unless argv.type
+          typePrompt =
+            type: "list"
+            name: "type"
+            message: "Do you want to create a Multi-Page or Single-Page Application?"
+            choices: [
+              { name: "Multi-Page Application (Supersonic default)", value: "mpa" }
+              { name: "Single-Page Application (for use with other frameworks)", value: "spa"}
+            ]
+            default: "mpa"
+
+          prompts.push typePrompt
+
+        unless argv.language
+          languagePrompt =
+            type: "list"
+            name: "language"
+            message: "Do you want your project to be generated with CoffeeScript or JavaScript files?"
+            choices: [
+              { name: "CoffeeScript", value: "coffee" }
+              { name: "JavaScript", value: "js"}
+            ]
+            default: "coffee"
+
+          prompts.push languagePrompt
+
+        inquirer = require "inquirer"
+        inquirer.prompt prompts, (answers) =>
+          options.type = argv.type || answers.type
+          options.language = argv.language || answers.language
+
+          ProjectCreator = require("./steroids/ProjectCreator")
+          projectCreator = new ProjectCreator options
+
+          projectCreator.run().then ->
+            projectCreator.update().then ->
+              steroidsCli.log """
+                #{chalk.bold.green('\nSuccesfully created a new Steroids project!')}
+
+                Run #{chalk.bold("cd "+ folder)} and then #{chalk.bold('steroids connect')} to start building your app!
+              """
+            .catch (err) ->
+              steroidsCli.log err.message
+              process.exit 1
 
       when "push"
         Project = require "./steroids/Project"

@@ -23,6 +23,9 @@ class Help
     emulate: ->
       Help.printBanner(paths.banners.usage.emulate, true)
 
+    create: ->
+      Help.printBanner(paths.banners.usage.create, true)
+
     debug: ->
       Help.printBanner(paths.banners.usage.debug, true)
 
