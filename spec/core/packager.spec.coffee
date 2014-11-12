@@ -9,15 +9,6 @@ describe 'packager', ->
   describe 'zip', =>
 
     it 'should be created', =>
-      # TODO: this shouldn't be required
-      @testHelper.runInProject
-        args: ["update"]
-
-      # TODO: this shouldn't be required
-      runs =>
-        @testHelper.runInProject
-          args: ["make"]
-
       runs =>
         @testHelper.runInProject
           args: ["package"]

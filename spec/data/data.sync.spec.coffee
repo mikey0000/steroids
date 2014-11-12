@@ -17,29 +17,23 @@ describe 'data', ->
 
   describe "sync", =>
 
-    it 'updates, deploys, data inits and data syncs the project', =>
+    it 'deploys, data inits and data syncs the project', =>
+
       runs =>
-        #TODO: extract
         @testHelper.runInProject
-          args: ["update"]
+          args: ["deploy"]
           timeout: 600000
           # debug: true
 
         runs =>
           @testHelper.runInProject
-            args: ["deploy"]
-            timeout: 600000
+            args: ["data", "init"]
             # debug: true
 
           runs =>
-            @testHelper.runInProject
-              args: ["data", "init"]
+            @session = @testHelper.runInProject
+              args: ["data", "sync", "--debug"]
               # debug: true
-
-            runs =>
-              @session = @testHelper.runInProject
-                args: ["data", "sync", "--debug"]
-                # debug: true
 
     it "gets new configuration from cloud", =>
       done = false

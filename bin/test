@@ -18,9 +18,7 @@ function banner() {
   if [ -f "./node_modules/coffee-script/bin/coffee" ]; then
     bin/steroids __banner "$@"
   else
-    echo $1
-    echo $1
-    echo $1
+    echo "--[ $1 ]--"
   fi
 }
 
