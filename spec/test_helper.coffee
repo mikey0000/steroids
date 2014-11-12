@@ -14,7 +14,7 @@ global.rightHereRightNow = (f) =>
 
 class TestHelper
   @CommandRunner: CommandRunner
-  @steroidsBinPath: path.join __dirname, "..", "bin", "devroids"
+  @steroidsBinPath: path.join __dirname, "..", "bin", "steroids"
 
   @run: (options={}) =>
     options.cmd ?= TestHelper.steroidsBinPath
