@@ -297,6 +297,10 @@ class Steroids
 
         watchEnabled = !(argv.watch == false)
         livereloadEnabled = (argv.livereload == true)
+
+        unless livereloadEnabled
+          watchEnabled = false
+
         showConnectScreen = !(argv['connect-screen'] == false)
 
         @connect = new Connect
