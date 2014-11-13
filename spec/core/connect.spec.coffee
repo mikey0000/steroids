@@ -15,7 +15,7 @@ describe 'connect', ->
 
     it "starts the connect prompt", =>
       @session = @testHelper.runInProject
-        args: ["connect", "--no-qrcode", "--debug"]
+        args: ["connect", "--no-connect-screen", "--debug"]
         waitsFor: 100
 
       started = false
