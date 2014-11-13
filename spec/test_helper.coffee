@@ -4,10 +4,17 @@ path = require "path"
 
 CommandRunner = require "./command_runner"
 
-global.doNotRunIfMode = (mode) ->
-  if process.env.STEROIDS_TEST_RUN_MODE == mode
-    console.log "Mode is #{mode}, skipping this test"
-    process.exit(0)
+global.doNotRunIfMode = (givenModes) ->
+  modes = if givenModes.constructor.name == "String"
+    [givenModes]
+  else
+    givenModes
+
+  for mode in modes
+    do mode ->
+      if process.env.STEROIDS_TEST_RUN_MODE == mode
+        console.log "Mode is #{mode}, skipping this test"
+        process.exit(0)
 
 global.rightHereRightNow = (f) =>
   f()

@@ -2,7 +2,7 @@ TestHelper = require "../test_helper"
 
 describe 'simulator', ->
 
-  doNotRunIfMode("fast")
+  doNotRunIfMode ["fast", "travis_linux"]
 
   beforeEach =>
     @oldDefaultTimeoutInterval = jasmine.getEnv().defaultTimeoutInterval

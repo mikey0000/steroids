@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 MODE=$1
 YES=$2
@@ -40,7 +40,12 @@ elif [ "$MODE" == "release" ]; then
 
   if [ "$UNINSTALL_GLOBAL_OK" != "n" ]; then
     echo "deleting other than 'npm' from global.."
-    npm ls -gp | awk -F/ '/node_modules/&&!/node_modules.*node_modules/&&!/npm/{print $NF}' | xargs npm rm -g
+
+    if [ "$STEROIDS_TEST_ENVIRONMENT" != "travis" ]; then
+      npm ls -gp | awk -F/ '/node_modules/&&!/node_modules.*node_modules/&&!/npm/{print $NF}' | xargs npm rm -g
+    else
+      echo "STEROIDS_TEST_ENVIRONMENT is $STEROIDS_TEST_ENVIRONMENT, not deleting"
+    fi
 
     echo "clearing cache"
     npm cache clear -g
@@ -60,27 +65,30 @@ elif [ "$MODE" == "release" ]; then
     echo "not deleting"
   fi
 
-  echo "Now running: $ npm install --force"
+  echo "Now running: $ npm install && npm update"
   echo "ok? (Y/n)"
 
   betterRead INSTALL_OK
 
   if [ "$INSTALL_OK" != "n" ]; then
-    npm install --force
+    npm install
+    npm update
   else
-    echo "not installing"
+    echo "not installing and updating"
   fi
 
 
-  echo "Now running: $ rm -rf __testApp && devroids create __testApp --type=mpa --language=coffee"
+  CREATE_TESTAPP_CMD="bin/steroids create __testApp --type=mpa --language=coffee"
+  echo "Now running: $ $CREATE_TESTAPP_CMD"
 
   echo "ok? (Y/n)"
 
   betterRead BASE_APP_OK
 
   if [ "$BASE_APP_OK" != "n" ]; then
-    rm -rf __testApp && devroids create __testApp --type=mpa --language=coffee
-    cd __testApp && devroids make && cd ..
+    rm -rf __testApp
+    $CREATE_TESTAPP_CMD
+    cd __testApp && ../bin/steroids make && cd ..
   else
     echo "not creating"
   fi
@@ -105,6 +113,12 @@ if [ ! -d "__testApp" ]; then
 fi
 
 
+if [ "$STEROIDS_TEST_ENVIRONMENT" != "travis" ]; then
+  echo "Not changing MODE because not in travis, is still: $MODE"
+else
+  echo "Setting MODE to travis_linux"
+  MODE="travis_linux"
+fi
 
 ERRORS=false
 
