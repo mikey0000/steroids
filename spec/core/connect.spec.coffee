@@ -50,6 +50,10 @@ describe 'connect', ->
         expect( packaged ).toBeTruthy()
 
     it "kills iOS simulator", =>
+      unless process.platform == "darwin"
+        console.log "skipping because not in os x"
+        return
+        
       killediOS = false
       waitsFor =>
         killediOS = @session.stdout.match("Killed iOS Simulator")
