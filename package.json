@@ -57,8 +57,7 @@
     "npm": ">=1.3.8"
   },
   "devDependencies": {
-    "jasmine-node": "1.14.5",
-    "coffeelint": "0.5.7"
+    "jasmine-node": "1.14.5"
   },
   "dependencies": {
     "ios-sim": "http://appgyver-steroids.s3.amazonaws.com/ios-sim-3.0.0-AppGyver-p1.tgz",
