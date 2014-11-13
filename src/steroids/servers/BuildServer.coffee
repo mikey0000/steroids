@@ -45,9 +45,10 @@ class ClientResolver
       osVersion = androidVersionMatch[1] if androidVersionMatch
 
     if ios
-      iosVersionMatch = @request.headers["user-agent"].match(/(iPod|iPad|iPhone) OS ([^\s]*)/)
-      device = iosVersionMatch[1] if iosVersionMatch
-      osVersion = iosVersionMatch[2] if iosVersionMatch
+      iosDeviceMatch = @request.headers["user-agent"].match(/(iPod|iPad|iPhone)/)
+      device = iosDeviceMatch[0] || null
+      iosOsVersionMatch = @request.headers["user-agent"].match(/OS ([^\s]*) like/)
+      osVersion = iosOsVersionMatch[1] || null
 
     return {
       isIOS: ios
@@ -221,27 +222,28 @@ class BuildServer extends Server
       .then ->
         res.status(200).send "Success!"
       .catch (error)->
-        message = "Could not generate successfully. #{error.message}"
+        message = "#{error.message}"
         res.status(404).json {error: message}
 
-    helper "get", "/__appgyver/launch_simulator", (req, res) =>
-      Simulator = require "../Simulator"
-      simulator = new Simulator()
+    helper "get", "/__appgyver/emulators/:emulator/:action", (req, res) =>
+      emulator = req.param("emulator")
+      action = req.param("action")
 
-      simulator.run().then () ->
-        steroidsCli.log "Simulator started"
-        res.status(200).send 'Launched'
-      .catch (err) ->
-        steroidsCli.log err.message
-        res.status(500).json { error: err.message }
+      if emulator == "android"
+        Android = require "../emulate/android"
+        emulate = new Android()
+      else if emulator == "genymotion"
+        Genymotion = require "../emulate/genymotion"
+        emulate = new Genymotion()
+      else if emulator == "simulator"
+        Simulator = require "../Simulator"
+        emulate = new Simulator()
+      else
+        res.status(500).json { error: "Invalid emulator" }
 
-    helper "get", "/__appgyver/launch_emulator", (req, res) =>
-      Android = require "../emulate/android"
-      android = new Android()
-
-      android.run().then () ->
-        steroidsCli.log "Android Emulator started"
-        res.status(200).send 'Launched'
+      emulate.run().then () ->
+        steroidsCli.log "Emulator started"
+        res.status(200).json  { message: "Launched" }
       .catch (err) ->
         steroidsCli.log err.message
         res.status(500).json { error: err.message }
@@ -277,13 +279,16 @@ class BuildServer extends Server
       #unused stuff coming in from Steroids.js:
       #  .screen_id, .layer_id, .view_id
 
+      clientResolver = new ClientResolver(req)
+      resolvedClient = clientResolver.resolve()
+
       logLevel = logMsg.level || "info"
       message = logMsg.message
       metadata =
         datetime: logMsg.date
         view: logMsg.location
-        deviceName: logMsg.deviceName || "Richard's iPhone" # not provided by steroids.js yet
-        blob: logMsg.deviceName || null # expandable extra info for the message
+        host: req.headers.host
+        device: resolvedClient.device
 
       winston.log logLevel, message, metadata
 
@@ -333,6 +338,11 @@ class BuildServer extends Server
           firstSeen: Date.now()
           userAgent: req.headers["user-agent"]
           new: true
+          platform: platform
+          version: resolvedClient.version
+          osVersion: resolvedClient.osVersion
+          device: resolvedClient.device
+          simulator: resolvedClient.isSimulator
         }
 
       client.lastSeen = Date.now()

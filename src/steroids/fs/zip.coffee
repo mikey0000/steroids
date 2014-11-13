@@ -37,7 +37,7 @@ class Zip
         maxBuffer: 1024 * 1000
       }, (error, stdout, stderr)->
         throw error if error?
-        #console.log "#{stdout}"
+        steroidsCli.debug stdout
 
         timestamp = (new Date).getTime()
         steroidsCli.debug "Zip created, timestamp: #{timestamp}"

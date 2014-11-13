@@ -1,4 +1,4 @@
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'connect', ->
 
@@ -15,7 +15,7 @@ describe 'connect', ->
 
     it "starts the connect prompt", =>
       @session = @testHelper.runInProject
-        args: ["connect", "--no-qrcode", "--debug"]
+        args: ["connect", "--no-connect-screen", "--debug"]
         waitsFor: 100
 
       started = false
@@ -50,6 +50,10 @@ describe 'connect', ->
         expect( packaged ).toBeTruthy()
 
     it "kills iOS simulator", =>
+      unless process.platform == "darwin"
+        console.log "skipping because not in os x"
+        return
+        
       killediOS = false
       waitsFor =>
         killediOS = @session.stdout.match("Killed iOS Simulator")
@@ -64,6 +68,14 @@ describe 'connect', ->
 
       runs =>
         expect( killedGenymotion ).toBeTruthy()
+
+    it "kills genymotion", =>
+      killedAndroid = false
+      waitsFor =>
+        killedAndroid = @session.stdout.match("Killed android")
+
+      runs =>
+        expect( killedAndroid ).toBeTruthy()
 
     it "shows help", =>
       helpShown = false

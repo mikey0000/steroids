@@ -1,5 +1,4 @@
-
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'usages', ->
 
@@ -18,7 +17,7 @@ describe 'usages', ->
 
       runs =>
         expect( @session.stdout ).toMatch("xtended usage information")
-        expect( @session.stdout ).toMatch("--no-qrcode")
+        expect( @session.stdout ).toMatch("--no-connect-screen")
 
     it "has emulate", =>
       expect( @session.stdout ).toMatch("steroids emulate")
@@ -53,3 +52,17 @@ describe 'usages', ->
 
       runs =>
         expect( session.stdout ).toMatch(/Usage: steroids generate module <moduleName>/)
+
+  describe 'generate', ->
+
+    beforeEach =>
+      @testHelper = new TestHelper
+      @testHelper.prepare()
+
+    it "gives usage information when no params are given", =>
+
+      session = @testHelper.runInProject
+        args: ["log"]
+
+      runs =>
+        expect( session.stdout ).toMatch("Shows Android log messages")

@@ -1,78 +1,123 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 MODE=$1
-GLOBAL_NODE_MODULES=$(dirname $NVM_PATH)/node_modules
-LOCAL_NODE_MODULES=$(pwd)/node_modules
+YES=$2
 
-FILES=$(ls spec/*.spec.*)
+FILES=$(ls spec/**/*.spec.*)
+
+function betterRead() {
+  if [ "$YES" == "" ]; then
+    read $1
+  else
+    set $1="y"
+    echo "YEP"
+  fi
+}
+
+function banner() {
+  if [ -f "./node_modules/coffee-script/bin/coffee" ]; then
+    bin/steroids __banner "$@"
+  else
+    echo "--[ $1 ]--"
+  fi
+}
 
 if [ "$MODE" = "fast" ]; then
-  echo "Mode: fast, skipping setup and slow tests"
-elif [ "$MODE" == "--no-setup" ]; then
-  echo "skipping setup"
-elif [ "$MODE" != "" ]; then
-  echo "Mode: single file: $1"
-  FILES=$1
-else
-  echo "???????????????????????????????????????????????????????????????????????????"
-  echo "Mode: SLOW -- are you sure you don't want to use fast mode (bin/test fast)"
-  echo "           -- or run a single test?"
-  echo "???????????????????????????????????????????????????????????????????????????"
+  banner fast --color green
+elif [ "$MODE" == "release" ]; then
+  banner release --color yellow
+
+  if [ "$YES" == "" ]; then
+    echo "You are not using: bin/test release y"
+    echo "why? (Y)"
+    read
+  fi
 
   echo "\nTo ensure clean node_modules in everywhere, we'll uninstall everything else than 'npm' from $GLOBAL_NODE_MODULES"
-  echo "ok? (y/N)"
+  echo "ok? (Y/n)"
 
-  read UNINSTALL_GLOBAL_OK
+  betterRead UNINSTALL_GLOBAL_OK
 
-  if [ "$UNINSTALL_GLOBAL_OK" = "y" ]; then
+  if [ "$UNINSTALL_GLOBAL_OK" != "n" ]; then
     echo "deleting other than 'npm' from global.."
-    npm ls -gp | awk -F/ '/node_modules/&&!/node_modules.*node_modules/&&!/npm/{print $NF}' | xargs npm rm -g
+
+    if [ "$STEROIDS_TEST_ENVIRONMENT" != "travis" ]; then
+      npm ls -gp | awk -F/ '/node_modules/&&!/node_modules.*node_modules/&&!/npm/{print $NF}' | xargs npm rm -g
+    else
+      echo "STEROIDS_TEST_ENVIRONMENT is $STEROIDS_TEST_ENVIRONMENT, not deleting"
+    fi
+
+    echo "clearing cache"
     npm cache clear -g
   else
     echo "not uninstalling"
   fi
 
+  echo "\nThen deleting everything from: ./node_modules"
+  echo "ok? (Y/n)"
 
-  echo "\nThen deleting everything from: $LOCAL_NODE_MODULES"
-  echo "ok? (y/N)"
+  betterRead DELETE_LOCAL_OK
 
-  read DELETE_LOCAL_OK
-
-  if [ "$DELETE_LOCAL_OK" = "y" ]; then
+  if [ "$DELETE_LOCAL_OK" != "n" ]; then
     echo "deleting local.."
-    rm -rf $LOCAL_NODE_MODULES
+    rm -rf ./node_modules
   else
     echo "not deleting"
   fi
 
-  echo "Now running: $ npm install"
-  echo "ok? (y/N)"
+  echo "Now running: $ npm install && npm update"
+  echo "ok? (Y/n)"
 
-  read INSTALL_OK
+  betterRead INSTALL_OK
 
-  if [ "$INSTALL_OK" = "y" ]; then
+  if [ "$INSTALL_OK" != "n" ]; then
     npm install
+    npm update
   else
-    echo "not installing"
+    echo "not installing and updating"
   fi
 
-  echo "Now running: $ rm -rf __testApp && devroids create __testApp"
 
-  echo "ok? (y/N)"
+  CREATE_TESTAPP_CMD="bin/steroids create __testApp --type=mpa --language=coffee"
+  echo "Now running: $ $CREATE_TESTAPP_CMD"
 
-  read BASE_APP_OK
+  echo "ok? (Y/n)"
 
-  if [ "$BASE_APP_OK" = "y" ]; then
-    rm -rf __testApp && devroids create __testApp
+  betterRead BASE_APP_OK
+
+  if [ "$BASE_APP_OK" != "n" ]; then
+    rm -rf __testApp
+    $CREATE_TESTAPP_CMD
+    cd __testApp && ../bin/steroids make && cd ..
   else
     echo "not creating"
   fi
+
+  banner "3" --color red --speed 8
+  banner "2" --color yellow --speed 3
+  banner "1" --color green
+
+elif [ "$MODE" != "" ]; then
+  banner single --color cyan
+  FILES=$1
+  MODE=single
+else
+  banner "FULL" --color bold --speed 5
+  MODE=full
 fi
 
 
 if [ ! -d "__testApp" ]; then
-  echo "__testApp does not exists, create with bin/test"
+  echo "__testApp does not exists, create with bin/test release"
   exit 1
+fi
+
+
+if [ "$STEROIDS_TEST_ENVIRONMENT" != "travis" ]; then
+  echo "Not changing MODE because not in travis, is still: $MODE"
+else
+  echo "Setting MODE to travis_linux"
+  MODE="travis_linux"
 fi
 
 ERRORS=false
@@ -90,10 +135,14 @@ done
 
 echo "\n\n"
 if [ "$ERRORS" = true ]; then
+
+  banner "ERRORS" --color bgRed
+
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   echo "  TEST RUN HAD ERRORS"
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   exit 1
 else
-  echo "BUMAYE, good to go!"
+  banner "BUMAYE" --color bgGreen
+  echo "good to go!"
 fi

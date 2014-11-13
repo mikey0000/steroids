@@ -1,4 +1,4 @@
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'create', ->
 
@@ -16,7 +16,7 @@ describe 'create', ->
 
     it 'should be created', =>
       session = @testHelper.run
-        args: ["create", "myApp"]
+        args: ["create", "myApp", "--type=mpa", "--language=coffee"]
         timeout: 600000
 
       runs =>
@@ -36,4 +36,4 @@ describe 'create', ->
 
       runs =>
         expect( session.code ).toBe(1)
-        expect( session.stderr ).toMatch "Directory importantDirectory already exists"
+        expect( session.stdout ).toMatch "already exists. Remove it to continue."

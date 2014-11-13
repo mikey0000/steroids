@@ -15,6 +15,8 @@ class CommandRunner
     @success = false
     @code = null
 
+    @options.debug = true if process.env["STEROIDS_TEST_DEBUG"]?
+
   run:() =>
     if @options.debug
       console.log "starting cmd: #{@cmd}"

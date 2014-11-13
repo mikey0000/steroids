@@ -85,13 +85,12 @@ We want to get your feedback! Drop us a mail at contact@appgyver.com
 
 ## Testing npm
 
-To run all unit tests:
+To run unit tests:
 
-    $ ./bin/test
-
-To run unit tests without time-consuming Generator tests:
-
-    $ ./bin/test fast
+    $ ./bin/test release    # release testing, also creates required __testApp
+    $ ./bin/test fast       # skip time consuming tests
+    $ ./bin/test            # full test suite, skip setup (release)
+    $ ./bin/test path/to/spec.coffee
 
 ## Contributing
 

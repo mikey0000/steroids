@@ -1,4 +1,4 @@
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'create', ->
 
@@ -51,16 +51,24 @@ describe 'create', ->
 
         beforeEach =>
           @appPath = path.join @testHelper.testAppPath, "app"
+
           @appCommonPath = path.join @appPath, "common"
           @appCommonViewsPath = path.join @appCommonPath, "views"
 
-        it "has common/index.coffee with 'supersonic'", =>
-          expect(@readContentsSync(@appCommonPath,"index.coffee"))
-          .toMatch(/'supersonic'/)
+          @appExamplePath = path.join @appPath, "example"
+          @appExampleViewsPath = path.join @appExamplePath, "views"
 
-        it "has common/views/getting-started.html with a greeting", =>
-          expect(@readContentsSync(@appCommonViewsPath,"getting-started.html"))
-          .toMatch(/Awesome! This file is located at/)
+        describe "common", =>
+
+          it "has index.coffee with 'supersonic'", =>
+            expect(@readContentsSync(@appCommonPath,"index.coffee"))
+            .toMatch(/'supersonic'/)
+
+        describe "example", =>
+
+          it "has views/getting-started.html with a greeting", =>
+            expect(@readContentsSync(@appExampleViewsPath,"getting-started.html"))
+            .toMatch(/Awesome! This file is located at/)
 
       describe "config", =>
 
@@ -71,6 +79,6 @@ describe 'create', ->
           expect(@readContentsSync(@configPath,"app.coffee"))
           .toMatch(/name: "__testApp"/)
 
-        it 'has structure.coffee with \'location: "common#getting-started"\'', =>
+        it 'has structure.coffee with \'location: "example#getting-started"\'', =>
           expect(@readContentsSync(@configPath,"structure.coffee"))
-          .toMatch(/location: "common#getting-started"/)
+          .toMatch(/location: "example#getting-started"/)

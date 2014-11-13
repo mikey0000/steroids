@@ -12,6 +12,7 @@ class Usage
 
     if @opts.extended
       Help.usage.extended()
+      Help.usage.create()
       Help.usage.emulate()
       Help.usage.log()
       console.log "\n\nGenerator usage:"

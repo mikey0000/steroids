@@ -1,0 +1,17 @@
+#bold[#magenta[Synopsis:]] steroids create #bold[directory] #cyan[--options]
+
+  Creates a new Supersonic project in the target directory.
+
+#bold[#magenta[Available options:]]
+
+  #cyan[--language=<language>]
+    Sets the script language used. Available languages:
+
+    #bold[js]       JavaScript
+    #bold[coffee]   CoffeeScript
+
+  #cyan[--type=<type>]
+    Sets the type of app created. Available types:
+    
+    #bold[mpa]      Creates a Multi-Page App (Supersonic default)
+    #bold[spa]      Creates a Single-Page App

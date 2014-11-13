@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+  - '0.10'
+before_install:
+  - mkdir $HOME/.appgyver
+  - echo $APPGYVER_ACCESS_TOKEN_CONTENTS > $HOME/.appgyver/token.json
+  - echo "before install lol"
+install:
+  - echo "install lol"
+before_script:
+  - echo "before script lol"
+script:
+  - echo "script lol"
+  - STEROIDS_TEST_DEBUG=true ./bin/test release y
+after_success:
+  - echo "after success lol --> $TRAVIS_TEST_RESULT"
+after_failure:
+  - echo "after failure lol --> $TRAVIS_TEST_RESULT"
+env:
+  - LOLCAT=looooong

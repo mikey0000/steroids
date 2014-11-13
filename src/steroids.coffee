@@ -43,7 +43,9 @@ class Steroids
     @pathToSelf = process.argv[1]
     @config = new Config
     @platform = @options.argv.platform || "ios"
+
     @debugEnabled = @options.debug
+    @debugMessages = []
 
     @connect = null
 
@@ -77,8 +79,6 @@ class Steroids
       options.message
 
     message = "#{new Date()} #{message}"
-
-    steroidsCli.debugMessages ||= []
     steroidsCli.debugMessages.push message
 
     if steroidsCli.options.debug
@@ -197,25 +197,67 @@ class Steroids
         steroidsCli.version.run()
 
       when "create"
-        folder = otherOptions[0]
+        options =
+          targetDirectory: otherOptions[0]
 
-        unless folder
+        unless options.targetDirectory
           steroidsCli.log "Usage: steroids create <directoryName>"
           process.exit(1)
 
-        ProjectCreator = require("./steroids/ProjectCreator")
-        projectCreator = new ProjectCreator
+        fullPath = path.join process.cwd(), options.targetDirectory
+        steroidsCli.debug "Creating a new project in #{chalk.bold fullPath}..."
 
-        projectCreator.generate(folder).then ->
-          projectCreator.update().then ->
-            steroidsCli.log """
-              #{chalk.bold.green('\nSuccesfully created a new Steroids project!')}
+        if fs.existsSync fullPath
+          Help.error()
+          steroidsCli.log "Directory #{chalk.bold(options.targetDirectory)} already exists. Remove it to continue."
+          process.exit(1)
 
-              Run #{chalk.bold("cd "+ folder)} and then #{chalk.bold('steroids connect')} to start building your app!
-            """
-          .catch (err) ->
-            steroidsCli.log err.message
-            process.exit 1
+        prompts = []
+
+        unless argv.type
+          typePrompt =
+            type: "list"
+            name: "type"
+            message: "Do you want to create a Multi-Page or Single-Page Application?"
+            choices: [
+              { name: "Multi-Page Application (Supersonic default)", value: "mpa" }
+              { name: "Single-Page Application (for use with other frameworks)", value: "spa"}
+            ]
+            default: "mpa"
+
+          prompts.push typePrompt
+
+        unless argv.language
+          languagePrompt =
+            type: "list"
+            name: "language"
+            message: "Do you want your project to be generated with CoffeeScript or JavaScript files?"
+            choices: [
+              { name: "CoffeeScript", value: "coffee" }
+              { name: "JavaScript", value: "js"}
+            ]
+            default: "coffee"
+
+          prompts.push languagePrompt
+
+        inquirer = require "inquirer"
+        inquirer.prompt prompts, (answers) =>
+          options.type = argv.type || answers.type
+          options.language = argv.language || answers.language
+
+          ProjectCreator = require("./steroids/ProjectCreator")
+          projectCreator = new ProjectCreator options
+
+          projectCreator.run().then ->
+            projectCreator.update().then ->
+              steroidsCli.log """
+                #{chalk.bold.green('\nSuccesfully created a new Steroids project!')}
+
+                Run #{chalk.bold("cd "+ options.targetDirectory)} and then #{chalk.bold('steroids connect')} to start building your app!
+              """
+            .catch (err) ->
+              steroidsCli.log err.message
+              process.exit 1
 
       when "push"
         Project = require "./steroids/Project"
@@ -256,12 +298,17 @@ class Steroids
         watchEnabled = !(argv.watch == false)
         livereloadEnabled = (argv.livereload == true)
 
+        unless livereloadEnabled
+          watchEnabled = false
+
+        showConnectScreen = !(argv['connect-screen'] == false)
+
         @connect = new Connect
           port: port
           watch: watchEnabled
           livereload: livereloadEnabled
           watchExclude: watchExclude
-          qrcode: argv.qrcode
+          connectScreen: showConnectScreen
 
         @connect.run()
         .then =>
@@ -390,10 +437,10 @@ class Steroids
                   steroidsCli.log
                     message: error.message
 
-          # when "genymotion"
-#             Genymotion = require "./steroids/emulate/genymotion"
-#             genymotion = new Genymotion()
-#             genymotion.run()
+          when "genymotion"
+            Genymotion = require "./steroids/emulate/genymotion"
+            genymotion = new Genymotion()
+            genymotion.run()
 
           else
             Usage = require "./steroids/usage"
@@ -465,6 +512,35 @@ class Steroids
             watcher.on event, (path, stats) ->
               console.log event, path, stats
 
+      when "__banner"
+        # devroids __banner steroids --font Graffiti --horizontalLayout 'universal smushing'
+        Banner = require("./steroids/banner/banner")
+        banner = new Banner
+          font: argv.font
+          horizontalLayout: argv.horizontalLayout
+          verticalLayout: argv.verticalLayout
+
+
+
+        if argv.all
+          banner.availableFonts()
+          .then (fonts) ->
+            for font in fonts
+              banner.font = font
+              console.log font
+              console.log banner.makeSync otherOptions.join " "
+        else
+          text = banner.makeSync otherOptions.join " "
+
+          colorized = if argv.color
+            chalk[argv.color](text)
+          else
+            text
+
+          if argv.speed
+            Banner.print(colorized, argv.speed)
+          else
+            console.log colorized
 
       else
         Usage = require "./steroids/usage"
@@ -483,10 +559,11 @@ module.exports =
       if err.name == "PlatformError"
         steroidsCli.log "Operating system not supported"
       else
+        console.log "Steroids Error"
 
         console.log """
         Debug Log:
-        #{steroidsCli.debugMessages.join("\n")}
+        #{steroidsCli.debugMessages?.join("\n")}
 
         Error with: steroids #{process.argv[2]}
 

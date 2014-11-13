@@ -1,8 +1,6 @@
 path = require "path"
 pathExtra = require "path-extra"
 
-pathExtra.tempdir()
-
 class Paths
 
   @npm: path.join __dirname, "..", ".."
@@ -40,6 +38,7 @@ class Paths
       emulate: path.join @bannersDir, "usage", "emulate"
       debug: path.join @bannersDir, "usage", "debug"
       log: path.join @bannersDir, "usage", "log"
+      create: path.join @bannersDir, "usage", "create"
     ready: path.join @bannersDir, "ready"
     resetiOSSim: path.join @bannersDir, "iossim-reset"
     newVersionAvailable: path.join @bannersDir, "new-version-available"
@@ -127,7 +126,11 @@ class Paths
 
   @emulate:
     android:
-      debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug.apk"
+     debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug.apk"
+
+  @genymotion:
+    shellPath: "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell"
+    basePath: "/Applications/Genymotion.app/Contents/MacOS"
 
   if process.env.ANDROID_HOME?
     sdk = process.env.ANDROID_HOME

@@ -1,9 +1,9 @@
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'genymotion', ->
 
-  doNotRunIfMode("fast")
-
+  doNotRunIfMode ["fast", "travis_linux"]
+  
   describe 'start', =>
 
     beforeEach =>

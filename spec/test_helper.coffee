@@ -4,17 +4,24 @@ path = require "path"
 
 CommandRunner = require "./command_runner"
 
-global.doNotRunIfMode = (mode) ->
-  if process.env.STEROIDS_TEST_RUN_MODE == mode
-    console.log "Mode is #{mode}, skipping this test"
-    process.exit(0)
+global.doNotRunIfMode = (givenModes) ->
+  modes = if givenModes.constructor.name == "String"
+    [givenModes]
+  else
+    givenModes
+
+  for mode in modes
+    do (mode) ->
+      if process.env.STEROIDS_TEST_RUN_MODE == mode
+        console.log "Mode is #{mode}, skipping this test"
+        process.exit(0)
 
 global.rightHereRightNow = (f) =>
   f()
 
 class TestHelper
   @CommandRunner: CommandRunner
-  @steroidsBinPath: path.join __dirname, "..", "bin", "devroids"
+  @steroidsBinPath: path.join __dirname, "..", "bin", "steroids"
 
   @run: (options={}) =>
     options.cmd ?= TestHelper.steroidsBinPath

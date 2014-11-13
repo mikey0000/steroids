@@ -1,48 +1,19 @@
 class ProjectCreator
 
-  constructor: ->
-    @updateLoadingInterval = 2000
-    @maxStaleUpdateCount = 20
+  constructor: (options={})->
+    @targetDirectory = options.targetDirectory
+    @type = options.type || "mpa"
+    @language = options.language || "coffee"
 
-  generate: (targetDirectory) ->
-
+  run: () ->
     new Promise (resolve) =>
       steroidsGenerator = require "generator-steroids"
-      inquirer = require "inquirer"
-
-      appTypePrompt =
-        type: "list"
-        name: "appType"
-        message: "Do you want to create a Multi-Page or Single-Page Application?"
-        choices: [
-          { name: "Multi-Page Application (Supersonic default)", value: "mpa" }
-          { name: "Single-Page Application (for use with other frameworks)", value: "spa"}
-        ]
-        default: "mpa"
-
-      scriptExtPrompt =
-        type: "list"
-        name: "scriptExt"
-        message: "Do you want your project to be generated with CoffeeScript or JavaScript files?"
-        choices: [
-          { name: "CoffeeScript", value: "coffee" }
-          { name: "JavaScript", value: "js"}
-        ]
-        default: "coffee"
-
-      promptList = [
-        appTypePrompt
-        scriptExtPrompt
-      ]
-
-      inquirer.prompt promptList, (answers) =>
-
-        steroidsGenerator.app {
-          skipInstall: true
-          projectName: targetDirectory
-          appType: answers.appType
-          scriptExt: answers.scriptExt
-        }, resolve
+      steroidsGenerator.app {
+        skipInstall: true
+        projectName: @targetDirectory
+        appType: @type
+        scriptExt: @language
+      }, resolve
 
   update: =>
 

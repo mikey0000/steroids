@@ -1,13 +1,13 @@
 fs = require "fs"
-inquirer = require "inquirer"
 path = require "path"
-rimraf = require "rimraf"
+
+inquirer = require "inquirer"
+wrench = require "wrench"
+chalk = require "chalk"
+Q = require "q"
 
 paths = require "./paths"
 sbawn = require "./sbawn"
-chalk = require "chalk"
-
-Q = require "q"
 
 class Bower
 
@@ -123,7 +123,7 @@ class Bower
 
   isDirectory = (path) -> (done) -> fs.lstat path, (err, stat) -> done (!err and stat.isDirectory())
   checkMyProjectFolder = isDirectory myProjectFolder
-  deleteMyProjectFolder = (done) -> rimraf myProjectFolder, done
+  deleteMyProjectFolder = (done) -> wrench.rmdirRecursive(myProjectFolder, true, done)
 
   checkConfiguration = (cb) -> fs.exists configs.bower, cb
   checkLegacyConfiguration = (cb) -> fs.exists configs.legacy.bower, cb

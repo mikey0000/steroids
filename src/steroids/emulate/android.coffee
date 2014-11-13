@@ -19,8 +19,8 @@ class Android
     @emulatorCmd = path.join paths.androidSDK.tools, "emulator"
     @adbCmd = path.join paths.androidSDK.platformTools, "adb"
 
-    @applicationPackage = "com.appgyver.runtime.scanner"
-    @applicationActivity = "com.appgyver.runtime.scanner.MainActivity"
+    @applicationPackage = "com.appgyver.runtime.scanner.steroidscli"
+    @applicationActivity = "com.appgyver.runtime.scanner.steroidscli.MainActivity"
 
     @apkPath = paths.emulate.android.debug
     @avd = "steroids"

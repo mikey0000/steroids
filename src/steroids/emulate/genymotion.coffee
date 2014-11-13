@@ -5,12 +5,11 @@ class Genymotion
 
   constructor: ->
     paths = require "../paths"
-    @genymotionShellPath = "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell"
-    @genymotionBasePath = "/Applications/Genymotion.app/Contents/MacOS"
+    @genymotionShellPath = paths.genymotion.shellPath
+    @genymotionBasePath = paths.genymotion.basePath
 
-    #@applicationPackage = "com.appgyver.freshandroid"
-    @applicationPackage = "com.appgyver.runtime.scanner"
-    @applicationActivity = "com.appgyver.runtime.scanner.MainActivity"
+    @applicationPackage = "com.appgyver.runtime.scanner.steroidscli"
+    @applicationActivity = "com.appgyver.runtime.scanner.steroidscli.MainActivity"
     @apkPath = paths.emulate.android.debug
 
     @vmName = "steroids"
@@ -18,7 +17,7 @@ class Genymotion
     @running = false
 
   run: (opts = {}) =>
-    steroidsCli.log "Staring Genymotion"
+    steroidsCli.log "Starting Genymotion Emulator. Please wait for Scanner to load..."
 
     if steroidsCli.globals.genymotion?.running
       steroidsCli.debug "GENYMOTION", "previous genymotion found that is running, trying to stop it"
@@ -35,7 +34,6 @@ class Genymotion
     @running = true
 
     steroidsCli.globals.genymotion = @
-
 
     @killall()
     .then(@ensurePlayer)
@@ -231,12 +229,12 @@ class Genymotion
       ips = steroidsCli.server.ipAddresses()
       port = steroidsCli.server.port
       encodedJSONIPs = encodeURIComponent(JSON.stringify(ips))
-      encodedPort = encodeURIComponent(port)
 
-      launchUrl = "'appgyver://?ips=#{encodedJSONIPs}\&port=#{encodedPort}'"
+      launchUrl = "appgyver://?ips=#{encodedJSONIPs}\&port=#{port}"
+      steroidsCli.debug "GENYMOTION", "starting application with launchUrl: '#{launchUrl}'"
 
       cmd = "#{@genymotionBasePath}/tools/adb"
-      args = ["shell", "am", "start", "-n", "#{@applicationPackage}/#{@applicationActivity}", "-d", launchUrl]
+      args = ["shell", "am start '#{launchUrl}'"]
 
       steroidsCli.debug "GENYMOTION", "Running #{cmd} with args: #{args}"
       @startSession = sbawn

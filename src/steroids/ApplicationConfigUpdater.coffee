@@ -1,5 +1,4 @@
 semver = require "semver"
-rimraf = require "rimraf"
 path = require "path"
 fs = require "fs"
 

@@ -1,6 +1,4 @@
-
-
-TestHelper = require "./test_helper"
+TestHelper = require "../test_helper"
 
 describe 'packager', ->
 
@@ -11,21 +9,12 @@ describe 'packager', ->
   describe 'zip', =>
 
     it 'should be created', =>
-      # TODO: this shouldn't be required
-      @testHelper.runInProject
-        args: ["update"]
-
-      # TODO: this shouldn't be required
-      runs =>
-        @testHelper.runInProject
-          args: ["make"]
-
       runs =>
         @testHelper.runInProject
           args: ["package"]
 
       runs =>
-        Paths = require "../src/steroids/paths"
+        Paths = require "../../src/steroids/paths"
         fs = require "fs"
 
         expect(fs.existsSync Paths.temporaryZip).toBe true
