@@ -189,7 +189,7 @@ class Provider
 
       steroidsCli.debug "PROVIDER", "GETting from URL: #{url}"
       @apiClient.get url, (err, req, res, obj) =>
-        @apiClient.close()
+        #@apiClient.close()
 
         if err?
           steroidsCli.debug "PROVIDER", "Getting resources for provider #{@name} ID: #{@typeId} from cloud returned failure: #{err} #{JSON.stringify(obj)}"
