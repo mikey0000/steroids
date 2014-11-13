@@ -52,3 +52,17 @@ describe 'usages', ->
 
       runs =>
         expect( session.stdout ).toMatch(/Usage: steroids generate module <moduleName>/)
+
+  describe 'generate', ->
+
+    beforeEach =>
+      @testHelper = new TestHelper
+      @testHelper.prepare()
+
+    it "gives usage information when no params are given", =>
+
+      session = @testHelper.runInProject
+        args: ["log"]
+
+      runs =>
+        expect( session.stdout ).toMatch("Shows Android log messages")
