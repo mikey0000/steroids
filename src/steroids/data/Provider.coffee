@@ -46,19 +46,30 @@ class Provider
       steroidsCli.debug "PROVIDER", "Getting a provider for resource #{name}"
 
       @getAll().then (providers)=>
+        promises = []
         steroidsCli.debug "PROVIDER", "Got some providers. amount: #{providers.length}"
 
         for provider in providers
           steroidsCli.debug "PROVIDER", "Getting resources for provider #{provider.name}"
-          provider.getResources().then (resources)=>
-            steroidsCli.debug "PROVIDER", "Got some resources: #{JSON.stringify(resources)}"
-            for resource in resources
-              if resource.name == name
-                steroidsCli.debug "PROVIDER", "Found resource #{name} from provider #{provider.name} UID: #{provider.uid}"
-                resolve(provider)
-                return
 
-            reject new ProviderError "Could not find provider for resource by resource name: #{name}"
+          promises.push new Promise (reresolve, rereject)->
+            provider.getResources().then (resources)=>
+              steroidsCli.debug "PROVIDER", "Got some resources: #{JSON.stringify(resources)}"
+
+              for resource in resources
+                if resource.name == name
+                  steroidsCli.debug "PROVIDER", "Found resource #{name} from provider #{provider.name} UID: #{provider.uid}"
+                  reresolve(provider)
+                  return
+
+              rereject new ProviderError "Could not find provider for resource by resource name: #{name}"
+
+
+        Promise.any(promises).then (provider)->
+          resolve(provider)
+
+
+
 
   #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
   @resourceForName: (name)=>
