@@ -82,7 +82,6 @@
     "semver": "2.3.1",
     "wrench": "1.5.4",
     "yeoman-generator": "0.17.7",
-    "rimraf": "2.2.2",
     "q": "0.9.7",
     "chalk": "0.3.0",
     "generator-steroids": "git+https://jepjep:e072ec18c4b0a3724637b731e345f2009ffe87f1@github.com/AppGyver/generator-devroids.git#master",
