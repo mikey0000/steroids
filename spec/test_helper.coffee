@@ -10,9 +10,9 @@ global.doNotRunIfMode = (givenModes) ->
   else
     givenModes
 
-  for m in modes
-    do (m) ->
-      if process.env.STEROIDS_TEST_RUN_MODE == m
+  for mode in modes
+    do (mode) ->
+      if process.env.STEROIDS_TEST_RUN_MODE == mode
         console.log "Mode is #{mode}, skipping this test"
         process.exit(0)
 
