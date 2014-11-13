@@ -41,10 +41,10 @@ elif [ "$MODE" == "release" ]; then
   if [ "$UNINSTALL_GLOBAL_OK" != "n" ]; then
     echo "deleting other than 'npm' from global.."
 
-    if [ "$STEROIDS_TEST_ENVIRONMENT" != "travis" ]; then
+    if [ "$STEROIDS_TEST_RUN_ENVIRONMENT" != "travis" ]; then
       npm ls -gp | awk -F/ '/node_modules/&&!/node_modules.*node_modules/&&!/npm/{print $NF}' | xargs npm rm -g
     else
-      echo "STEROIDS_TEST_ENVIRONMENT is $STEROIDS_TEST_ENVIRONMENT, not deleting"
+      echo "STEROIDS_TEST_RUN_ENVIRONMENT is $STEROIDS_TEST_RUN_ENVIRONMENT, not deleting"
     fi
 
     echo "clearing cache"
@@ -112,13 +112,6 @@ if [ ! -d "__testApp" ]; then
   exit 1
 fi
 
-
-if [ "$STEROIDS_TEST_ENVIRONMENT" != "travis" ]; then
-  echo "Not changing MODE because not in travis, is still: $MODE"
-else
-  echo "Setting MODE to travis_linux"
-  MODE="travis_linux"
-fi
 
 ERRORS=false
 

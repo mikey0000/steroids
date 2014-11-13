@@ -1,8 +1,8 @@
 TestHelper = require "../test_helper"
 
-describe 'deploy', ->
+skipWhen process.env.STEROIDS_TEST_RUN_MODE, "fast"
 
-  doNotRunIfMode("fast")
+describe 'deploy', ->
 
   afterEach ->
     if @testRunDone

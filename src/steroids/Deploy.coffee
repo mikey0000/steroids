@@ -77,17 +77,18 @@ class Deploy
 
     restifyCallback = (err, req, res, obj)=>
       steroidsCli.debug "RECEIVED APPJSON SYNC RESPONSE"
-      steroidsCli.debug "err: #{util.inspect(err)}"
-      steroidsCli.debug "req: #{util.inspect(req)}"
-      steroidsCli.debug "res: #{util.inspect(res)}"
-      steroidsCli.debug "obj: #{util.inspect(obj)}"
+      # Way too spammy logging:
+      #steroidsCli.debug "err: #{util.inspect(err)}"
+      #steroidsCli.debug "req: #{util.inspect(req)}"
+      #steroidsCli.debug "res: #{util.inspect(res)}"
+      #steroidsCli.debug "obj: #{util.inspect(obj)}"
 
       unless err
-        # util.log "RECEIVED APPJSON SYNC SUCCESS"
+        steroidsCli.debug "RECEIVED APPJSON SYNC SUCCESS"
         @cloudApp = obj
         callback()
       else
-        # util.log "RECEIVED APPJSON SYNC FAILURE"
+        steroidsCli.debug "RECEIVED APPJSON SYNC FAILURE"
         # util.log "err: #{util.inspect(err)}"
         # util.log "obj: #{util.inspect(obj)}"
         Help.error()

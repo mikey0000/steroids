@@ -4,17 +4,32 @@ path = require "path"
 
 CommandRunner = require "./command_runner"
 
-global.doNotRunIfMode = (givenModes) ->
-  modes = if givenModes.constructor.name == "String"
-    [givenModes]
+greatContains = (givenItem, arrayOrString) ->
+  items = if arrayOrString.constructor.name == "String"
+    [arrayOrString]
   else
-    givenModes
+    arrayOrString
 
-  for mode in modes
-    do (mode) ->
-      if process.env.STEROIDS_TEST_RUN_MODE == mode
-        console.log "Mode is #{mode}, skipping this test"
-        process.exit(0)
+  for item in items
+    return true if item == givenItem
+
+  false
+
+global.skipWhen = (what, givens) ->
+  if greatContains(what, givens)
+    console.log "#{what} is in #{givens}, skipping this test"
+    process.exit(0)
+  else
+    console.log "#{what} is not in #{givens}, running this test"
+
+global.onlyWhen = (what, givens) ->
+  if greatContains(what, givens)
+    console.log "#{what} is in #{givens}, running this test"
+  else
+    console.log "#{what} is not in #{givens}, skipping this test"
+    process.exit(0)
+
+
 
 global.rightHereRightNow = (f) =>
   f()

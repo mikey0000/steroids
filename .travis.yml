@@ -1,12 +1,11 @@
-language: node_js
-node_js:
-  - '0.10'
+os:
+  - osx
 before_install:
   - mkdir $HOME/.appgyver
   - echo $APPGYVER_ACCESS_TOKEN_CONTENTS > $HOME/.appgyver/token.json
   - echo "before install lol"
 install:
-  - echo "install lol"
+  - ./scripts/travis/install.sh
 before_script:
   - echo "before script lol"
 script:
@@ -17,4 +16,4 @@ after_success:
 after_failure:
   - echo "after failure lol --> $TRAVIS_TEST_RESULT"
 env:
-  - LOLCAT=looooong
+  - LONGCAT=looooong

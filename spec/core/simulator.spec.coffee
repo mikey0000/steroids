@@ -1,8 +1,10 @@
 TestHelper = require "../test_helper"
 
-describe 'simulator', ->
+skipWhen process.env.STEROIDS_TEST_RUN_MODE, "fast"
+onlyWhen process.platform, "darwin"
+skipWhen process.env.STEROIDS_TEST_RUN_ENVIRONMENT, "travis"
 
-  doNotRunIfMode ["fast", "travis_linux"]
+describe 'simulator', ->
 
   beforeEach =>
     @oldDefaultTimeoutInterval = jasmine.getEnv().defaultTimeoutInterval
