@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+  - '0.10'
+before_install:
+  - echo "before install lol"
+install:
+  - echo "install lol"
+before_script:
+  - echo "before script lol"
+script:
+  - echo "script lol"
+  - echo "./bin/release y"
+after_success:
+  - echo "after success lol --> $TRAVIS_TEST_RESULT"
+after_failure:
+  - echo "after failure lol --> $TRAVIS_TEST_RESULT"
+env:
+  - LOLCAT=looooong
