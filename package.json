@@ -86,7 +86,6 @@
     "rimraf": "2.2.2",
     "q": "0.9.7",
     "chalk": "0.3.0",
-    "xml2js": "0.4.0",
     "generator-steroids": "git+https://jepjep:e072ec18c4b0a3724637b731e345f2009ffe87f1@github.com/AppGyver/generator-devroids.git#master",
     "js-yaml": "3.0.2",
     "request-json": "0.4.10",
