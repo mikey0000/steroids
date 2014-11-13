@@ -4,7 +4,6 @@ util = require "util"
 
 restify = require "restify"
 restler = require "restler"
-async = require "async"
 open = require "open"
 
 paths = require "./paths"
