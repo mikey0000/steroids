@@ -1,8 +1,6 @@
 path = require "path"
 pathExtra = require "path-extra"
 
-pathExtra.tempdir()
-
 class Paths
 
   @npm: path.join __dirname, "..", ".."
