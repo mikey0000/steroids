@@ -68,24 +68,37 @@ class Provider
         Promise.any(promises).then (provider)->
           resolve(provider)
 
-
-
-
-  #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
   @resourceForName: (name)=>
     return new Promise (resolve, reject) =>
-      steroidsCli.debug "PROVIDER", "Getting resource for name #{name} from cloud"
-
-      @forResource(name)
-      .then (provider)=>
-        provider.getResources()
-      .then (resources)=>
-        for resource in resources
-          if resource.name == name
+      @allResources()
+      .then (resources) =>
+        resources.forEach (resource) =>
+          if resource.name==name
             resolve(resource)
-            return
 
         reject new ProviderError "Could not find resource for name: #{name}"
+
+  @allResources: (name) =>
+    return new Promise (resolve, reject) =>
+      @getAll().then (providers) =>
+
+        all_resources = []
+        promises = []
+
+        providers.forEach (provider) =>
+
+          for provider in providers
+            promises.push new Promise (reresolve, rereject) ->
+              provider.getResources().then (resources) =>
+                resources.forEach (resource) =>
+                  all_resources.push resource
+
+                reresolve()
+                return
+
+        Promise.all(promises).then (provider)->
+          resolve(all_resources)
+
 
   @readRamlFromCloud: =>
     return new Promise (resolve, reject) =>
