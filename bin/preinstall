@@ -8,6 +8,11 @@ var cp = require("child_process"),
     sys = require("sys");
 
 var askConfirm = function() {
+  if (process.env.STEROIDS_TEST_RUN_ENVIRONMENT == "travis") {
+    console.log("in travis, exit with: 0");
+    process.exit(0);
+  }
+
   process.stdin.setRawMode( true );
   process.stdin.resume();
   process.stdin.setEncoding('utf8');
