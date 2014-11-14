@@ -1,5 +1,6 @@
 os:
   - osx
+  - linux
 before_install:
   - mkdir $HOME/.appgyver
   - echo $APPGYVER_ACCESS_TOKEN_CONTENTS > $HOME/.appgyver/token.json
