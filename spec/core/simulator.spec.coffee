@@ -2,7 +2,6 @@ TestHelper = require "../test_helper"
 
 skipWhen process.env.STEROIDS_TEST_RUN_MODE, "fast"
 onlyWhen process.platform, "darwin"
-skipWhen process.env.STEROIDS_TEST_RUN_ENVIRONMENT, "travis"
 
 describe 'simulator', ->
 
