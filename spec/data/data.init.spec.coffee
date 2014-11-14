@@ -1,6 +1,7 @@
 TestHelper = require "../test_helper"
 
 skipWhen process.env.STEROIDS_TEST_RUN_MODE, "fast"
+skipWhen process.env.STEROIDS_TEST_RUN_ENVIRONMENT, "travis"
 
 describe 'data', ->
 
