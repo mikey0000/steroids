@@ -1,40 +1,29 @@
 fs = require "fs"
-path = require "path"
-util = require "util"
 
-restify = require "restify"
+request = require "request"
 restler = require "restler"
-open = require "open"
 
 paths = require "./paths"
-DeployConverter = require "./DeployConverter"
 Login = require "./Login"
-
-Help = require "./Help"
-
 CloudConfig = require "./CloudConfig"
+DeployConverter = require "./DeployConverter"
 
 class Deploy
 
   @DeployError: class DeployError extends steroidsCli.SteroidsError
 
-  constructor: (@options={})->
-    @cloudConfig = JSON.parse(fs.readFileSync(paths.application.configs.cloud, "utf8")) if fs.existsSync paths.application.configs.cloud
-
+  constructor: (@options={}) ->
     @converter = new DeployConverter paths.application.configs.application
+    @cloudConfig = JSON.parse(fs.readFileSync(paths.application.configs.cloud, "utf8")) if fs.existsSync paths.application.configs.cloud
+    @cloudUrl = steroidsCli.options.argv.cloudUrl || "https://cloud.appgyver.com"
 
-    ankaURL = steroidsCli.options.argv.ankaURL || "https://anka.appgyver.com"
-
-    @client = restify.createJsonClient
-      url: ankaURL
-
-  run: () =>
+  run: =>
     Updater = require "./Updater"
     updater = new Updater
     updater.check
       from: "deploy"
 
-    return new Promise (resolve, reject) =>
+    new Promise (resolve, reject) =>
       Project = require "./Project"
 
       project = new Project
@@ -42,115 +31,121 @@ class Deploy
           onSuccess: =>
               project.package
                 onSuccess: =>
-                  @uploadToCloud ()=>
+                  @deploy().then =>
                     resolve()
-                  , @options
+                  .catch (error) =>
+                    reject error
                 onFailure: =>
                   reject new DeployError "package failed"
             onFailure: =>
               reject new DeployError "make failed"
 
+  deploy: =>
+    new Promise (resolve, reject) =>
+      steroidsCli.log "Uploading application to AppGyver Cloud."
+      @uploadApplicationJSON()
+        .then(@uploadApplicationZip)
+        .then(@updateConfigurationFile)
+        .then ->
+          resolve()
+        .catch (error) ->
+          reject error
 
-  uploadToCloud: (callback, options)->
-    @client.basicAuth Login.currentAccessToken(), 'X'
+  uploadApplicationJSON: =>
+    new Promise (resolve, reject) =>
+      @app = @converter.applicationCloudSchemaRepresentation()
 
-    @uploadApplicationJSON ()=>
-      @uploadApplicationZip ()=>
-        @updateConfigurationFile(callback, options)
+      if fs.existsSync paths.application.configs.cloud
+        cloudConfig = JSON.parse fs.readFileSync(paths.application.configs.cloud, "utf8")
+        @app.id = cloudConfig.id
 
-  uploadApplicationJSON: (callback)->
-    # util.log "Updating application configuration"
-    util.log "Uploading Application to cloud"
+      requestData =
+        application: @app
 
-    @app = @converter.applicationCloudSchemaRepresentation()
-
-    if fs.existsSync paths.application.configs.cloud
-      # util.log "Application has been deployed before"
-      cloudConfig = JSON.parse fs.readFileSync(paths.application.configs.cloud, 'utf8')
-      @app.id = cloudConfig.id
-      # util.log "Using cloud ID: #{cloudConfig.id}"
-
-    # util.log "Uploading #{JSON.stringify(@app)}"
-
-    requestData =
-      application: @app
-
-    restifyCallback = (err, req, res, obj)=>
-      steroidsCli.debug "RECEIVED APPJSON SYNC RESPONSE"
-      # Way too spammy logging:
-      #steroidsCli.debug "err: #{util.inspect(err)}"
-      #steroidsCli.debug "req: #{util.inspect(req)}"
-      #steroidsCli.debug "res: #{util.inspect(res)}"
-      #steroidsCli.debug "obj: #{util.inspect(obj)}"
-
-      unless err
-        steroidsCli.debug "RECEIVED APPJSON SYNC SUCCESS"
-        @cloudApp = obj
-        callback()
+      if @app.id?
+        steroidsCli.debug "DEPLOY", "Updating existing app with id #{@app.id}"
+        method = "put"
+        endpoint = "/studio_api/applications/#{@app.id}"
       else
-        steroidsCli.debug "RECEIVED APPJSON SYNC FAILURE"
-        # util.log "err: #{util.inspect(err)}"
-        # util.log "obj: #{util.inspect(obj)}"
+        steroidsCli.debug "Creating new app"
+        method = "post"
+        endpoint = "/studio_api/applications"
+
+      @cloudUpload(method, endpoint, requestData).then (data) =>
+        steroidsCli.debug "DEPLOY", "Got cloud upload response"
+        @cloudApp = data
+        resolve()
+      .catch (error) ->
+        Help = require "./Help"
         Help.error()
-        console.log "Failed with error: #{err.body.error}."
-        console.log "Check that you have correct app id in config/cloud.json. Try removing the file and a new cloud.json file will be created."
-        process.exit 1
+        reject error
 
-    if @app.id?
-      steroidsCli.debug "Updating existing app with id #{@app.id}"
-      # util.log "PUT"
-      @client.put "/studio_api/applications/#{@app.id}", requestData, restifyCallback
-    else
-      steroidsCli.debug "Creating new app"
-      # util.log "POST"
-      @client.post "/studio_api/applications", requestData, restifyCallback
+  cloudUpload: (method, endpoint, json) =>
+    new Promise (resolve, reject) =>
+      request
+        auth:
+          user: Login.currentAccessToken()
+          password: "X"
+        method: method
+        json: json
+        url: "#{@cloudUrl}#{endpoint}"
+      , (err, res, data) ->
+        if err?
+          reject new DeployError "Could not connect to cloud.appgyver.com"
+        else if res.statusCode == 200 or res.statusCode == 201
+          resolve(data)
+        else
+          reject new DeployError """
+          Check that you have correct app id in config/cloud.json. Try removing the file and a new cloud.json file will be created.
+          """
 
-  uploadApplicationZip: (callback)->
-    sourcePath = paths.temporaryZip
-    # util.log "Updating application build from #{sourcePath} to #{@cloudApp.custom_code_zip_upload_url}"
-    # util.log "key #{@cloudApp.custom_code_zip_upload_key}"
+  uploadApplicationZip: =>
+    new Promise (resolve, reject) =>
+      sourcePath = paths.temporaryZip
 
-    params =
-      success_action_status: "201"
-      utf8: ""
-      key: @cloudApp.custom_code_zip_upload_key
-      acl: @cloudApp.custom_code_zip_upload_acl
-      policy: @cloudApp.custom_code_zip_upload_policy
-      signature: @cloudApp.custom_code_zip_upload_signature
-      AWSAccessKeyId: @cloudApp.custom_code_zip_upload_access_key
-      file: restler.file(
-        sourcePath, # source path
-        "custom_code.zip", # filename
-        fs.statSync(sourcePath).size, # file size
-        "binary", # file encoding
-        'application/octet-stream') # file content type
+      params =
+        success_action_status: "201"
+        utf8: ""
+        key: @cloudApp.custom_code_zip_upload_key
+        acl: @cloudApp.custom_code_zip_upload_acl
+        policy: @cloudApp.custom_code_zip_upload_policy
+        signature: @cloudApp.custom_code_zip_upload_signature
+        AWSAccessKeyId: @cloudApp.custom_code_zip_upload_access_key
+        file: restler.file(
+          sourcePath, # source path
+          "custom_code.zip", # filename
+          fs.statSync(sourcePath).size, # file size
+          "binary", # file encoding
+          "application/octet-stream") # file content type
 
-    uploadRequest = restler.post @cloudApp.custom_code_zip_upload_url, { multipart: true, data:params }
-    uploadRequest.on 'success', ()=>
-      # util.log "Updated application build"
-      callback()
+      uploadRequest = restler.post @cloudApp.custom_code_zip_upload_url, { multipart: true, data:params }
 
-  updateConfigurationFile: (callback, options)->
-    # util.log "Updating #{paths.application.configs.cloud}"
+      uploadRequest.on "success", ->
+        steroidsCli.debug "DEPLOY", "Updated application zip to S3"
+        resolve()
 
-    cloudConfig = new CloudConfig
-      id: @cloudApp.id
-      identification_hash: @cloudApp.identification_hash
+      uploadRequest.on "error", ->
+        reject new DeployError "Error uploading application code to cloud."
 
-    cloudConfig.saveSync()
+  updateConfigurationFile: =>
+    new Promise (resolve, reject) =>
+      steroidsCli.debug "DEPLOY", "Updating #{paths.application.configs.cloud}"
 
-    config = cloudConfig.getCurrentSync()
+      cloudConfig = new CloudConfig
+        id: @cloudApp.id
+        identification_hash: @cloudApp.identification_hash
 
-    shareProtocolAndHost = steroidsCli.options.argv.shareURL || "https://share.appgyver.com"
-    fullShareURL = "#{shareProtocolAndHost}/?id=#{config.id}&hash=#{config.identification_hash}"
+      cloudConfig.saveSync()
+      config = cloudConfig.getCurrentSync()
 
-    if options?.sharePage == false
-      # TODO: pull this logic out of here...
-    else
-      util.log "Opening URL #{fullShareURL} in default web browser ..."
-      open fullShareURL
+      shareBaseUrl = steroidsCli.options.argv.shareURL || "https://share.appgyver.com"
+      shareUrl = "#{shareBaseUrl}/?id=#{config.id}&hash=#{config.identification_hash}"
+      steroidsCli.log "\nShare url: #{shareUrl}"
 
-    if callback?
-      callback()
+      if steroidsCli.options.argv.share
+        open = require "open"
+        open shareUrl
+
+      resolve()
 
 module.exports = Deploy
