@@ -17,6 +17,9 @@ class Resource
 
   getFieldNamesSync: ()=>
     steroidsCli.debug "RESOURCE", "Getting field names from columns: #{JSON.stringify(@columns)}"
+
+    return [] if @columns == null
+
     result = []
     for column in @columns
       result.push column.name

@@ -33,7 +33,13 @@ class DataModuleGenerator extends Base
 
       #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
       Provider.resourceForName(@resourceName).then (resource)=>
+
         @fields = resource.getFieldNamesSync()
+
+        if @fields.length == 0
+          reject new Error "No fields defined for resource #{@resourceName}."
+          return
+
         steroidsCli.debug "DataModuleGenerator", "Generating scaffold with name: #{@resourceName} modulename: #{@modulename} and fields: #{JSON.stringify(@fields)}"
 
         steroidsGenerators.dataModule {
