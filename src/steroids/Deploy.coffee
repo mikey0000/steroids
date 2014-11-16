@@ -13,7 +13,7 @@ class Deploy
   @DeployError: class DeployError extends steroidsCli.SteroidsError
 
   constructor: (@options={}) ->
-    @converter = new DeployConverter paths.application.configs.application
+    @converter = new DeployConverter
     @cloudConfig = JSON.parse(fs.readFileSync(paths.application.configs.cloud, "utf8")) if fs.existsSync paths.application.configs.cloud
     @cloudUrl = steroidsCli.options.argv.cloudUrl || "https://cloud.appgyver.com"
 
@@ -55,21 +55,18 @@ class Deploy
     new Promise (resolve, reject) =>
       @app = @converter.applicationCloudSchemaRepresentation()
 
-      if fs.existsSync paths.application.configs.cloud
-        cloudConfig = JSON.parse fs.readFileSync(paths.application.configs.cloud, "utf8")
-        @app.id = cloudConfig.id
-
-      requestData =
-        application: @app
-
-      if @app.id?
+      if @cloudConfig?.id?
+        @app.id = @cloudConfig.id
         steroidsCli.debug "DEPLOY", "Updating existing app with id #{@app.id}"
         method = "put"
         endpoint = "/studio_api/applications/#{@app.id}"
       else
-        steroidsCli.debug "Creating new app"
+        steroidsCli.debug "DEPLOY", "Uploading a new app"
         method = "post"
         endpoint = "/studio_api/applications"
+
+      requestData =
+        application: @app
 
       @cloudUpload(method, endpoint, requestData).then (data) =>
         steroidsCli.debug "DEPLOY", "Got cloud upload response"
