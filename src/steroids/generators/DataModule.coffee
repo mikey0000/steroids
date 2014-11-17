@@ -64,28 +64,29 @@ class DataModuleGenerator extends Base
         scriptExtPrompt
       ]
 
-      inquirer.prompt promptList, (answers) =>
-        @scriptExt = answers.scriptExt
+      #inquirer.prompt promptList, (answers) =>
+      #  @scriptExt = answers.scriptExt
 
-        #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
-        Provider.resourceForName(@resourceName).then (resource)=>
+      @scriptExt = 'coffee'
+      #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
+      Provider.resourceForName(@resourceName).then (resource)=>
 
-          @fields = resource.getFieldNamesSync()
+        @fields = resource.getFieldNamesSync()
 
-          if @fields.length == 0
-            reject new Error "No fields defined for resource #{@resourceName}."
-            return
+        if @fields.length == 0
+          reject new Error "No fields defined for resource #{@resourceName}."
+          return
 
-          steroidsCli.debug "DataModuleGenerator", "Generating scaffold with name: #{@resourceName} modulename: #{@modulename} and fields: #{JSON.stringify(@fields)}"
+        steroidsCli.debug "DataModuleGenerator", "Generating scaffold with name: #{@resourceName} modulename: #{@modulename} and fields: #{JSON.stringify(@fields)}"
 
-          steroidsGenerators.dataModule {
-            @moduleName
-            @resourceName
-            @scriptExt
-            @fields
-          }, ->
-            steroidsCli.debug "DataModuleGenerator", "Generated Scaffold for #{@resourceName}"
-            resolve()
+        steroidsGenerators.dataModule {
+          @moduleName
+          @resourceName
+          @scriptExt
+          @fields
+        }, ->
+          steroidsCli.debug "DataModuleGenerator", "Generated Scaffold for #{@resourceName}"
+          resolve()
 
 
 module.exports = DataModuleGenerator
