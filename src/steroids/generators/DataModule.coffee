@@ -1,5 +1,6 @@
 steroidsGenerators = require 'generator-steroids'
 Base = require "./Base"
+chalk = require "chalk"
 
 Provider = require "../data/Provider"
 
@@ -10,11 +11,27 @@ class DataModuleGenerator extends Base
     @moduleName = "#{@resourceName.toLowerCase()}"
 
   @usageParams: ->
-    "<resourceName> <fields...>"
+    "<resourceName>"
 
   @usage: ->
     """
-    Generates a CRUD scaffold for a Supersonic Data resource.
+    Generates a CRUD scaffold for a Supersonic Data resource
+
+    For a resource named #{chalk.bold("cars")}, the following files will be created:
+
+        - app/cars/index.coffee (or .js)
+        - app/cars/views/layout.html
+        - app/cars/views/index.html
+        - app/cars/views/show.html
+        - app/cars/views/edit.html
+        - app/cars/views/new.html
+        - app/cars/views/_form.html
+        - app/cars/views/_spinner.html
+        - app/cars/scripts/IndexController.coffee (or .js)
+        - app/cars/scripts/IndexController.coffee (or .js)
+        - app/cars/scripts/NewController.coffee (or .js)
+        - app/cars/scripts/ShowController.coffee (or .js)
+        - app/cars/scripts/EditController.coffee (or .js)
     """
 
   generate: ->
