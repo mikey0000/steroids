@@ -1,5 +1,3 @@
-restify = require "restify"
-
 request = require "request"
 
 paths = require "../paths"
@@ -20,9 +18,8 @@ class Provider
   @legacyClient.headers["Authorization"] = Login.currentAccessToken()
 
   @apiClient = request.defaults
-    auth:
-      user: Login.currentAccessToken()
-      password: "X"
+    headers:
+      Authorization: Login.currentAccessToken()
 
   @forBackend: (backend) =>
     return new Promise (resolve, reject) =>
@@ -114,10 +111,9 @@ class Provider
       url = "/app/#{dataHelpers.getAppId()}/raml.yaml?identification_hash=#{dataHelpers.getIdentificationHash()}"
 
       steroidsCli.debug "PROVIDER", "GETting from URL: #{url}"
-
-      @apiClient
+      @apiClient.get
         method: "get"
-        url: url
+        url: "#{configApiBaseUrl}/#{url}"
       , (err, res, body) =>
 
         if err?
@@ -126,7 +122,7 @@ class Provider
           return
 
         if res.statusCode != 200
-          steroidsCli.debug "PROVIDER", "Getting current data configuration from cloud returned failure: #{res['body']}"
+          steroidsCli.debug "PROVIDER", "Getting current data configuration from cloud returned failure: #{body}"
           reject new CloudReadError body
           return
 
@@ -145,19 +141,20 @@ class Provider
     return new Promise (resolve, reject) =>
       steroidsCli.debug "PROVIDER", "Getting providers from cloud"
 
-      @apiClient
+      @apiClient.get
         method: "get"
-        url: "/app/#{dataHelpers.getAppId()}/service_providers.json"
+        url: "#{configApiBaseUrl}/app/#{dataHelpers.getAppId()}/service_providers.json"
       , (err, res, body) =>
+        obj = JSON.parse body
 
         if err?
           steroidsCli.debug "PROVIDER", "Getting providers from cloud returned failure: #{JSON.stringify(obj)}"
           reject new CloudReadError err
           return
 
-        steroidsCli.debug "PROVIDER", "Getting providers from cloud returned success: #{JSON.stringify(obj)}"
+        steroidsCli.debug "PROVIDER", "Getting providers from cloud returned success: #{JSON.stringify(body)}"
         result = []
-        body.forEach (p)=>
+        obj.forEach (p)=>
           result.push @fromCloudObject(p)
         resolve result
 
@@ -169,7 +166,7 @@ class Provider
     return provider
 
   constructor: (@options={}) ->
-    @legacyClient = Provider.apiClient
+    @apiClient = Provider.apiClient
 
     #TODO Provider.fromBackend(backend)
     @backend = @options.backend
@@ -186,8 +183,16 @@ class Provider
         configurationKeys: @backend.configurationKeysForProxy()
 
       url = "/app/#{dataHelpers.getAppId()}/service_providers.json"
-      steroidsCli.debug "PROVIDER", "POSTing #{JSON.stringify(data)} to URL #{url}"
-      @legacyClient.post url, data, (err, req, res, obj) =>
+      steroidsCli.debug "PROVIDER", "POSTing #{JSON.stringify(data)} to URL #{configApiBaseUrl}/#{url}}"
+
+      @apiClient
+        method: "post"
+        json: data
+        url: "#{configApiBaseUrl}/#{url}"
+      , (err, res, body) =>
+
+        obj = body
+
         if obj.uid
           steroidsCli.debug "PROVIDER", "Creating a new provider #{@name} ID: #{@typeId} to cloud returned success: #{JSON.stringify(obj)}"
 
@@ -196,8 +201,6 @@ class Provider
         else
           steroidsCli.debug "PROVIDER", "Creating a new provider #{@name} ID: #{@typeId} to cloud returned failure: #{JSON.stringify(obj)}"
           reject new CloudWriteError err
-
-        @legacyClient.close()
 
   fromCloudObject: (obj)=>
     steroidsCli.debug "PROVIDER", "Updating attributes for provider from object: #{JSON.stringify(obj)}"
@@ -213,7 +216,11 @@ class Provider
       url = "/app/#{dataHelpers.getAppId()}/service_providers/#{@uid}/resources.json"
 
       steroidsCli.debug "PROVIDER", "GETting from URL: #{url}"
-      @legacyClient.get url, (err, req, res, obj) =>
+      @apiClient.get
+        method: "get"
+        url: "#{configApiBaseUrl}/#{url}"
+      , (err, res, body) =>
+        obj = JSON.parse body
 
         if err?
           steroidsCli.debug "PROVIDER", "Getting resources for provider #{@name} ID: #{@typeId} from cloud returned failure: #{err} #{JSON.stringify(obj)}"
