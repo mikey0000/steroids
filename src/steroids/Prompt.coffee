@@ -75,18 +75,20 @@ class Prompt
           chromeDebug = new ChromeDebug
           chromeDebug.run()
 
-        when "a", "and", "android"
-          Android = require "./emulate/android"
-          android = new Android
-          android.run().catch (error) ->
-            Help.error()
-            steroidsCli.log
-              message: error.message
+        # Disable Android emulator
+        # when "a", "and", "android"
+        #   Android = require "./emulate/android"
+        #   android = new Android
+        #   android.run().catch (error) ->
+        #     Help.error()
+        #     steroidsCli.log
+        #       message: error.message
 
-        when "g", "gen", "genymotion"
-          Genymotion = require "./emulate/genymotion"
-          genymotion = new Genymotion
-          genymotion.run()
+        # Disable Genymotion
+        # when "g", "gen", "genymotion"
+        #   Genymotion = require "./emulate/genymotion"
+        #   genymotion = new Genymotion
+        #   genymotion.run()
 
         when "s", "sim", "simulator"
 
