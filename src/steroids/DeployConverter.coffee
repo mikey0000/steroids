@@ -26,7 +26,7 @@ class DeployConverter
           location: @config.location
       )
 
-    name: @config.name || "New project"
+    name: @projectName() || "New Project"
     framework_id: 13
     navigation_bar_style: @config.theme ? null
     status_bar_style: @statusBarStyle()
@@ -101,5 +101,13 @@ class DeployConverter
       userFilesObject.push file
 
     return userFilesObject
+
+  projectName: =>
+    @configurator.eitherSupersonicOrLegacy().fold(
+      =>
+        @config.app.name
+      =>
+        @config.name
+    )
 
 module.exports = DeployConverter
