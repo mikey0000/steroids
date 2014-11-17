@@ -68,7 +68,7 @@ class DeployConverter
             tab =
               title: configTab.title
               id: configTab.id
-              icon: configTab.icon
+              icon: configTab.icon || "dolan.png"
               location: routingHelpers.parseLocation(configTab.location)
             tabs.push tab
 
@@ -81,7 +81,7 @@ class DeployConverter
             tab =
               title: configTab.title
               id: configTab.id
-              icon: configTab.icon
+              icon: configTab.icon || "dolan.png"
               location: configTab.location
             tabs.push tab
 
