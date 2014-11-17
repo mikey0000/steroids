@@ -1,5 +1,3 @@
-restify = require "restify"
-
 configApiBaseUrl = 'https://config-api.appgyver.com'
 
 class Resource

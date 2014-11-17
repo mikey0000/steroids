@@ -53,7 +53,7 @@ describe 'deploy', ->
   it "starts uploading to cloud", =>
     startsUploading = false
     waitsFor =>
-      startsUploading = @session.stdout.match("Uploading Application to cloud")
+      startsUploading = @session.stdout.match("Uploading application to AppGyver Cloud.")
 
     runs ->
       expect( startsUploading ).toBeTruthy()
@@ -61,15 +61,15 @@ describe 'deploy', ->
   it "receives APPJSON", =>
     appJsonReceived = false
     waitsFor =>
-      appJsonReceived = @session.stdout.match("RECEIVED APPJSON SYNC RESPONSE")
+      appJsonReceived = @session.stdout.match("Got cloud upload response")
 
     runs ->
       expect( appJsonReceived ).toBeTruthy()
 
-  it "opens URL to share.appgyver.com", =>
+  it "displays URL to share.appgyver.com", =>
     urlOpened = false
     waitsFor =>
-      urlOpened = @session.stdout.match("Opening URL https://share.appgyver.com/")
+      urlOpened = @session.stdout.match("https://share.appgyver.com/")
 
     runs ->
       expect( urlOpened ).toBeTruthy()

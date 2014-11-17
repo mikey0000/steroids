@@ -22,17 +22,18 @@ class Connect
       simulatorForKillingIt = new Simulator
       simulatorForKillingIt.killall()
 
-      Genymotion = require "./emulate/genymotion"
-      genymotionForKillingIt = new Genymotion
-      genymotionForKillingIt.killall()
-      .then ->
-        steroidsCli.debug "Killed genymotion"
-
-      Android = require "./emulate/android"
-      androidForKillingIt = new Android
-      androidForKillingIt.killall()
-      .then ->
-        steroidsCli.debug "Killed android"
+      # Disabled Genymotion and Emulator
+      # Genymotion = require "./emulate/genymotion"
+      # genymotionForKillingIt = new Genymotion
+      # genymotionForKillingIt.killall()
+      # .then ->
+      #   steroidsCli.debug "Killed genymotion"
+      #
+      # Android = require "./emulate/android"
+      # androidForKillingIt = new Android
+      # androidForKillingIt.killall()
+      # .then ->
+      #   steroidsCli.debug "Killed android"
 
       Project = require "./Project"
       @project = new Project
