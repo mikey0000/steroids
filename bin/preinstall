@@ -69,30 +69,6 @@ var pleaseInstall = function(dependency) {
   return ["Please install " + dependency + " and run this installer again."];
 };
 
-var checkForPython = function() {
-  var rootDir = process.env.SystemDrive || 'C:\\',
-      exists = false,
-      okCb = found('python');
-
-  if (rootDir[rootDir.length - 1] !== '\\') {
-    rootDir += '\\'
-  }
-
-  // check from default python path
-  var pythonPath = path.resolve(rootDir, 'Python27', 'python.exe');
-
-  exists = fs.existsSync(pythonPath);
-
-  if (!exists) {
-    tryAndRun("python -V",
-      okCb,
-      notFound("command 'python'", pleaseInstall("Python"))
-    );
-  } else {
-    okCb();
-  }
-}
-
 var checkNPMOwnership = function(done) {
 
   var home = process.env['HOME'];
@@ -200,7 +176,7 @@ var checkComponents = function() {
       found('git'),
       notFound("command 'git'", pleaseInstall("git")),
       function() {
-        checkForPython();
+        console.log("\nDependencies looks good! Starting Steroids installation...\n");
       }
     );
 
@@ -264,7 +240,12 @@ var checkComponents = function() {
               found("git"),
               notFound("git", pleaseInstall("git")),
               function() {
-                console.log("\nDependencies ... OK");
+                console.log("\nDependencies ... OK\n");
+                checkNPMOwnership( function() {
+                  checkNPMWriteable( function() {
+                    console.log("\nDependencies and permissions looks good! Starting Steroids installation...\n");
+                  });
+                });
               }
             );
           }
