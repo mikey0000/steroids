@@ -1,7 +1,6 @@
-request = require "request"
-
 paths = require "../paths"
 Login = require "../Login"
+request = require "request"
 
 Resource = require "./Resource"
 dataHelpers = require "./Helpers"
@@ -12,10 +11,6 @@ class Provider
   @ProviderError: class ProviderError extends steroidsCli.SteroidsError
   @CloudReadError: class CloudReadError extends ProviderError
   @CloudWriteError: class CloudWriteError extends ProviderError
-
-  @legacyClient = restify.createJsonClient
-    url: configApiBaseUrl
-  @legacyClient.headers["Authorization"] = Login.currentAccessToken()
 
   @apiClient = request.defaults
     headers:
