@@ -1,7 +1,7 @@
 util = require "util"
 fs = require "fs"
 
-restify = require "restify"
+request = require "request"
 yaml = require 'js-yaml'
 
 paths = require "../paths"
@@ -20,9 +20,10 @@ class SandboxDB
   providerTypeId: 6
 
   constructor: (@options={}) ->
-    @apiClient = restify.createJsonClient
-      url: sandboxDBBaseURL
-    @apiClient.basicAuth Login.currentAccessToken(), 'X'
+    @apiClient = request.defaults
+      auth:
+        user: Login.currentAccessToken()
+        password: "X"
 
   get: =>
     return new Promise (resolve, reject) =>
@@ -52,14 +53,19 @@ class SandboxDB
         appId: dataHelpers.getAppId()
 
       steroidsCli.debug "SANDBOXDB", "POSTing data: #{JSON.stringify(data)} to path: /v1/credentials/provision"
-      @apiClient.post '/v1/credentials/provision', { data: data }, (err, req, res, obj) =>
-        if obj.code == 201 #TODO: betterify this line
-          steroidsCli.debug "SANDBOXDB", "Provisioning Sandbox DB returned success: #{JSON.stringify(obj)}"
-          @fromApiSchemaDict(obj.body)
+      @apiClient
+        method: "post"
+        json: { data: data }
+        url: "#{sandboxDBBaseURL}/v1/credentials/provision"
+      , (err, res, body) =>
+        if err?
+          reject new DeployError "Could not connect to Sandbox DB"
+        else if res.statusCode == 200 and body.code == 201 # The fuq?
+          @fromApiSchemaDict(body.body)
           resolve()
         else
-          steroidsCli.debug "SANDBOXDB", "Provisioning Sandbox DB returned failure: #{JSON.stringify(obj)}"
-          reject new ProvisionError err
+          steroidsCli.debug "SANDBOXDB", "Provisioning Sandbox DB returned failure: #{body}"
+          reject new ProvisionError
 
   writeToFile: =>
     return new Promise (resolve, reject) =>

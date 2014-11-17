@@ -76,7 +76,6 @@
     "prompt": "0.2.11",
     "qrcode-terminal": "0.9.4",
     "request": "2.27.0",
-    "restify": "2.6.0",
     "restler": "2.0.1",
     "semver": "2.3.1",
     "wrench": "1.5.4",
