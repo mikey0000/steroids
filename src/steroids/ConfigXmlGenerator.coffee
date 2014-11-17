@@ -9,16 +9,26 @@ module.exports = class ConfigXmlGenerator
 
   constructor: ->
 
-  writeConfigXml: ->
+  writeConfigAndroidXml: ->
+    config = new Config()
+    currentConfig = config.getCurrent()
+
+    unless fs.existsSync paths.application.configs.configAndroidXml
+      xml = @constructAndroidXmlFromConfig(currentConfig)
+
+      fs.writeFileSync paths.application.dist.configAndroidXml, xml
+
+
+  writeConfigIosXml: ->
     config = new Config()
     currentConfig = config.getCurrent()
 
     unless fs.existsSync paths.application.configs.configIosXml
-      xml = @constructXmlFromConfig(currentConfig)
+      xml = @constructIosXmlFromConfig(currentConfig)
 
       fs.writeFileSync paths.application.dist.configIosXml, xml
 
-  constructXmlFromConfig: (config)->
+  constructIosXmlFromConfig: (config)->
     root = xmlbuilder.create("widget")
     root.ele "access", origin: "*"
 
@@ -37,6 +47,25 @@ module.exports = class ConfigXmlGenerator
           root.ele "preference",
             name: key
             value: value
+
+    root.end
+      pretty: true
+
+  constructAndroidXmlFromConfig: (config)->
+    root = xmlbuilder.create("widget")
+    root.ele "access", origin: "*"
+
+    namespace = "splashscreen"
+    key = "autohide"
+    value = config[namespace][key]
+    {key, value} = @getLegacyProperty(namespace, key, value)
+    root.ele "preference",
+      name: key
+      value: value
+
+    root.ele "preference",
+      name: "fullscreen"
+      value: "false"
 
     root.end
       pretty: true

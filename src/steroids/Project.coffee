@@ -3,6 +3,7 @@ util = require "util"
 paths = require "./paths"
 chalk = require "chalk"
 fs = require "fs"
+path = require "path"
 Help = require "./Help"
 ApplicationConfigUpdater = require "./ApplicationConfigUpdater"
 AppSettings = require "./AppSettings"
@@ -135,13 +136,15 @@ class Project
 
   createSettingsJson: ->
     appSettings = new AppSettings()
-    steroidsCli.debug "Creating dist/__appgyver_settings.json..."
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.appgyverSettings} ..."
     appSettings.createJSONFile()
 
   createConfigXml: ->
     configXmlGenerator = new ConfigXmlGenerator()
-    steroidsCli.debug "Creating dist/config.ios.xml..."
-    configXmlGenerator.writeConfigXml()
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.configs.configIosXml} ..."
+    configXmlGenerator.writeConfigIosXml()
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.configs.configAndroidXml} ..."
+    configXmlGenerator.writeConfigAndroidXml()
 
 
 module.exports = Project

@@ -67,7 +67,9 @@ class Paths
     logFile: path.join @applicationDir, "logs", "steroids.log"
 
   @application.dist =
+    appgyverSettings: path.join @application.distDir, "__appgyver_settings.json"
     configIosXml: path.join @application.distDir, "config.ios.xml"
+    configAndroidXml: path.join @application.distDir, "config.android.xml"
 
   @application.configs =
     application: path.join @application.configDir, "application.coffee"
