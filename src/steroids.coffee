@@ -298,7 +298,7 @@ class Steroids
         watchEnabled = !(argv.watch == false)
         livereloadEnabled = (argv.livereload == true)
 
-        unless livereloadEnabled
+        if argv.livereload == false
           watchEnabled = false
 
         showConnectScreen = !(argv['connect-screen'] == false)
@@ -413,16 +413,15 @@ class Steroids
 
       when "emulate"
         switch otherOptions[0]
-          # Disable Android emulator
-          # when "android"
-#
-#             Android = require "./steroids/emulate/android"
-#             android = new Android()
-#             android.run().catch (error) ->
-#               Help.error()
-#               steroidsCli.log
-#                 message: error.message
-#
+          when "android"
+
+            Android = require "./steroids/emulate/android"
+            android = new Android()
+            android.run().catch (error) ->
+              Help.error()
+              steroidsCli.log
+                message: error.message
+
           when "ios"
 
             if argv.devices
@@ -437,11 +436,11 @@ class Steroids
                   Help.error()
                   steroidsCli.log
                     message: error.message
-          # Disable Genymotion
-          # when "genymotion"
-#             Genymotion = require "./steroids/emulate/genymotion"
-#             genymotion = new Genymotion()
-#             genymotion.run()
+
+          when "genymotion"
+            Genymotion = require "./steroids/emulate/genymotion"
+            genymotion = new Genymotion()
+            genymotion.run()
 
           else
             Usage = require "./steroids/usage"

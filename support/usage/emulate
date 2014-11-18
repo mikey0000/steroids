@@ -4,11 +4,15 @@
 
 #bold[#magenta[Available modes and options:]]
 
+  #bold[genymotion]   (WIP) Starts the Genymotion Android Emulator
+
+  #bold[android]      (WIP) Starts the Android Emulator
+
   #bold[ios]          Starts the iOS Simulator (OS X only)
     #cyan[--devices]
       Lists all supported devices and SDKs
 
     #cyan[--device=<type>]
     #cyan[--device=<type>@<sdk>]
-      #bold[type] See: #cyan[--devices]
+      #bold[type] See: #[cyan --devices]
       #bold[sdk]  The iOS SDK version e.g. iPhone-6@8.1 ... assuming that it is installed

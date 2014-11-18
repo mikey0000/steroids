@@ -16,7 +16,7 @@
 
 #bold[#magenta[Available when ]connect#magenta[ is running:]] (in another process)
 
-  #bold[emulate]    Starts the iOS Simulator
+  #bold[emulate]    Starts iOS Simulator or Android Emulator (WIP)
   #bold[debug]      Chrome Dev Tools (Android) or Safari Remote Web Inspector (OS X only)
 
   #cyan[--help]     Extended usage information

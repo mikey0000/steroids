@@ -5,3 +5,7 @@
 #bold[#magenta[Available modes and options:]]
 
   #bold[steroids]   Shows all Steroids log messages
+
+  #bold[logcat]     (WIP) Shows Android log messages for AppGyver Scanner
+    #cyan[--tail]
+      Tails, but does not filter by application (TODO)
