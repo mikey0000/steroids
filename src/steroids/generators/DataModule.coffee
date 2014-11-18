@@ -9,6 +9,7 @@ class DataModuleGenerator extends Base
   constructor: (@options) ->
     @resourceName = @options.name || 'myResource'
     @moduleName = "#{@resourceName.toLowerCase()}"
+    @scriptExt = @options.otherOptions.scriptExt || null
 
   @usageParams: ->
     "<resourceName>"
@@ -35,6 +36,7 @@ class DataModuleGenerator extends Base
     """
 
   generate: ->
+
     return new Promise (resolve, reject) =>
       path = require "path"
       paths = require "../paths"
@@ -44,49 +46,55 @@ class DataModuleGenerator extends Base
 
       intendedModulePath = path.join paths.application.appDir, @moduleName
 
-      inquirer = require "inquirer"
+      # TODO: should structure differently
+      if @scriptExt != null
+        @do_generation(resolve)
 
-      if fs.existsSync intendedModulePath
-        reject new Error "Scaffold already exists for resource #{@resourceName}."
-        return
+      else
+        inquirer = require "inquirer"
 
-      scriptExtPrompt =
-        type: "list"
-        name: "scriptExt"
-        message: "Do you want your scaffold to be generated with CoffeeScript or JavaScript files?"
-        choices: [
-          { name: "CoffeeScript", value: "coffee" }
-          { name: "JavaScript", value: "js"}
-        ]
-        default: "coffee"
-
-      promptList = [
-        scriptExtPrompt
-      ]
-
-      #inquirer.prompt promptList, (answers) =>
-      #  @scriptExt = answers.scriptExt
-
-      @scriptExt = 'coffee'
-      #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
-      Provider.resourceForName(@resourceName).then (resource)=>
-
-        @fields = resource.getFieldNamesSync()
-
-        if @fields.length == 0
-          reject new Error "No fields defined for resource #{@resourceName}."
+        if fs.existsSync intendedModulePath
+          reject new Error "Scaffold already exists for resource #{@resourceName}."
           return
 
-        steroidsCli.debug "DataModuleGenerator", "Generating scaffold with name: #{@resourceName} modulename: #{@modulename} and fields: #{JSON.stringify(@fields)}"
+        scriptExtPrompt =
+          type: "list"
+          name: "scriptExt"
+          message: "Do you want your scaffold to be generated with CoffeeScript or JavaScript files?"
+          choices: [
+            { name: "CoffeeScript", value: "coffee" }
+            { name: "JavaScript", value: "js"}
+          ]
+          default: "coffee"
 
-        steroidsGenerators.dataModule {
-          @moduleName
-          @resourceName
-          @scriptExt
-          @fields
-        }, ->
-          steroidsCli.debug "DataModuleGenerator", "Generated Scaffold for #{@resourceName}"
-          resolve()
+        promptList = [
+          scriptExtPrompt
+        ]
 
+        inquirer.prompt promptList, (answers) =>
+          @scriptExt = answers.scriptExt
+
+          @do_generation(resolve)
+
+  do_generation: (resolve) ->
+    #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
+    Provider.resourceForName(@resourceName).then (resource)=>
+
+      @fields = resource.getFieldNamesSync()
+
+      if @fields.length == 0
+        reject new Error "No fields defined for resource #{@resourceName}."
+        return
+
+      steroidsCli.debug "DataModuleGenerator", "Generating scaffold with name: #{@resourceName} modulename: #{@modulename} and fields: #{JSON.stringify(@fields)}"
+
+      steroidsGenerators.dataModule {
+        @moduleName
+        @resourceName
+        @scriptExt
+        @fields
+      }, ->
+        steroidsCli.debug "DataModuleGenerator", "Generated Scaffold for #{@resourceName}"
+        resolve()
 
 module.exports = DataModuleGenerator
