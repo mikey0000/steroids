@@ -92,7 +92,7 @@ class Help
       You have: AppGyver Scanner for #{platform} v#{opts.currentVersion}
       Latest available is: AppGyver Scanner for #{platform} v#{opts.latestVersion}
 
-      Plese update from #{appStore}.
+      Please update from #{appStore}.
     """
 
   @loggedOut: ->
