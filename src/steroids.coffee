@@ -440,7 +440,10 @@ class Steroids
           when "genymotion"
             Genymotion = require "./steroids/emulate/genymotion"
             genymotion = new Genymotion()
-            genymotion.run()
+            genymotion.run().catch (error) ->
+              Help.error()
+              steroidsCli.log
+                message: error.message
 
           else
             Usage = require "./steroids/usage"

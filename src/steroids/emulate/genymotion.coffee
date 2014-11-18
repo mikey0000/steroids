@@ -2,6 +2,7 @@ sbawn = require "../sbawn"
 
 class Genymotion
   StoppedError: class StoppedError extends steroidsCli.SteroidsError
+  NotInstalledError: class NotInstalledError extends steroidsCli.SteroidsError
 
   constructor: ->
     paths = require "../paths"
@@ -17,38 +18,45 @@ class Genymotion
     @running = false
 
   run: (opts = {}) =>
-    steroidsCli.log "Starting Genymotion Emulator. Please wait for Scanner to load..."
+    new Promise (resolve, reject) =>
+      if steroidsCli.globals.genymotion?.running
+        steroidsCli.debug "GENYMOTION", "previous genymotion found that is running, trying to stop it"
 
-    if steroidsCli.globals.genymotion?.running
-      steroidsCli.debug "GENYMOTION", "previous genymotion found that is running, trying to stop it"
+        steroidsCli.globals.genymotion.stop().then =>
+          @killall()
+          .then(@start).catch (error) =>
+            reject error
+          .then =>
+            resolve()
 
-      steroidsCli.globals.genymotion.stop().then =>
-        @killall()
-        .then(@start)
-
-    else
-      @start()
+      else
+        @start().catch (error) =>
+          reject error
+        .then =>
+          resolve()
 
   start: (opts = {}) =>
-    steroidsCli.debug "GENYMOTION", "running, becoming the global genymotion"
-    @running = true
+    new Promise (resolve, reject) =>
+      steroidsCli.debug "GENYMOTION", "running, becoming the global genymotion"
+      @running = true
 
-    steroidsCli.globals.genymotion = @
+      steroidsCli.globals.genymotion = @
 
-    @killall()
-    .then(@ensurePlayer)
-    .then(@startPlayer)
-    .then(@uninstallApplication)
-    .then(@installApk)
-    .then(@startApplication)
-    .then(@unlockDevice)
-    .then(@stop)
-    .catch StoppedError, (err) =>
-      0 # nop
-    .catch (err) =>
-      console.log err.message
-      @stop()
-
+      @killall()
+      .then(@ensurePlayer)
+      .then(@startPlayer)
+      .then(@uninstallApplication)
+      .then(@installApk)
+      .then(@startApplication)
+      .then(@unlockDevice)
+      .then(@stop)
+      .catch StoppedError, (err) =>
+        0 # nop
+      .catch (err) =>
+        reject err
+        @stop()
+      .then =>
+        resolve()
 
   startPlayer: (opts = {}) =>
     new Promise (resolve, reject) =>
@@ -58,9 +66,10 @@ class Genymotion
 
       fs = require "fs"
       unless fs.existsSync @genymotionBasePath
-        reject new Error "/Applications/Genymotion.app does not exist"
+        reject new NotInstalledError "Could not detect Genymotion application"
         return
 
+      steroidsCli.log "Starting Genymotion Emulator. Please wait for Scanner to load..."
       steroidsCli.debug "GENYMOTION", "starting player"
 
       cmd = "#{@genymotionBasePath}/player"

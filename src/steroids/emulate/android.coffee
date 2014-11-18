@@ -9,8 +9,6 @@ class Android
           Unable to start Android Emulator.
 
               Environment variable ANDROID_HOME not set.
-
-          Please see documentation on how to setup Android Emulator.
           """
 
   constructor: ->
