@@ -1,7 +1,7 @@
 AppGyver Steroids CLI
 ---------------------
 
-AppGyver Steroids is PhoneGap on Steroids, providing native UI elements, multiple WebViews and enhancements for better developer productivity.
+AppGyver Steroids is PhoneGap on Steroids, providing native UI elements, multiple WebViews and enhancements for better developer productivity. You can follow these instructions or go to the [install wizard](https://academy.appgyver.com/installwizard).
 
 ## Installation and requirements
 
@@ -70,7 +70,9 @@ Run with `$ devroids` command.
 
 ## Documentation
 
-[Steroids Developer Portal](http://developers.appgyver.com)
+* [AppGyver Docs](http://docs.appgyver.com)
+* [Using Steroids CLI](http://docs.appgyver.com/steroids/cli/steroids-cli/local-development-flow/)
+* [Get started with Supersonic](http://docs.appgyver.com/supersonic/tutorial/first-mile/#overview)
 
 ## Forums
 
