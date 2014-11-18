@@ -301,7 +301,9 @@ class Steroids
         if argv.livereload == false
           watchEnabled = false
 
-        showConnectScreen = !(argv['connect-screen'] == false)
+        showConnectScreen = true
+        if argv['connect'] == false or argv['qrcode'] == false
+          showConnectScreen = false
 
         @connect = new Connect
           port: port
