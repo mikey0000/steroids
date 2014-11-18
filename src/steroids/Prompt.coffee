@@ -61,7 +61,7 @@ class Prompt
                       message: "Restarting all connected devices ..."
                       refresh: true
 
-        when "d", "debug"
+        when "sd", "safari"
           SafariDebug = require "./SafariDebug"
           safariDebug = new SafariDebug => @connectLoop()
           if commandOptions[0]?
@@ -70,7 +70,7 @@ class Prompt
             safariDebug.listViews()
           return # Exit now and later let the callback passed to SafarDebug's constructor re-enter the loop once its methods exit.
 
-        when "c", "chrome"
+        when "cd", "chrome"
           ChromeDebug = require "./debug/chrome"
           chromeDebug = new ChromeDebug
           chromeDebug.run()
@@ -106,7 +106,7 @@ class Prompt
             steroidsCli.log
               message: error.message
 
-        when "conn", "-", "qr"
+        when "conn", "c", "qr"
           QRCode = require "./QRCode"
           QRCode.showLocal
             port: @buildServer.port
@@ -119,14 +119,6 @@ class Prompt
             editor = sbawn
               cmd: process.env.EDITOR
               args: [paths.applicationDir]
-
-        when "r", "reload"
-          project = new Project
-          project.make
-            onSuccess: =>
-              project.package
-                onSuccess: =>
-                  @refresh()
 
         when "h", "help", "?", "usage"
           Help.connect()
