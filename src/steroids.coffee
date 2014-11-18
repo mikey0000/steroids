@@ -405,7 +405,7 @@ class Steroids
         deploy = new Deploy()
 
         deploy.run().then () ->
-          util.log "Deployment complete"
+          steroidsCli.log "Deployment complete"
           Help.deployCompleted()
 
       when "safari"

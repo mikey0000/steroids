@@ -137,7 +137,9 @@ class Deploy
 
       shareBaseUrl = steroidsCli.options.argv.shareURL || "https://share.appgyver.com"
       shareUrl = "#{shareBaseUrl}/?id=#{config.id}&hash=#{config.identification_hash}"
-      steroidsCli.log "\nShare url: #{shareUrl}"
+
+      chalk = require "chalk"
+      steroidsCli.log "\nShare URL: #{chalk.bold(shareUrl)}"
 
       if steroidsCli.options.argv.share
         open = require "open"
