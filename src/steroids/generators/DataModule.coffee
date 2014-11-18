@@ -48,7 +48,7 @@ class DataModuleGenerator extends Base
 
       # TODO: should structure differently
       if @scriptExt != null
-        @do_generation(resolve)
+        @do_generation(resolve, reject)
 
       else
         inquirer = require "inquirer"
@@ -74,9 +74,9 @@ class DataModuleGenerator extends Base
         inquirer.prompt promptList, (answers) =>
           @scriptExt = answers.scriptExt
 
-          @do_generation(resolve)
+          @do_generation(resolve, reject)
 
-  do_generation: (resolve) ->
+  do_generation: (resolve, reject) ->
     #TODO: should be Resource.forName but Resource cannot require Provider if Provider requires Resource
     Provider.resourceForName(@resourceName).then (resource)=>
 
