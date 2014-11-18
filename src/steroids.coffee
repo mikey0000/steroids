@@ -506,6 +506,10 @@ class Steroids
             usage = new Usage
             usage.log()
 
+      when "about"
+        Banner = require("./steroids/banner/banner")
+        Banner.dolan()
+
       when "__watch"
 
         Watcher = require "./steroids/fs/watcher"
