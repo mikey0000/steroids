@@ -298,7 +298,7 @@ class Steroids
         watchEnabled = !(argv.watch == false)
         livereloadEnabled = (argv.livereload == true)
 
-        unless livereloadEnabled
+        if argv.livereload == false
           watchEnabled = false
 
         showConnectScreen = !(argv['connect-screen'] == false)
