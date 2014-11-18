@@ -17,7 +17,7 @@ describe 'usages', ->
 
       runs =>
         expect( @session.stdout ).toMatch("xtended usage information")
-        expect( @session.stdout ).toMatch("--no-connect-screen")
+        expect( @session.stdout ).toMatch("--no-connect")
 
     it "has emulate", =>
       expect( @session.stdout ).toMatch("steroids emulate")
