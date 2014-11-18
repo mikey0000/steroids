@@ -43,23 +43,18 @@ class Prompt
       switch mainCommand
         when "quit", "exit", "q"
           @cleanUp()
-
           console.log "Bye"
-
           process.exit(0)
+
         when "", "push"
           project = new Project
           project.make
             onSuccess: =>
-              # TODO: legacy if?
-              if steroidsCli.options.argv.livereload
-                @buildServer.triggerLiveReload()
-              else
-                project.package
-                  onSuccess: =>
-                    steroidsCli.log
-                      message: "Restarting all connected devices ..."
-                      refresh: true
+              project.package
+                onSuccess: =>
+                  steroidsCli.log
+                    message: "Restarting all connected devices ..."
+                    refresh: true
 
         when "sd", "safari"
           SafariDebug = require "./SafariDebug"
