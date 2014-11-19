@@ -156,6 +156,7 @@ class Connect
           project.package
             onSuccess: =>
               steroidsCli.debug "connect", "doFullReload succ"
+              canBeLiveReload = true
               @prompt.refresh()
               resolve()
 
