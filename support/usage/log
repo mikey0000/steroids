@@ -6,6 +6,6 @@
 
   #bold[steroids]   Shows all Steroids log messages
 
-  #bold[logcat]     (WIP) Shows Android log messages for AppGyver Scanner
+  #bold[logcat]     Shows Android log messages for AppGyver Scanner (#yellow[Experimental])
     #cyan[--tail]
 

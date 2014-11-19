@@ -16,4 +16,5 @@
  § <cmd> <args>
 
  #bold[quit]             q             Exits connect. Also: exit
-                                #yellow[Experimental]: Run #bold[steroids connect] #cyan[--livereload] to enable live reload of the app
+
+ #yellow[Experimental]: Run #bold[steroids connect] #cyan[--livereload] to enable live reload of the app
