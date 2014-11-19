@@ -15,9 +15,9 @@ class Usage
       Help.usage.create()
       Help.usage.emulate()
       Help.usage.log()
-      console.log "\n\nGenerator usage:"
+      console.log "Generator usage:"
       Help.listGenerators()
-      console.log "\n\n"
+      console.log "\n"
 
     Help.usage.footer()
 

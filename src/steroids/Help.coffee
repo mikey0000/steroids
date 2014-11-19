@@ -113,7 +113,6 @@ class Help
         Usage: #{chalk.green.bold("steroids generate #{name} #{chalk.cyan(generator.usageParams())}")}
 
         #{generator.usage()}
-
         """
       )
 
