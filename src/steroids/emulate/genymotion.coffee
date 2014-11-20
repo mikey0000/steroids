@@ -23,8 +23,9 @@ class Genymotion
       genymotionHome = process.env.GENYMOTION_HOME ? path.join "C:", "Program Files", "Genymobile", "Genymotion"
 
       base = path.join genymotionHome
-      player = path.join genymotionHome, "player"
-      shell = path.join genymotionHome, "genyshell"
+      player = path.join genymotionHome, "player.exe"
+      shell = path.join genymotionHome, "genyshell.exe"
+      adb = path.join genymotionHome, "tools", "adb.exe"
 
     else if steroidsCli.host.os.isOSX()
       genymotionHome = process.env.GENYMOTION_HOME ? path.join "/Applications", "Genymotion.app"
@@ -33,6 +34,7 @@ class Genymotion
       base = path.join genymotionHome, "Contents", "MacOS"
       player = path.join genymotionHome, "Contents", "MacOS", "player"
       shell = path.join genmotionShell, "Contents", "MacOS", "genyshell"
+      adb = path.join base, "tools", "adb"
 
     else if steroidsCli.host.os.isLinux()
       # TODO: Set default paths
@@ -42,12 +44,13 @@ class Genymotion
       base = path.join genymotionHome, "bin"
       player = path.join genymotionHome, "bin", "player"
       shell = path.join genmotionShell, "bin", "genyshell"
+      adb = path.join genymotionHome, "tools", "adb"
 
     geny =
       base: base
       player: player
       shell: shell
-      adb: path.join base, "tools", "adb"
+      adb: adb
 
     return undefined for _, genyPath of geny when not fs.existsSync genyPath
     return geny
@@ -112,6 +115,7 @@ class Genymotion
       @genymotionPlayerSession = sbawn
         cmd: cmd
         args: args
+        appendNode: false
 
       @genymotionPlayerSession.on "exit", =>
         reject new Error "Could not start a virtual device named steroids"
@@ -136,6 +140,7 @@ class Genymotion
       @deviceListSession = sbawn
         cmd: cmd
         args: args
+        appendNode: false
         stdout: if opts.stdout? then opts.stdout else false
         stderr: if opts.stderr? then opts.stderr else false
 
@@ -167,6 +172,7 @@ class Genymotion
       @uninstallSession = sbawn
         cmd: cmd
         args: args
+        appendNode: false
         stdout: if opts.stdout? then opts.stdout else false
         stderr: if opts.stderr? then opts.stderr else false
 
@@ -200,6 +206,7 @@ class Genymotion
       @installSession = sbawn
         cmd: cmd
         args: args
+        appendNode: false
         stdout: if opts.stdout? then opts.stdout  else false
         stderr: if opts.stderr? then opts.stderr else false
 
@@ -281,6 +288,7 @@ class Genymotion
       @startSession = sbawn
         cmd: cmd
         args: args
+        appendNode: false
         debug: steroidsCli.debugEnabled
         stdout: if opts.stdout? then opts.stdout else false
         stderr: if opts.stderr? then opts.stderr else false
@@ -312,6 +320,7 @@ class Genymotion
       @unlockSession = sbawn
         cmd: cmd
         args: args
+        appendNode: false
         stdout: if opts.stdout? then opts.stdout else false
         stderr: if opts.stderr? then opts.stderr else false
 
