@@ -1,29 +1,65 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf8">
   <title>AppGyver Steroids</title>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="http://s3.amazonaws.com/appgyver.assets/product-assets/ag-ui-kit/ag-ui-kit.css" rel="stylesheet">
 
   <style>
-    body {
-      margin: 4em;
-      font-family: "Helvetica Neue", "Helvetica", "Arial"
-    }
-
-    div {
-      float: left;
-      margin-left: 2em;
-    }
-
-    hr {
-	    margin-bottom: 30px;
-    }
+    .ag__steroids-connect .ag__steroids-connect__header {
+      background-color: #00b5ff;
+      color: white;
+      border: none;
+      margin-bottom: 0px; }
+    .ag__steroids-connect .ag__steroids-connect__header .navbar-brand img {
+      max-height: 30px;
+      margin-top: -5px; }
+    .ag__steroids-connect .ag__steroids-connect__header .nav li a {
+      color: white;
+      font-family: "Proxima Nova Soft W03 Smbd";
+      cursor: pointer; }
+    .ag__steroids-connect .ag__steroids-connect__header .nav li.active a {
+      color: black;
+      background: none; }
   </style>
+
 </head>
-<body>
-  <h1>AppGyver Steroids</h1>
-  <hr>
-  <div>
-    <p>The Steroids login is complete. You can now close this window.</p>
+
+<body id="view-connect-ui" class="ag__global__products ag__steroids-connect">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-default navbar-static-top ag__steroids-connect__header" role="navigation">
+    <div class="container">
+
+      <!-- Navbar header -->
+      <div class="navbar-header">
+        <div class="navbar-brand">
+          <img src="//s3.amazonaws.com/appgyver.assets/global-assets/images/appgyver-universal-logos/appgyver-logo-white.svg" alt="AppGyver Steroids">
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <br>
+        <h1>Logged in!</h1>
+        <br>
+        <p class="lead">
+          You are now logged in to AppGyver Steroids.
+        </p>
+        <p>
+          To run your project type <code>steroids connect</code> in terminal inside your project directory.
+        </p>
+        <br>
+      </div>
+    </div>
   </div>
+
 </body>
+
+</html>
