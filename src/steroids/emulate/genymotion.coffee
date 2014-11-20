@@ -6,16 +6,51 @@ class Genymotion
 
   constructor: ->
     paths = require "../paths"
-    @genymotionShellPath = paths.genymotion.shellPath
-    @genymotionBasePath = paths.genymotion.basePath
+    @apkPath = paths.emulate.android.debug
+    @genyPaths = Genymotion.paths()
 
     @applicationPackage = "com.appgyver.runtime.scanner.steroidscli"
     @applicationActivity = "com.appgyver.runtime.scanner.steroidscli.MainActivity"
-    @apkPath = paths.emulate.android.debug
 
     @vmName = "steroids"
-
     @running = false
+
+  @paths: ->
+    path = require "path"
+    fs = require "fs"
+
+    if steroidsCli.host.os.isWindows()
+      genymotionHome = process.env.GENYMOTION_HOME ? path.join "C:", "Program Files", "Genymobile", "Genymotion"
+
+      base = path.join genymotionHome
+      player = path.join genymotionHome, "player"
+      shell = path.join genymotionHome, "genyshell"
+
+    else if steroidsCli.host.os.isOSX()
+      genymotionHome = process.env.GENYMOTION_HOME ? path.join "/Applications", "Genymotion.app"
+      genmotionShell = process.env.GENYMOTION_SHELL ? path.join "/Applications", "Genymotion Shell.app"
+
+      base = path.join genymotionHome, "Contents", "MacOS"
+      player = path.join genymotionHome, "Contents", "MacOS", "player"
+      shell = path.join genmotionShell, "Contents", "MacOS", "genyshell"
+
+    else if steroidsCli.host.os.isLinux()
+      # TODO: Set default paths
+      genymotionHome = process.env.GENYMOTION_HOME ? ""
+      genmotionShell = process.env.GENYMOTION_SHELL ? ""
+
+      base = path.join genymotionHome, "bin"
+      player = path.join genymotionHome, "bin", "player"
+      shell = path.join genmotionShell, "bin", "genyshell"
+
+    geny =
+      base: base
+      player: player
+      shell: shell
+      adb: path.join base, "tools", "adb"
+
+    return undefined for _, genyPath of geny when not fs.existsSync genyPath
+    return geny
 
   run: (opts = {}) =>
     new Promise (resolve, reject) =>
@@ -64,15 +99,14 @@ class Genymotion
         reject new StoppedError
         return
 
-      fs = require "fs"
-      unless fs.existsSync @genymotionBasePath
+      unless @genyPaths?
         reject new NotInstalledError "Could not detect Genymotion application"
         return
 
       steroidsCli.log "Starting Genymotion Emulator. Please wait for Scanner to load..."
       steroidsCli.debug "GENYMOTION", "starting player"
 
-      cmd = "#{@genymotionBasePath}/player"
+      cmd = @genyPaths.player
       args = ["--vm-name", @vmName]
 
       @genymotionPlayerSession = sbawn
@@ -96,7 +130,7 @@ class Genymotion
 
       steroidsCli.debug "GENYMOTION", "waiting for device to appear"
 
-      cmd = "#{@genymotionBasePath}/tools/adb"
+      cmd = @genyPaths.adb
       args = ["devices", "-l"]
 
       @deviceListSession = sbawn
@@ -127,7 +161,7 @@ class Genymotion
 
       steroidsCli.debug "GENYMOTION", "uninstalling application"
 
-      cmd = "#{@genymotionBasePath}/tools/adb"
+      cmd = @genyPaths.adb
       args = ["uninstall", @applicationPackage]
 
       @uninstallSession = sbawn
@@ -153,8 +187,6 @@ class Genymotion
               reject err #perkele
           , 1000
 
-
-
   installApk: (opts = {}) =>
     new Promise (resolve, reject) =>
       unless @running
@@ -162,7 +194,7 @@ class Genymotion
         return
 
       steroidsCli.debug "GENYMOTION", "installing APK #{@apkPath}"
-      cmd = "#{@genymotionBasePath}/tools/adb"
+      cmd = @genyPaths.adb
       args = ["install", @apkPath]
 
       @installSession = sbawn
@@ -242,7 +274,7 @@ class Genymotion
       launchUrl = "appgyver://?ips=#{encodedJSONIPs}\&port=#{port}"
       steroidsCli.debug "GENYMOTION", "starting application with launchUrl: '#{launchUrl}'"
 
-      cmd = "#{@genymotionBasePath}/tools/adb"
+      cmd = @genyPaths.adb
       args = ["shell", "am start '#{launchUrl}'"]
 
       steroidsCli.debug "GENYMOTION", "Running #{cmd} with args: #{args}"
@@ -274,7 +306,7 @@ class Genymotion
 
       steroidsCli.debug "GENYMOTION", "unlocking device"
 
-      cmd = "#{@genymotionBasePath}/tools/adb"
+      cmd = @genyPaths.adb
       args = ["shell", "input", "keyevent", "82"]
 
       @unlockSession = sbawn
@@ -298,7 +330,7 @@ class Genymotion
   killall: =>
     new Promise (resolve) ->
 
-      if steroidsCli.host.os.isOSX()
+      if steroidsCli.host.os.isOSX() or steroidsCli.host.os.isLinux()
         killGenymotion = sbawn
           cmd: "/usr/bin/pkill"
           args: ["-9", "player"]
