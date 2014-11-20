@@ -31,10 +31,46 @@ class SafariDebug
       resolve()
 
   listViews: ()=>
-    @runAppleScript "SafariDebugWebViewLister.scpt"
+    if steroidsCli.host.os.osx.isYosemite()
+      @runJavaScript "yosemite-safari.js", ["safari", "listviews"]
+    else
+      @runAppleScript "SafariDebugWebViewLister.scpt"
 
   open: (argument) =>
     @runAppleScript "openSafariDevMenu.scpt", argument
+
+  runJavaScript: (scriptFileName, argument) =>
+    @ensureAssistiveAccess().then( =>
+      scriptPath = path.join paths.scriptsDir, scriptFileName
+
+
+      args = if argument?
+        [scriptPath].concat argument
+      else
+        [scriptPath]
+
+      session = sbawn
+        cmd: "osascript"
+        args: args
+
+      session.on "exit", () =>
+        steroidsCli.debug "SafariDebug started and killed."
+        steroidsCli.debug "stderr: " + session.stderr
+        steroidsCli.debug "stdout: " + session.stdout
+
+        if session.code  # error occurred
+          errMsg = chalk.red '\nERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(session.stderr)?[1] || session.stderr)
+          console.error errMsg
+        else
+          for line in session.stderr.split("\n") when line isnt ""
+            console.log line
+          console.log ''
+
+        @callBackOnExit?()
+
+    ).fail (errMsg) =>
+      console.error chalk.red errMsg
+      @callBackOnExit?()
 
   runAppleScript: (scriptFileName, argument)=>
     @ensureAssistiveAccess().then( =>

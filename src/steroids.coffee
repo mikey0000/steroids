@@ -51,6 +51,9 @@ class Steroids
         process.platform == "win32"
       isLinux: ->
         process.platform == "linux"
+      osx:
+        isYosemite: ->
+          require("os").release().match(/^14\./)?
 
   readApplicationConfig: ->
     applicationConfig = paths.application.configs.application
