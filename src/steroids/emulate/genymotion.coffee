@@ -20,31 +20,31 @@ class Genymotion
     fs = require "fs"
 
     if steroidsCli.host.os.isWindows()
-      genymotionHome = process.env.GENYMOTION_HOME ? path.join "C:", "Program Files", "Genymobile", "Genymotion"
+      genymotionApp = process.env.GENYMOTION_APP ? path.join "C:", "Program Files", "Genymobile", "Genymotion"
 
-      base = path.join genymotionHome
-      player = path.join genymotionHome, "player.exe"
-      shell = path.join genymotionHome, "genyshell.exe"
-      adb = path.join genymotionHome, "tools", "adb.exe"
+      base = path.join genymotionApp
+      player = path.join genymotionApp, "player.exe"
+      shell = path.join genymotionApp, "genyshell.exe"
+      adb = path.join genymotionApp, "tools", "adb.exe"
 
     else if steroidsCli.host.os.isOSX()
-      genymotionHome = process.env.GENYMOTION_HOME ? path.join "/Applications", "Genymotion.app"
+      genymotionApp = process.env.GENYMOTION_APP ? path.join "/Applications", "Genymotion.app"
       genmotionShell = process.env.GENYMOTION_SHELL ? path.join "/Applications", "Genymotion Shell.app"
 
-      base = path.join genymotionHome, "Contents", "MacOS"
-      player = path.join genymotionHome, "Contents", "MacOS", "player"
+      base = path.join genymotionApp, "Contents", "MacOS"
+      player = path.join genymotionApp, "Contents", "MacOS", "player"
       shell = path.join genmotionShell, "Contents", "MacOS", "genyshell"
       adb = path.join base, "tools", "adb"
 
     else if steroidsCli.host.os.isLinux()
-      # TODO: Set default paths
-      genymotionHome = process.env.GENYMOTION_HOME ? ""
+      # TODO: Set default paths for Linux
+      genymotionApp = process.env.GENYMOTION_APP ? ""
       genmotionShell = process.env.GENYMOTION_SHELL ? ""
 
-      base = path.join genymotionHome, "bin"
-      player = path.join genymotionHome, "bin", "player"
+      base = path.join genymotionApp, "bin"
+      player = path.join genymotionApp, "bin", "player"
       shell = path.join genmotionShell, "bin", "genyshell"
-      adb = path.join genymotionHome, "tools", "adb"
+      adb = path.join genymotionApp, "tools", "adb"
 
     geny =
       base: base
