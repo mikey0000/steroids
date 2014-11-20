@@ -135,16 +135,6 @@ class Steroids
     if firstOption not in ["emulate", "debug"] and argv.help
       firstOption = "usage"
 
-    unless steroidsCli.host.os.isOSX()
-      wrongPlatform = true
-      if firstOption == "emulate" and otherOptions[0] == "ios"
-        steroidsCli.log "Error: iOS Simulator requires Mac OS X."
-      else
-        wrongPlatform = false
-
-      process.exit(1) if wrongPlatform
-
-
     @ensureProjectIfNeededFor(firstOption, otherOptions)
 
     if firstOption in ["connect", "create"]
