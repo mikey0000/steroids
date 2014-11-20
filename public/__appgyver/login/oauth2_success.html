@@ -23,6 +23,17 @@
     .ag__steroids-connect .ag__steroids-connect__header .nav li.active a {
       color: black;
       background: none; }
+
+.ag__steroids-connect .logged-in {
+  max-width: 600px;
+  width: 100%;
+  background: white;
+  border: 4px #14bda6 solid;
+  color: #14bda6;
+  padding: 30px;
+  margin: 60px auto; }
+  .ag__steroids-connect .logged-in h1, .ag__steroids-connect .logged-in h2 {
+    margin-top: 0px; }
   </style>
 
 </head>
@@ -43,21 +54,14 @@
     </div>
   </nav>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-xs-12">
-        <br>
-        <h1>Logged in!</h1>
-        <br>
-        <p class="lead">
-          You are now logged in to AppGyver Steroids.
-        </p>
-        <p>
-          To run your project type <code>steroids connect</code> in terminal inside your project directory.
-        </p>
-        <br>
-      </div>
+  <div class="container success-container">
+
+    <div class="logged-in">
+      <h1>Logged in!</h1>
+      <br>
+      <p><b>You are now logged in to AppGyver Steroids!</b> Start the Steroids Development Server by running <code>steroids connect</code> in terminal in your project directory.</p>
     </div>
+
   </div>
 
 </body>
