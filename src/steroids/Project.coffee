@@ -9,6 +9,7 @@ ApplicationConfigUpdater = require "./ApplicationConfigUpdater"
 AppSettings = require "./AppSettings"
 Grunt = require "./Grunt"
 ConfigXmlGenerator = require "./ConfigXmlGenerator"
+ConfigJsonGenerator = require "./ConfigJsonGenerator"
 
 class Project
 
@@ -91,6 +92,7 @@ class Project
         unless steroidsCli.options.argv.noSettingsJson == true
           @createSettingsJson()
         @createConfigXml()
+        @createConfigJson()
         options.onSuccess.call() if options.onSuccess?
 
     ).fail (errorMessage)->
@@ -141,10 +143,15 @@ class Project
 
   createConfigXml: ->
     configXmlGenerator = new ConfigXmlGenerator()
-    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.configs.configIosXml} ..."
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.configIosXml} ..."
     configXmlGenerator.writeConfigIosXml()
-    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.configs.configAndroidXml} ..."
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.configAndroidXml} ..."
     configXmlGenerator.writeConfigAndroidXml()
+
+  createConfigJson: ->
+    configJsonGenerator = new ConfigJsonGenerator()
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.configJson} ..."
+    configJsonGenerator.writeConfigJson()
 
 
 module.exports = Project
