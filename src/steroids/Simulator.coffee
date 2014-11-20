@@ -11,19 +11,39 @@ class Simulator
 
   running: false
 
+  NotInstalled: class NotInstalled extends steroidsCli.SteroidsError
+  UnsupportedVersion: class UnsupportedVersion extends steroidsCli.SteroidsError
+
   constructor: (@options = {}) ->
 
-  validXCodeVersion: (cb) ->
-    minimumXcodeVersion = /Xcode 6./
+  xCodeInstalled: ->
+    new Promise (resolve, reject) ->
+      xcodeSession = sbawn
+        cmd: "pkgutil"
+        args: ["--pkgs=com.apple.pkg.Xcode.*"]
+        exitOnError: false
 
-    xcodeVersionSession = sbawn
-      cmd: "xcodebuild"
-      args: ["-version"]
+      xcodeSession.on "exit", ->
+        if xcodeSession.stdout.match 'com.apple.pkg.Xcode'
+          resolve()
+        else
+          reject new NotInstalled "XCode not installed."
 
-    xcodeVersionSession.on "exit", ->
-      valid = xcodeVersionSession.stdout.match(minimumXcodeVersion)
-      version = xcodeVersionSession.stdout.split("\n").splice(0, 1)
-      cb valid, version
+  validXCodeVersion: ->
+    new Promise (resolve, reject) ->
+      minimumXcodeVersion = /Xcode 6./
+
+      xcodeVersionSession = sbawn
+        cmd: "xcodebuild"
+        args: ["-version"]
+
+      xcodeVersionSession.on "exit", ->
+        valid = xcodeVersionSession.stdout.match(minimumXcodeVersion)
+        version = xcodeVersionSession.stdout.split("\n").splice(0, 1)
+        if valid
+          resolve()
+        else
+          reject new UnsupportedVersion "Please update to XCode 6 to run the simulator."
 
   getDevicesAndSDKs: () ->
     new Promise (resolve, reject) ->
@@ -47,70 +67,69 @@ class Simulator
   run: (opts={}) =>
     new Promise (resolve, reject) =>
       unless steroidsCli.host.os.isOSX()
-        reject new Error "Simulator only supported in OS X"
+        reject new UnsupportedVersion "Simulator only supported in OS X"
         return
+      @xCodeInstalled()
+        .then(@validXCodeVersion)
+        .then =>
+          @stop()
+          @running = true
 
-      @validXCodeVersion (valid, version) =>
-        unless valid
-          reject new Error "Unsupported XCode version installed (#{version}). Please update."
-          return
+          cmd = paths.iosSim.path
+          args = ["launch", steroidsSimulators.latestSimulatorPath]
 
-        steroidsCli.log "Starting Simulator"
+          device = "iPhone-6"
+          iOSVersion = undefined
 
-        @stop()
-        @running = true
+          if opts.device?
+            # Split into device type and optional, '@'-separated suffix specifying the iOS version (SDK version; e.g., '5.1').
+            [device, iOSVersion] = opts.device.split('@')
 
-        cmd = paths.iosSim.path
-        args = ["launch", steroidsSimulators.latestSimulatorPath]
+          steroidsCli.log "Starting #{device} Simulator"
+          deviceArg = "com.apple.CoreSimulator.SimDeviceType.#{device}"
 
+          if iOSVersion?
+            deviceArg = deviceArg + " ,#{iOSVersion}"
 
-        device = "iPhone-6"
-        iOSVersion = undefined
+          args.push "--devicetypeid", deviceArg
+          args.push "--verbose" if steroidsCli.debugEnabled
 
-        if opts.device?
-          # Split into device type and optional, '@'-separated suffix specifying the iOS version (SDK version; e.g., '5.1').
-          [device, iOSVersion] = opts.device.split('@')
+          @killall().then( =>
+            steroidsCli.debug "Spawning #{cmd}"
+            steroidsCli.debug "with params: #{args}"
 
-        deviceArg = "com.apple.CoreSimulator.SimDeviceType.#{device}"
+            @simulatorSession = sbawn
+              cmd: cmd
+              args: args
+              stdout: steroidsCli.debugEnabled?
+              stderr: true
 
-        if iOSVersion?
-          deviceArg = deviceArg + " ,#{iOSVersion}"
+            @simulatorSession.on "exit", () =>
+              @running = false
 
-        args.push "--devicetypeid", deviceArg
-        args.push "--verbose" if steroidsCli.debugEnabled
+              steroidsCli.debug "Killing iOS Simulator ..."
 
-        @killall().then( =>
-          steroidsCli.debug "Spawning #{cmd}"
-          steroidsCli.debug "with params: #{args}"
+              @killall()
 
-          @simulatorSession = sbawn
-            cmd: cmd
-            args: args
-            stdout: steroidsCli.debugEnabled?
-            stderr: true
+              unless ( @simulatorSession.stderr.indexOf('Session could not be started') == 0 )
+                resolve()
+                return
 
-          @simulatorSession.on "exit", () =>
-            @running = false
+              Help.attention()
+              Help.resetiOSSim()
 
-            steroidsCli.debug "Killing iOS Simulator ..."
+              setTimeout () =>
+                resetSimulator = sbawn
+                  cmd: steroidsSimulators.iosSimPath
+                  args: ["start"]
+                  debug: true
+              , 250
+          )
+          resolve()
 
-            @killall()
-
-            unless ( @simulatorSession.stderr.indexOf('Session could not be started') == 0 )
-              resolve()
-              return
-
-            Help.attention()
-            Help.resetiOSSim()
-
-            setTimeout () =>
-              resetSimulator = sbawn
-                cmd: steroidsSimulators.iosSimPath
-                args: ["start"]
-                debug: true
-            , 250
+        .catch(NotInstalled, UnsupportedVersion, (error) =>
+          reject error
         )
-        resolve()
 
   stop: () =>
     @simulatorSession.kill() if @simulatorSession

@@ -1,11 +1,12 @@
-Help = require "./steroids/Help"
-paths = require "./steroids/paths"
-
+path = require "path"
 argv = require('optimist').argv
 util = require "util"
 open = require "open"
-fs = require("fs")
+fs = require "fs"
 chalk = require "chalk"
+
+Help = require "./steroids/Help"
+paths = require "./steroids/paths"
 
 global.Promise = require("bluebird")
 Promise.onPossiblyUnhandledRejection (e, promise) ->
@@ -24,20 +25,13 @@ class Steroids
   SteroidsError: SteroidsError
   PlatformError: class PlatformError extends SteroidsError
 
-  # move this to globals
-  simulator: null
-
   globals:
     genymotion: null
     simulator: null
 
   constructor: (@options = {}) ->
-    Simulator = require "./steroids/Simulator"
     Version = require "./steroids/version/version"
     Config = require "./steroids/Config"
-
-    @simulator = new Simulator
-      debug: @options.debug
 
     @version = new Version
     @pathToSelf = process.argv[1]
@@ -57,7 +51,6 @@ class Steroids
         process.platform == "win32"
       isLinux: ->
         process.platform == "linux"
-
 
   readApplicationConfig: ->
     applicationConfig = paths.application.configs.application
@@ -416,7 +409,6 @@ class Steroids
       when "emulate"
         switch otherOptions[0]
           when "android"
-
             Android = require "./steroids/emulate/android"
             android = new Android()
             android.run().catch (error) ->
@@ -425,14 +417,16 @@ class Steroids
                 message: error.message
 
           when "ios"
+            Simulator = require "./steroids/Simulator"
+            simulator = new Simulator()
 
             if argv.devices
-              steroidsCli.simulator.getDevicesAndSDKs()
+              simulator.getDevicesAndSDKs()
               .then (devices)->
                 for device in devices
                   steroidsCli.log "#{device.name}#{chalk.grey('@'+device.sdks)}"
             else
-              steroidsCli.simulator.run(
+              simulator.run(
                 device: argv.device
               ).catch (error) ->
                   Help.error()

@@ -24,9 +24,6 @@ class Prompt
 
   cleanUp: () =>
     console.log "Shutting down Steroids ..."
-
-    steroidsCli.simulator.stop()
-
     console.log "... done."
 
   connectLoop: =>
@@ -88,13 +85,15 @@ class Prompt
 
 
         when "s", "sim", "simulator"
+          Simulator = require "./Simulator"
+          simulator = new Simulator()
 
           device = if commandOptions[0]
             commandOptions[0]
           else if steroidsCli.options.argv.device
             steroidsCli.options.argv.deviceType
 
-          steroidsCli.simulator.run(
+          simulator.run(
             device: device
           ).catch (error) ->
             Help.error()
