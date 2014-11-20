@@ -182,50 +182,24 @@ var checkComponents = function() {
 
   } else if (process.platform === "darwin") {
 
-    // Require XCode, XCode Command Line Tools and git
-    tryAndRun("pkgutil --pkgs='com\.apple\.pkg\.Xcode.*'",
-      found("XCode"),
-      notFound("XCode", [
-        "Install XCode from the App Store.",
-        "Then install XCode Command Line Tools:",
-        "  XCode -> Preferences -> Downloads -> Command Line Tools",
-        "Run this installer again once you have XCode and XCode Command Line Tools installed."
+    // Git and check file permisson
+    tryAndRun("git --version",
+      found('git'),
+      notFound("git", [
+        "For Git installation, we recommend using homebrew, see http://mxcl.github.com/homebrew/",
+        "Once homebrew is installed, install git with: brew install git",
+        "Run this installer again once you have git installed."
       ]),
       function() {
-        tryAndRun("pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI",
-          found("XCode Command Line Tools"),
-          function() {
-            tryAndRun("xcode-select -p",
-              found("XCode Command Line Tools"),
-              notFound("XCode Command Line Tools", [
-                "Ensure you have installed XCode.",
-                "Then install XCode Command Line Tools:",
-                "  XCode -> Preferences -> Downloads -> Command Line Tools",
-                "Run this installer again once you have XCode and XCode Command Line Tools installed."
-              ])
-            );
-          },
-          function() {
-            tryAndRun("git --version",
-              found('git'),
-              notFound("git", [
-                "For Git installation, we recommend using homebrew, see http://mxcl.github.com/homebrew/",
-                "Once homebrew is installed, install git with: brew install git",
-                "Run this installer again once you have git installed."
-              ]),
-              function() {
-                console.log("\nDependencies ... OK\n");
-                checkNPMOwnership( function() {
-                  checkNPMWriteable( function() {
-                    console.log("\nDependencies and permissions looks good! Starting Steroids installation...\n");
-                  });
-                });
-              }
-            );
-          }
-        );
+        console.log("\nDependencies ... OK\n");
+        checkNPMOwnership( function() {
+          checkNPMWriteable( function() {
+            console.log("\nDependencies and permissions looks good! Starting Steroids installation...\n");
+          });
+        });
       }
     );
+
   } else {
     // Require gcc, make and git
     tryAndRun("gcc -v",
