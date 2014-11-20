@@ -12,7 +12,7 @@ class Genymotion
     @applicationPackage = "com.appgyver.runtime.scanner.steroidscli"
     @applicationActivity = "com.appgyver.runtime.scanner.steroidscli.MainActivity"
 
-    @vmName = "steroids"
+    @vmName = steroidsCli.options.argv.device ? "steroids"
     @running = false
 
   @paths: ->
@@ -106,7 +106,7 @@ class Genymotion
         reject new NotInstalledError "Could not detect Genymotion application"
         return
 
-      steroidsCli.log "Starting Genymotion Emulator. Please wait for Scanner to load..."
+      steroidsCli.log "Starting Genymotion Emulator (#{@vmName}). Please wait for Scanner application to load ..."
       steroidsCli.debug "GENYMOTION", "starting player"
 
       cmd = @genyPaths.player
@@ -118,7 +118,7 @@ class Genymotion
         appendNode: false
 
       @genymotionPlayerSession.on "exit", =>
-        reject new Error "Could not start a virtual device named steroids"
+        reject new Error "Could not start virtual device \"#{@vmName}\""
 
 
       @waitForDevice()

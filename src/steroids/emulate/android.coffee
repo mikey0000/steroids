@@ -21,7 +21,7 @@ class Android
     @applicationActivity = "com.appgyver.runtime.scanner.steroidscli.MainActivity"
 
     @apkPath = paths.emulate.android.debug
-    @avd = "steroids"
+    @avd = steroidsCli.options.argv.device ? "steroids"
 
     @emulatorSession = null
 
