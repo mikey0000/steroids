@@ -37,7 +37,7 @@ describe 'deploy', ->
   it "creates dist/config.ios.xml", =>
     iosConfigCreated = false
     waitsFor =>
-      iosConfigCreated = @session.stdout.match("Creating www/config.ios.xml")
+      iosConfigCreated = @session.stdout.match("Creating dist/config.ios.xml")
 
     runs ->
       expect( iosConfigCreated ).toBeTruthy()
@@ -45,7 +45,7 @@ describe 'deploy', ->
   it "creates dist/config.android.xml", =>
     androidConfigCreated = false
     waitsFor =>
-      androidConfigCreated = @session.stdout.match("Creating www/config.android.xml")
+      androidConfigCreated = @session.stdout.match("Creating dist/config.android.xml")
 
     runs ->
       expect( androidConfigCreated ).toBeTruthy()
