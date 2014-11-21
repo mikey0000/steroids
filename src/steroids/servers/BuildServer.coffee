@@ -97,7 +97,7 @@ class BuildServer extends Server
           res.header "Access-Control-Allow-Headers", "Content-Type"
 
           f(req, res).catch (err) ->
-            res.status(500).json {error: "Can not do anything lol"}
+            res.status(500).json {error: "Internal error"}
 
 
     @app.get "/", (req, res) =>
@@ -152,15 +152,17 @@ class BuildServer extends Server
       res.header "Access-Control-Allow-Headers", "Content-Type"
       res.status(200).send "Pong!"
 
-    helper "get", "/__appgyver/deploy", (req, res) ->
+    @app.get "/__appgyver/deploy", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
       Deploy = require "../Deploy"
       deploy = new Deploy
-        sharePage: false
 
       deploy.run().then () ->
-        res.json deploy.cloudConfig
-      .catch Deploy.DeployError, (err) ->
-        res.status(500).json {error: "Can not deploy project"}
+        res.status(200).json deploy.cloudConfig
+      .catch Deploy.DeployError, (error) ->
+        res.status(500).json { error: error.message }
 
     @app.get "/__appgyver/app_config", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
@@ -170,7 +172,8 @@ class BuildServer extends Server
         appConfig = require Paths.application.configs.app
         res.status(200).json appConfig
       else
-        res.status(204).send ''
+        error = "Could not find #{Paths.appConfig.configs.app}"
+        res.status(404).json { error: error }
 
     @app.get "/__appgyver/cloud_config", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
@@ -178,11 +181,11 @@ class BuildServer extends Server
 
       if fs.existsSync Paths.application.configs.cloud
         cloudConfig = require Paths.application.configs.cloud
-        res.json cloudConfig
+        res.status(200).json cloudConfig
       else
         error = "Could not find config/cloud.json. Please run $ steroids deploy."
 
-        res.status(404).json {error: error}
+        res.status(404).json { error: error }
 
     helper "get", "/__appgyver/data/config", (req, res) =>
       data = new Data
@@ -193,6 +196,8 @@ class BuildServer extends Server
       data = new Data
       data.init().then ->
         res.status(200).send "Success!"
+      .catch (error) ->
+        res.status(500).json { error: error.message }
 
     helper "post", "/__appgyver/data/sync", (req, res) =>
       data = new Data
