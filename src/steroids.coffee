@@ -400,44 +400,58 @@ class Steroids
         console.log "see: steroids debug"
 
       when "emulate"
-        switch otherOptions[0]
-          when "android"
-            Android = require "./steroids/emulate/android"
-            android = new Android()
-            android.run().catch (error) ->
-              Help.error()
-              steroidsCli.log
-                message: error.message
 
-          when "ios"
-            Simulator = require "./steroids/Simulator"
-            simulator = new Simulator()
+        connectRunning = (status) ->
+          switch otherOptions[0]
+            when "android"
+              Android = require "./steroids/emulate/android"
+              android = new Android()
+              android.run().catch (error) ->
+                Help.error()
+                steroidsCli.log
+                  message: error.message
 
-            if argv.devices
-              simulator.getDevicesAndSDKs()
-              .then (devices)->
-                for device in devices
-                  steroidsCli.log "#{device.name}#{chalk.grey('@'+device.sdks)}"
+            when "ios"
+              Simulator = require "./steroids/Simulator"
+              simulator = new Simulator()
+
+              if argv.devices
+                simulator.getDevicesAndSDKs()
+                .then (devices)->
+                  for device in devices
+                    steroidsCli.log "#{device.name}#{chalk.grey('@'+device.sdks)}"
+              else
+                simulator.run(
+                  device: argv.device
+                ).catch (error) ->
+                    Help.error()
+                    steroidsCli.log
+                      message: error.message
+
+            when "genymotion"
+              Genymotion = require "./steroids/emulate/genymotion"
+              genymotion = new Genymotion()
+              genymotion.run().catch (error) ->
+                Help.error()
+                steroidsCli.log
+                  message: error.message
+
             else
-              simulator.run(
-                device: argv.device
-              ).catch (error) ->
-                  Help.error()
-                  steroidsCli.log
-                    message: error.message
+              Usage = require "./steroids/usage"
+              usage = new Usage
+              usage.emulate()
 
-          when "genymotion"
-            Genymotion = require "./steroids/emulate/genymotion"
-            genymotion = new Genymotion()
-            genymotion.run().catch (error) ->
-              Help.error()
-              steroidsCli.log
-                message: error.message
+        connectNotRunning = (status) ->
+          Help.error()
+          steroidsCli.log
+            message: "Please run #{chalk.bold('steroids connect')} before running emulators."
 
-          else
-            Usage = require "./steroids/usage"
-            usage = new Usage
-            usage.emulate()
+        PortChecker = require "./steroids/Portchecker"
+        new PortChecker
+          port: 4567
+          onClosed: connectNotRunning
+          onOpen: connectNotRunning
+          autorun: true
 
       when "debug"
 
