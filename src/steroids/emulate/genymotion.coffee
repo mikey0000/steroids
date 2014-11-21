@@ -46,6 +46,9 @@ class Genymotion
       shell = path.join genmotionShell, "bin", "genyshell"
       adb = path.join genymotionApp, "tools", "adb"
 
+    else
+      return undefined
+
     geny =
       base: base
       player: player
@@ -56,7 +59,9 @@ class Genymotion
     return geny
 
   run: (opts = {}) =>
+
     new Promise (resolve, reject) =>
+      @vmName = opts.device if opts.device?
       if steroidsCli.globals.genymotion?.running
         steroidsCli.debug "GENYMOTION", "previous genymotion found that is running, trying to stop it"
 

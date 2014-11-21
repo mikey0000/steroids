@@ -78,11 +78,15 @@ class Prompt
         when "g", "gen", "genymotion"
           Genymotion = require "./emulate/genymotion"
           genymotion = new Genymotion
-          genymotion.run().catch (error) ->
+
+          device = commandOptions[0] if commandOptions[0]
+
+          genymotion.run(
+            device: device
+          ).catch (error) ->
             Help.error()
             steroidsCli.log
               message: error.message
-
 
         when "s", "sim", "simulator"
           Simulator = require "./Simulator"
