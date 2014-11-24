@@ -278,6 +278,16 @@ class BuildServer extends Server
         else
           res.status(500).json { error: "Invalid request"}
 
+      else if tool is "chrome"
+        ChromeDebug = require "../debug/chrome"
+        chromeDebug = new ChromeDebug
+        chromeDebug.run().then ->
+          res.status(200).json { message: "Chrome Web Inspecter launched"}
+        .catch ->
+          res.status(500).json { error: "Could not launch Chrome Web Inspector" }
+      else
+        res.status(500).json { error: "Invalid request"}
+
     @app.options "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
