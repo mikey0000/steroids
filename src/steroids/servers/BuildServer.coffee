@@ -233,6 +233,7 @@ class BuildServer extends Server
     helper "get", "/__appgyver/emulators/:emulator/:action", (req, res) =>
       emulator = req.param("emulator")
       action = req.param("action")
+      device = req.query.device
 
       if emulator == "android"
         Android = require "../emulate/android"
@@ -246,12 +247,16 @@ class BuildServer extends Server
       else
         res.status(500).json { error: "Invalid emulator" }
 
-      emulate.run().then () ->
-        steroidsCli.log "Emulator started"
-        res.status(200).json  { message: "Launched" }
-      .catch (err) ->
-        steroidsCli.log err.message
-        res.status(500).json { error: err.message }
+      if emulator is "simulator" and action is "devices"
+        emulate.getDevicesAndSDKs().then (devices) ->
+          res.status(200).json devices
+
+      else if action is "start"
+        emulate.run({ device: device }).then () ->
+          res.status(200).json  { message: "Launched" }
+        .catch (err) ->
+          steroidsCli.log err.message
+          res.status(500).json { error: err.message }
 
     @app.get "/__appgyver/debug/:tool/:action?/:view?", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
