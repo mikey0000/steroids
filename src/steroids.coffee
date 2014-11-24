@@ -459,8 +459,12 @@ class Steroids
           when "safari"
             SafariDebug = require "./steroids/SafariDebug"
             safariDebug = new SafariDebug
-            safariDebug.run
+            safariDebug.run(
               path: argv.location
+            ).catch (error) ->
+              Help.error()
+              steroidsCli.log
+                message: error.message
 
           when "chrome"
             ChromeDebug = require "./steroids/debug/chrome"

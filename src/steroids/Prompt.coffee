@@ -57,9 +57,15 @@ class Prompt
           SafariDebug = require "./SafariDebug"
           safariDebug = new SafariDebug => @connectLoop()
           if commandOptions[0]?
-            safariDebug.open(commandOptions[0])
+            safariDebug.open(commandOptions[0]).catch (error) ->
+              Help.error()
+              steroidsCli.log
+                message: error.message
           else
-            safariDebug.listViews()
+            safariDebug.listViews().catch (error) ->
+              Help.error()
+              steroidsCli.log
+                message: error.message
           return # Exit now and later let the callback passed to SafarDebug's constructor re-enter the loop once its methods exit.
 
         when "cd", "chrome"

@@ -19,15 +19,19 @@ class SafariDebug
         return
 
       if options.path
-        @open(options.path)
+        @open(options.path).then ->
+          resolve()
+        .catch (error) ->
+          reject error
       else
-        console.log "Fetching location paths from Safari:\n"
+        steroidsCli.log "#{chalk.bold 'Available views:'}\n"
         @callBackOnExit = ->
-          console.log "Use path with --location=<part of the location path>"
+          steroidsCli.log "Use path with --location=<part of the location path>"
 
-        @listViews()
-
-      resolve()
+        @listViews().then ->
+          resolve()
+        .catch (error) ->
+          reject error
 
   listViews: ()=>
     new Promise (resolve, reject) =>
@@ -78,7 +82,6 @@ class SafariDebug
 
           if session.code  # error occurred
             errMsg = 'ERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(session.stderr)?[1] || session.stderr)
-            console.error errMsg
             reject new SafariDebugError errMsg
           else
             for line in session.stderr.split("\n") when line isnt ""
@@ -89,7 +92,6 @@ class SafariDebug
           @callBackOnExit?()
 
       ).catch (errMsg) =>
-        console.error chalk.red errMsg
         reject errMsg
         @callBackOnExit?()
 
@@ -114,7 +116,6 @@ class SafariDebug
 
           if osascriptSbawn.code  # error occurred
             errMsg = 'ERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(osascriptSbawn.stderr)?[1] || osascriptSbawn.stderr)
-            console.error errMsg
             reject new SafariDebugError errMsg
           else unless argument?
 
@@ -127,7 +128,6 @@ class SafariDebug
           @callBackOnExit?()
 
       ).catch (errMsg) =>
-        console.error chalk.red errMsg
         reject errMsg
         @callBackOnExit?()
 
