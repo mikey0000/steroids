@@ -253,6 +253,31 @@ class BuildServer extends Server
         steroidsCli.log err.message
         res.status(500).json { error: err.message }
 
+    @app.get "/__appgyver/debug/:tool/:action/:view?", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      tool = req.param("tool")
+      action = req.param("action")
+      view = req.param("view") ? req.query.url
+
+      if tool is "safari"
+        SafariDebug = require "../SafariDebug"
+        safariDebug = new SafariDebug
+
+        if action is "views"
+          safariDebug.listViews().then (views) ->
+            res.status(200).json views
+          .catch (error) ->
+            res.status(500).json { error: error.message }
+        else if action is "view" and view?
+          safariDebug.open(view).then ->
+            res.status(200).json { message: "Opened view #{view}"}
+          .catch (error) ->
+            res.status(500).json { error: error.message }
+        else
+          res.status(500).json { error: "Invalid request"}
+
     @app.options "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"

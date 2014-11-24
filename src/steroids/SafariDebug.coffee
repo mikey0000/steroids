@@ -8,6 +8,7 @@ Help = require "./Help"
 os = require "os"
 
 class SafariDebug
+  SafariDebugError: class SafariDebugError extends steroidsCli.SteroidsError
 
   constructor: (@callBackOnExit) ->  # @callBackOnExit is invoked when this class' methods exit - typically used to redisplay the interactive prompt.
 
@@ -29,76 +30,98 @@ class SafariDebug
       resolve()
 
   listViews: ()=>
-    if steroidsCli.host.os.osx.isYosemite()
-      @runJavaScript "yosemite-safari.js", ["safari", "listviews"]
-    else
-      @runAppleScript "SafariDebugWebViewLister.scpt"
+    new Promise (resolve, reject) =>
+      getViews = if steroidsCli.host.os.osx.isYosemite()
+        @runJavaScript "yosemite-safari.js", ["safari", "listviews"]
+      else
+        @runAppleScript "SafariDebugWebViewLister.scpt"
+
+      getViews.then (viewList) =>
+        resolve viewList
+      .catch (error) =>
+        reject error
 
   open: (argument) =>
-    @runAppleScript "openSafariDevMenu.scpt", argument
+    new Promise (resolve, reject) =>
+      @runAppleScript("openSafariDevMenu.scpt", argument).then ->
+        resolve()
+      .catch (error) ->
+        reject error
 
   runJavaScript: (scriptFileName, argument) =>
-    @ensureAssistiveAccess().then( =>
-      scriptPath = path.join paths.scriptsDir, scriptFileName
+    new Promise (resolve, reject) =>
+      views = []
+      @ensureAssistiveAccess().then( =>
+        scriptPath = path.join paths.scriptsDir, scriptFileName
 
-      args = if argument?
-        [scriptPath].concat argument
-      else
-        [scriptPath]
-
-      session = sbawn
-        cmd: "osascript"
-        args: args
-
-      session.on "exit", () =>
-        steroidsCli.debug "SafariDebug started and killed."
-        steroidsCli.debug "stderr: " + session.stderr
-        steroidsCli.debug "stdout: " + session.stdout
-
-        if session.code  # error occurred
-          errMsg = chalk.red '\nERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(session.stderr)?[1] || session.stderr)
-          console.error errMsg
+        args = if argument?
+          [scriptPath].concat argument
         else
-          for line in session.stderr.split("\n") when line isnt ""
-            console.log line
-          console.log ''
+          [scriptPath]
 
+        session = sbawn
+          cmd: "osascript"
+          args: args
+
+        session.on "exit", () =>
+          steroidsCli.debug "SafariDebug started and killed."
+          steroidsCli.debug "stderr: " + session.stderr
+          steroidsCli.debug "stdout: " + session.stdout
+
+          if session.code  # error occurred
+            errMsg = 'ERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(session.stderr)?[1] || session.stderr)
+            console.error errMsg
+            reject new SafariDebugError errMsg
+          else
+            for line in session.stderr.split("\n") when line isnt ""
+              views.push line
+              console.log line
+            console.log ''
+          resolve views
+          @callBackOnExit?()
+
+      ).catch (errMsg) =>
+        console.error chalk.red errMsg
+        reject errMsg
         @callBackOnExit?()
-
-    ).catch (errMsg) =>
-      console.error chalk.red errMsg
-      @callBackOnExit?()
 
   runAppleScript: (scriptFileName, argument)=>
-    @ensureAssistiveAccess().then( =>
-      scriptPath = path.join paths.scriptsDir, scriptFileName
+    new Promise (resolve, reject) =>
+      @ensureAssistiveAccess().then( =>
+        views = []
+        scriptPath = path.join paths.scriptsDir, scriptFileName
 
-      args = [scriptPath]
-      if argument?
-        args.push argument
+        args = [scriptPath]
+        if argument?
+          args.push argument
 
-      osascriptSbawn = sbawn
-        cmd: "osascript"
-        args: args
+        osascriptSbawn = sbawn
+          cmd: "osascript"
+          args: args
 
-      osascriptSbawn.on "exit", () =>
-        steroidsCli.debug "SafariDebug started and killed."
-        steroidsCli.debug "stderr: " + osascriptSbawn.stderr
-        steroidsCli.debug "stdout: " + osascriptSbawn.stdout
+        osascriptSbawn.on "exit", () =>
+          steroidsCli.debug "SafariDebug started and killed."
+          steroidsCli.debug "stderr: " + osascriptSbawn.stderr
+          steroidsCli.debug "stdout: " + osascriptSbawn.stdout
 
-        if osascriptSbawn.code  # error occurred
-          errMsg = chalk.red '\nERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(osascriptSbawn.stderr)?[1] || osascriptSbawn.stderr)
-          console.error errMsg
-        else unless argument?
-          for line in osascriptSbawn.stdout.split("\n") when line isnt ""
-            console.log line
-          console.log ''
+          if osascriptSbawn.code  # error occurred
+            errMsg = 'ERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(osascriptSbawn.stderr)?[1] || osascriptSbawn.stderr)
+            console.error errMsg
+            reject new SafariDebugError errMsg
+          else unless argument?
 
+            for line in osascriptSbawn.stdout.split("\n") when line isnt ""
+              views.push line
+              console.log line
+            console.log ''
+
+          resolve views
+          @callBackOnExit?()
+
+      ).catch (errMsg) =>
+        console.error chalk.red errMsg
+        reject errMsg
         @callBackOnExit?()
-
-    ).catch (errMsg) =>
-      console.error chalk.red errMsg
-      @callBackOnExit?()
 
   ensureAssistiveAccess: =>
     new Promise (resolve, reject) ->
@@ -113,7 +136,7 @@ class SafariDebug
 
         if ensureAssistiveAccessSbawn.code
           errMsg = '\nERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(ensureAssistiveAccessSbawn.stderr)?[1] || ensureAssistiveAccessSbawn.stderr)
-          reject errMsg
+          reject new SafariDebugError errMsg
         else
           resolve()
 
