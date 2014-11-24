@@ -62,7 +62,13 @@ class Prompt
               steroidsCli.log
                 message: error.message
           else
-            safariDebug.listViews().catch (error) ->
+            safariDebug.listViews().then (views) ->
+              steroidsCli.log
+                message: chalk.bold "Available views:"
+                refresh: false
+              steroidsCli.log
+                message: views.join("\n")
+            .catch (error) ->
               Help.error()
               steroidsCli.log
                 message: error.message

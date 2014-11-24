@@ -405,6 +405,7 @@ class Steroids
           port: 4567
 
         connectServer.open().then ->
+
           switch otherOptions[0]
             when "android"
               Android = require "./steroids/emulate/android"
@@ -454,12 +455,25 @@ class Steroids
           when "safari"
             SafariDebug = require "./steroids/SafariDebug"
             safariDebug = new SafariDebug
-            safariDebug.run(
-              path: argv.location
-            ).catch (error) ->
-              Help.error()
-              steroidsCli.log
-                message: error.message
+            location = argv.location
+
+            if location?
+              safariDebug.open(location)
+                .catch (error) ->
+                  Help.error()
+                  steroidsCli.log
+                    message: error.message
+            else
+              safariDebug.listViews().then (views) -> # TODO: Put print logic in SafariDebug?
+                steroidsCli.log
+                  message: chalk.bold "Available views:"
+                  refresh: false
+                steroidsCli.log
+                  message: views.join("\n")
+              .catch (error) ->
+                Help.error()
+                steroidsCli.log
+                  message: error.message
 
           when "chrome"
             ChromeDebug = require "./steroids/debug/chrome"

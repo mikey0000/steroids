@@ -86,8 +86,7 @@ class SafariDebug
           else
             for line in session.stderr.split("\n") when line isnt ""
               views.push line
-              console.log line
-            console.log ''
+
           resolve views
           @callBackOnExit?()
 
@@ -121,8 +120,6 @@ class SafariDebug
 
             for line in osascriptSbawn.stdout.split("\n") when line isnt ""
               views.push line
-              console.log line
-            console.log ''
 
           resolve views
           @callBackOnExit?()
