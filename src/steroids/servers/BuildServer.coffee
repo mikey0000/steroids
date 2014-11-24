@@ -253,7 +253,7 @@ class BuildServer extends Server
         steroidsCli.log err.message
         res.status(500).json { error: err.message }
 
-    @app.get "/__appgyver/debug/:tool/:action/:view?", (req, res) =>
+    @app.get "/__appgyver/debug/:tool/:action?/:view?", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
