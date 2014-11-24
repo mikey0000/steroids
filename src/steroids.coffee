@@ -400,8 +400,11 @@ class Steroids
         console.log "see: steroids debug"
 
       when "emulate"
+        PortChecker = require "./steroids/Portchecker"
+        connectServer = new PortChecker
+          port: 4567
 
-        connectRunning = (status) ->
+        connectServer.open().then ->
           switch otherOptions[0]
             when "android"
               Android = require "./steroids/emulate/android"
@@ -440,18 +443,10 @@ class Steroids
               Usage = require "./steroids/usage"
               usage = new Usage
               usage.emulate()
-
-        connectNotRunning = (status) ->
+        .catch (error) ->
           Help.error()
           steroidsCli.log
             message: "Please run #{chalk.bold('steroids connect')} before running emulators."
-
-        PortChecker = require "./steroids/Portchecker"
-        new PortChecker
-          port: 4567
-          onClosed: connectNotRunning
-          onOpen: connectNotRunning
-          autorun: true
 
       when "debug"
 

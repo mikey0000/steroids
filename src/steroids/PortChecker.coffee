@@ -10,4 +10,10 @@ class PortChecker
       @options.onClosed(status) if status is "closed" and @options.onClosed?
       @options.onOpen(status) if status is "open" and @options.onOpen?
 
+  open: =>
+    new Promise (resolve, reject) =>
+      portscanner.checkPortStatus @options.port, 'localhost', (error, status) =>
+        reject() if status is "closed"
+        resolve() if status is "open"
+
 module.exports = PortChecker
