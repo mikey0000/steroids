@@ -7,8 +7,6 @@ Help = require "./Help"
 
 os = require "os"
 
-Q = require "q"
-
 class SafariDebug
 
   constructor: (@callBackOnExit) ->  # @callBackOnExit is invoked when this class' methods exit - typically used to redisplay the interactive prompt.
@@ -43,7 +41,6 @@ class SafariDebug
     @ensureAssistiveAccess().then( =>
       scriptPath = path.join paths.scriptsDir, scriptFileName
 
-
       args = if argument?
         [scriptPath].concat argument
       else
@@ -68,7 +65,7 @@ class SafariDebug
 
         @callBackOnExit?()
 
-    ).fail (errMsg) =>
+    ).catch (errMsg) =>
       console.error chalk.red errMsg
       @callBackOnExit?()
 
@@ -99,28 +96,25 @@ class SafariDebug
 
         @callBackOnExit?()
 
-    ).fail (errMsg) =>
+    ).catch (errMsg) =>
       console.error chalk.red errMsg
       @callBackOnExit?()
 
   ensureAssistiveAccess: =>
-    deferred = Q.defer()
+    new Promise (resolve, reject) ->
+      scriptPath = path.join paths.scriptsDir, "ensureAssistiveAccess.scpt"
 
-    scriptPath = path.join paths.scriptsDir, "ensureAssistiveAccess.scpt"
+      ensureAssistiveAccessSbawn = sbawn
+        cmd: "osascript"
+        args: [scriptPath]
 
-    ensureAssistiveAccessSbawn = sbawn
-      cmd: "osascript"
-      args: [scriptPath]
+      ensureAssistiveAccessSbawn.on "exit", () =>
+        steroidsCli.debug "Ensure assistive access started and killed"
 
-    ensureAssistiveAccessSbawn.on "exit", () =>
-      steroidsCli.debug "Ensure assistive access started and killed"
-
-      if ensureAssistiveAccessSbawn.code
-        errMsg = '\nERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(ensureAssistiveAccessSbawn.stderr)?[1] || ensureAssistiveAccessSbawn.stderr)
-        deferred.reject(errMsg)
-      else
-        deferred.resolve()
-
-    deferred.promise
+        if ensureAssistiveAccessSbawn.code
+          errMsg = '\nERROR: ' + (/\ execution error: ([\s\S]+)$/.exec(ensureAssistiveAccessSbawn.stderr)?[1] || ensureAssistiveAccessSbawn.stderr)
+          reject errMsg
+        else
+          resolve()
 
 module.exports = SafariDebug
