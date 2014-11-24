@@ -31,6 +31,10 @@ class SafariDebug
 
   listViews: ()=>
     new Promise (resolve, reject) =>
+      unless steroidsCli.host.os.isOSX()
+        reject new steroidsCli.PlatformError
+        return
+
       getViews = if steroidsCli.host.os.osx.isYosemite()
         @runJavaScript "yosemite-safari.js", ["safari", "listviews"]
       else
@@ -43,6 +47,10 @@ class SafariDebug
 
   open: (argument) =>
     new Promise (resolve, reject) =>
+      unless steroidsCli.host.os.isOSX()
+        reject new steroidsCli.PlatformError
+        return
+
       @runAppleScript("openSafariDevMenu.scpt", argument).then ->
         resolve()
       .catch (error) ->
