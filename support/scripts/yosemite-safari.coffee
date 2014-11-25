@@ -208,10 +208,16 @@ switch mainCommand
 
         for menuItemThatIsDevice in menuItemsThatAreDevices
           menuItemsThatAreViews = menuItemThatIsDevice.menu.getMenuItems()
-          console.log "#{menuItemThatIsDevice.getName()}"
 
           for menuItemThatIsView in menuItemsThatAreViews.splice(1)
-            console.log " - #{menuItemThatIsView.getName()}"
+            itemName = menuItemThatIsView.getName()
+
+            name = if itemName.match /^localhost/
+              itemName.split("localhost — ")[1]
+            else
+              itemName
+
+            console.log "#{name}"
 
 
   else
