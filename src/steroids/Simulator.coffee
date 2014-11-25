@@ -44,24 +44,32 @@ class Simulator
         else
           reject new UnsupportedVersion "Please update to XCode 6 to run the simulator."
 
-  getDevicesAndSDKs: () ->
-    new Promise (resolve, reject) ->
-      showDevicesSession = sbawn
-        cmd: paths.iosSim.path
-        args: ["showdevicetypes"]
+  getDevicesAndSDKs: () =>
+    new Promise (resolve, reject) =>
+      unless steroidsCli.host.os.isOSX()
+        reject new UnsupportedVersion "Simulator only supported in OS X"
+        return
+      @xCodeInstalled()
+        .then(@validXCodeVersion)
+        .then ->
+          showDevicesSession = sbawn
+            cmd: paths.iosSim.path
+            args: ["showdevicetypes"]
 
-      showDevicesSession.on "exit", ->
-        [deviceRows..., crap] = showDevicesSession.stderr.split("\n")
+          showDevicesSession.on "exit", =>
+            [deviceRows..., crap] = showDevicesSession.stderr.split("\n")
 
-        devices = []
-        for deviceRow in deviceRows
-          [crap, deviceWithSdks] = deviceRow.split("com.apple.CoreSimulator.SimDeviceType.")
-          [device, sdks] = deviceWithSdks.split(", ")
-          devices.push
-            name: device
-            sdks: sdks
+            devices = []
+            for deviceRow in deviceRows
+              [crap, deviceWithSdks] = deviceRow.split("com.apple.CoreSimulator.SimDeviceType.")
+              [device, sdks] = deviceWithSdks.split(", ")
+              devices.push
+                name: device
+                sdks: sdks
 
-        resolve(devices)
+            resolve(devices)
+        .catch (error) =>
+          reject error
 
   run: (opts={}) =>
     new Promise (resolve, reject) =>
