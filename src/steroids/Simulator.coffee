@@ -39,7 +39,6 @@ class Simulator
 
       xcodeVersionSession.on "exit", ->
         valid = xcodeVersionSession.stdout.match(minimumXcodeVersion)
-        version = xcodeVersionSession.stdout.split("\n").splice(0, 1)
         if valid
           resolve()
         else
