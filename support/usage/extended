@@ -1,0 +1,17 @@
+#bold[#magenta[Extended usage information:]]
+
+  Disable options wiht #cyan[--no-option] e.g. #cyan[--no-connect]
+
+  #bold[connect]]
+
+    #cyan[--connect]
+      Open Steroids Connect screen in a separate browser window. (Default: true)
+
+    #cyan[--livereload]
+      (#yellow[experimental]) Enable live reloading. (Default: false)
+
+    #cyan[--watch <path>]
+      Watch additional directories for changes. (Default: '')
+
+    #cyan[--watchExclude <matcher>]
+      Ignore files from watching. (Default: '')

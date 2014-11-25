@@ -1,21 +1,43 @@
-paths = require "./paths"
-
-env = require("yeoman-generator")()
-
-q = require "q"
-
 class ProjectCreator
 
-  constructor: ->
+  constructor: (options={})->
+    @targetDirectory = options.targetDirectory
+    @type = options.type || "mpa"
+    @language = options.language || "coffee"
 
-  generate: (targetDirectory) ->
+  run: () ->
+    new Promise (resolve) =>
+      steroidsGenerator = require "generator-steroids"
+      steroidsGenerator.app {
+        skipInstall: true
+        projectName: @targetDirectory
+        appType: @type
+        scriptExt: @language
+      }, resolve
 
-    deferred = q.defer()
+  update: =>
 
-    env.plugins "node_modules", paths.npm
-    env.lookup '*:*'
-    env.run "steroids:app #{targetDirectory}", {"skip-install": false}, deferred.resolve
+    new Promise (resolve, reject) =>
+      paths = require './paths'
+      steroids_cmd = paths.steroids
+      steroidsCli.debug "Running #{steroids_cmd} update"
 
-    return deferred.promise
+      sbawn = require './sbawn'
+      session = sbawn
+        cmd: steroids_cmd
+        args: ["update"]
+        debug: steroidsCli.debugEnabled
+        stdout: true
+        stderr: true
+
+      steroidsCli.log  "\nChecking for Steroids updates and installing project NPM dependencies. Please wait."
+
+      session.on 'exit', ->
+        steroidsCli.debug "#{session.cmd} exited with code #{session.code}"
+
+        if session.code != 0 || session.stdout.match(/npm ERR!/)
+          reject new Error "\nSomething went wrong - try running #{chalk.bold('steroids update')} manually in the project directory."
+
+        resolve()
 
 module.exports = ProjectCreator

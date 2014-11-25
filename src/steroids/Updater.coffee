@@ -15,15 +15,18 @@ class Updater
 
 
   getFromEndpoint: (endpointURL, onSuccess) ->
+    steroidsCli.debug "Updater", "Looking for update: #{endpointURL}"
     request endpointURL, (error, response, body) ->
-      return if error
-
-      try
-        bodyObject = JSON.parse body
-        latestVersion = bodyObject.version
-        onSuccess latestVersion
-      catch error
+      if err? or response.statusCode != 200
+        steroidsCli.debug "Updater", "updates.appgyver.com not responding"
         return
+
+      bodyObject = JSON.parse body
+      latestVersion = bodyObject.version
+
+      steroidsCli.debug "Updater", "updates.appgyver.com says that the latest version is #{latestVersion}"
+
+      onSuccess latestVersion
 
   getCurrentUserId: () =>
     currentToken = Login.currentToken()

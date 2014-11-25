@@ -1,3 +1,14 @@
+### 3.9.1 (2014-11-05)
+Bugfixes:
+- `steroids create` no longer runs bower from steroids-generator, that caused error if Bower was not globabally installed.
+
+Features:
+- `steroids create` produces less output and timeouts if npm install or bower install goes stale.
+
+## 3.9.0 (2014-11-03)
+
+Secret changelog started. This 3.9.0 will be replaced with 4.0.0 release notes steroids^2 goes out.
+
 ## 3.5.17 (2014-11-07)
 
 Features:

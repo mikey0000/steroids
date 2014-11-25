@@ -1,28 +1,23 @@
 path = require "path"
 pathExtra = require "path-extra"
 
-pathExtra.tempdir()
-
 class Paths
 
   @npm: path.join __dirname, "..", ".."
   @applicationDir: process.cwd()
+  @steroids: path.join @npm, "bin", "steroids"
 
-  @templatesDir: path.join @npm, "templates"
-  @templates:
-    applications: path.join @templatesDir, "applications"
-    resources: path.join @templatesDir, "resources"
-    scaffolds: path.join @templatesDir, "scaffolds"
-    gruntfile: path.join @templatesDir, "applications", "default", "Gruntfile.js"
-    packageJson: path.join @templatesDir, "applications", "default", "package.json"
-
-  @grunt:
-    library: path.join @npm, "node_modules", "grunt", "lib", "grunt"
-    gruntfile: path.join @npm, "src", "steroids", "grunt", "grunt.js"
+  @globalPrefix: (cb) ->
+    npm =  require "npm"
+    npm.load {}, ->
+      cb(path.join npm.globalPrefix)
 
   @bower: path.join @npm, "node_modules", "bower", "bin", "bower"
 
+  @steroidsGenerator: path.join @npm, "node_modules", "generator-steroids", "generators", "app"
+
   @staticFiles: path.join @npm, "public"
+  @connectStaticFiles: path.join @npm, "node_modules", "steroids-connect", "dist"
   @appgyverStaticFiles: path.join @staticFiles, "__appgyver"
   @oauthSuccessHTML: path.join @appgyverStaticFiles, "login", "oauth2_success.html"
 
@@ -36,7 +31,14 @@ class Paths
     SUCCESS: path.join @bannersDir, "success-caps"
     error: path.join @bannersDir, "error"
     awesome: path.join @bannersDir, "awesome"
-    usage: path.join @bannersDir, "usage"
+    usage:
+      compact: path.join @bannersDir, "usage", "compact"
+      extended: path.join @bannersDir, "usage", "extended"
+      footer: path.join @bannersDir, "usage", "footer"
+      emulate: path.join @bannersDir, "usage", "emulate"
+      debug: path.join @bannersDir, "usage", "debug"
+      log: path.join @bannersDir, "usage", "log"
+      create: path.join @bannersDir, "usage", "create"
     ready: path.join @bannersDir, "ready"
     resetiOSSim: path.join @bannersDir, "iossim-reset"
     newVersionAvailable: path.join @bannersDir, "new-version-available"
@@ -60,17 +62,29 @@ class Paths
     distDir: path.join @applicationDir, "dist"
     wwwDir: path.join @applicationDir, "www"
     nodeModulesDir: path.join @applicationDir, "node_modules"
-    bowerComponentsDir: path.join @applicationDir, "www", "components"
+    bowerComponentsDir: path.join @applicationDir, "bower_components"
+    logDir: path.join @applicationDir, "logs"
+    logFile: path.join @applicationDir, "logs", "steroids.log"
+
+  @application.dist =
+    appgyverSettings: path.join @application.distDir, "__appgyver_settings.json"
+    configIosXml: path.join @application.distDir, "config.ios.xml"
+    configAndroidXml: path.join @application.distDir, "config.android.xml"
+    configJson: path.join @application.distDir, "config.json"
 
   @application.configs =
     application: path.join @application.configDir, "application.coffee"
     cloud: path.join @application.configDir, "cloud.json"
     bower: path.join @applicationDir, "bower.json"
-    grunt: path.join @applicationDir, "Gruntfile.js"
     configIosXml: path.join @application.wwwDir, "config.ios.xml"
     configAndroidXml: path.join @application.wwwDir, "config.android.xml"
     packageJson: path.join @applicationDir, "package.json"
     appgyverSettings: path.join @application.distDir, "__appgyver_settings.json"
+    app: path.join @application.configDir, "app.coffee"
+    structure: path.join @application.configDir, "structure.coffee"
+    data:
+      sandboxdb: path.join @application.configDir, "sandboxdb.yaml"
+      raml: path.join @application.configDir, "cloud-resources.raml"
     legacy:
       bower: path.join @application.configDir, "bower.json"
 
@@ -108,17 +122,21 @@ class Paths
     unitTestPath: path.join @applicationDir, "test", "unit"
     functionalTestPath: path.join @applicationDir, "test", "functional"
 
-  @test.karma =
-    binaryPath: path.join @npm, "node_modules", "karma", "bin", "karma"
-    configFilePath: path.join @test.basePath, "karma.coffee"
-    singleConfigFilePath: path.join @test.basePath, "karmaSingle.coffee"
-    singleConfigFileLastRunPath: path.join @test.basePath, "karmaSingle.lastrun.coffee"
-    templates:
-      configPath: path.join @npm, "templates", "tests", "karma", "karma.coffee"
-      singleConfigPath: path.join @npm, "templates", "tests", "karma", "karmaSingle.coffee"
-      exampleSpecPath: path.join @npm, "templates", "tests", "karma", "spec", "exampleSpec.coffee"
-
   @iosSim =
-    path: path.join @npm, "node_modules", "ios-sim", "dist", "ios-sim"
+    path: path.join @npm, "node_modules", "ios-sim", "bin", "ios-sim"
+  @chromeCli =
+    path: path.join @npm, "node_modules", "chrome-cli", "bin", "chrome-cli"
+
+  @emulate:
+    android:
+     debug: path.join @npm, "node_modules", "steroids-android-packages", "builds", "debug.apk"
+
+  if process.env.ANDROID_HOME?
+    sdk = process.env.ANDROID_HOME
+    @androidSDK =
+      home: sdk
+      tools: path.join sdk, "tools"
+      platformTools: path.join sdk, "platform-tools"
+      adb: path.join sdk, "platform-tools", "adb"
 
 module.exports = Paths

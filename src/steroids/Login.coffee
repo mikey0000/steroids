@@ -27,7 +27,7 @@ class Login
   @currentAccessToken: ()->
     token = @currentToken()
 
-    return token.access_token
+    return token?.access_token
 
   constructor: (@options={})->
     @settings =
@@ -44,6 +44,24 @@ class Login
       @settings.baseUrl,
       @settings.authPath,
       @settings.tokenPath)
+
+  run: =>
+    Updater = require "./Updater"
+    updater = new Updater
+    updater.check
+      from: "login"
+
+    return new Promise (resolve, reject) =>
+      @loginPromise =
+        resolve: resolve
+        reject: reject
+
+      Server = require "./Server"
+
+      @options.server = Server.start
+        port: @options.port
+        callback: ()=>
+          @authorize()
 
   authorize: ()->
     @startServer()
@@ -77,10 +95,6 @@ class Login
 
     fs.writeFileSync paths.oauthTokenPath, JSON.stringify(options)
 
-    util.log "Login process successful."
-
-    Help.loggedIn()
-
-    process.exit 0
+    @loginPromise.resolve()
 
 module.exports = Login

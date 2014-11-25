@@ -1,47 +1,59 @@
-Help = require "./steroids/Help"
-Weinre = require "./steroids/Weinre"
-Simulator = require "./steroids/Simulator"
-TizenWebSimulator = require "./steroids/TizenWebSimulator"
-
-Project = require "./steroids/Project"
-Updater = require "./steroids/Updater"
-SafariDebug = require "./steroids/SafariDebug"
-Serve = require "./steroids/Serve"
-Server = require "./steroids/Server"
-Ripple = require "./steroids/Ripple"
-PortChecker = require "./steroids/PortChecker"
-
-Providers = require "./steroids/Providers"
-Data = require "./steroids/Data"
-
+path = require "path"
+argv = require('optimist').argv
 util = require "util"
-Version = require "./steroids/Version"
+open = require "open"
+fs = require "fs"
+chalk = require "chalk"
+
+Help = require "./steroids/Help"
 paths = require "./steroids/paths"
 
-Karma = require "./steroids/Karma"
+global.Promise = require("bluebird")
+Promise.onPossiblyUnhandledRejection (e, promise) ->
+  throw e
 
-argv = require('optimist').argv
-open = require "open"
 
-fs = require("fs")
-
-Config = require "./steroids/Config"
-Login = require "./steroids/Login"
-
-chalk = require "chalk"
+class SteroidsError extends Error
+  constructor: (message)->
+    Error.call @
+    Error.captureStackTrace(@, @constructor)
+    @name = @constructor.name
+    @message = message
 
 class Steroids
 
-  simulator: null
+  SteroidsError: SteroidsError
+  PlatformError: class PlatformError extends SteroidsError
+
+  globals:
+    genymotion: null
+    simulator: null
 
   constructor: (@options = {}) ->
-    @simulator = new Simulator
-      debug: @options.debug
+    Version = require "./steroids/version/version"
+    Config = require "./steroids/Config"
 
     @version = new Version
     @pathToSelf = process.argv[1]
     @config = new Config
     @platform = @options.argv.platform || "ios"
+
+    @debugEnabled = @options.debug
+    @debugMessages = []
+
+    @connect = null
+
+  host:
+    os:
+      isOSX: ->
+        process.platform == "darwin"
+      isWindows: ->
+        process.platform == "win32"
+      isLinux: ->
+        process.platform == "linux"
+      osx:
+        isYosemite: ->
+          require("os").release().match(/^14\./)?
 
   readApplicationConfig: ->
     applicationConfig = paths.application.configs.application
@@ -52,29 +64,69 @@ class Steroids
     return contents
 
   detectSteroidsProject: ->
-    return fs.existsSync(paths.application.configDir) and fs.existsSync(paths.application.wwwDir)
+    return fs.existsSync(paths.application.configDir) and (fs.existsSync(paths.application.appDir) or fs.existsSync(paths.application.wwwDir))
 
-  debug: (options = {}) =>
-    return unless steroidsCli.options.debug
-
-    message = if options.constructor.name == "String"
+  debug: (options = {}, other) =>
+    message = if other?
+      options + ": " + other
+    else if options.constructor.name == "String"
       options
     else
       options.message
 
-    console.log "[DEBUG]", message
+    message = "#{new Date()} #{message}"
+    steroidsCli.debugMessages.push message
 
+    if steroidsCli.options.debug
+      process.stdout.cursorTo(0) if process.stdout.cursorTo?
+      console.log "[DEBUG]", message
+
+
+  log: (options) =>
+
+    [tagMessage, message, refresh, prepend, newline] = if options.constructor.name == "String"
+      [undefined, options,true, true, true]
+    else
+      [options.tag, options.message, (options.refresh != false), (options.prepend != false), (options.newline != false)]
+
+    tag = if tagMessage
+      "[#{tagMessage}] "
+    else
+      ""
+
+    prefix = if prepend and @connect?.prompt?
+      prepend = "\n"
+    else
+      ""
+
+    suffix = if newline
+      suffix = "\n"
+    else
+      ""
+
+    util.print "#{prefix}#{tag}#{message}#{suffix}"
+
+    if refresh and @connect?.prompt?
+      @connect?.prompt?.refresh()
 
   ensureProjectIfNeededFor: (command, otherOptions) ->
-    if command in ["push", "make", "package", "grunt", "debug", "simulator", "connect", "update", "generate", "deploy", "test"]
+    commands = [
+      "push"
+      "make"
+      "package"
+      "connect"
+      "update"
+      "generate"
+      "deploy"
+      "debug"
+      "emulate"
+      "data"
+    ]
 
+    if command in commands
       return if @detectSteroidsProject()
-      return if command == "generate" and otherOptions.length == 0    # displays usage
 
-      console.log """
-        Error: command '#{command}' requires to be run in a Steroids project directory.
-      """
-
+      steroidsCli.log "Error: command '#{command}' requires to be run in a Steroids project directory."
       process.exit(1)
 
   execute: =>
@@ -83,18 +135,16 @@ class Steroids
     if argv.version
       firstOption = "version"
 
-    @weinrePort = if argv.weinrePort
-      argv.weinrePort
-    else
-      31173
-
+    if firstOption not in ["emulate", "debug"] and argv.help
+      firstOption = "usage"
 
     @ensureProjectIfNeededFor(firstOption, otherOptions)
 
     if firstOption in ["connect", "create"]
       Help.logo() unless argv.noLogo
 
-    if firstOption in ["connect", "deploy", "simulator"]
+    Login = require("./steroids/Login")
+    if firstOption in ["connect", "deploy", "simulator", "logout"]
       unless Login.authTokenExists()
         console.log """
 
@@ -108,97 +158,102 @@ class Steroids
     switch firstOption
 
       when "data"
-        if otherOptions[0] is "init"
-          data = new Data
-          data.init()
+        Data = require "./steroids/Data"
 
-        else if otherOptions[0] is "reset"
-          providers = new Providers
-          providers.removeDatabase()
+        data = new Data
+        switch otherOptions[0]
+          when "init"
+            data.init()
 
-        else if otherOptions[0] is "resources:list"
-          providers = new Providers
-          providers.resourcesForSandbox()
+          #TODO impl
+          # when "reset"
+          #   providers = new Providers
+          #   providers.removeDatabase()
 
-        else if otherOptions[0] is "resources:add"
-          otherOptions = otherOptions.slice(1)
-          unless otherOptions?.length > 1
-            console.log "Usage: steroids data resources:add <resourceName> <columnName>:<columnType>"
-            process.exit 1
+          when "manage"
+            data.manage()
 
-          providers = new Providers
-          providers.addResource(otherOptions).fail (error) =>
-            Help.error()
-            console.log(
-              """
-              Could not add resource.
+          when "sync"
+            data.sync()
 
-              Error message: #{error}
-              """
-            )
-
-        else if otherOptions[0] is "resources:remove"
-          otherOptions = otherOptions.slice(1)
-          unless otherOptions?.length is 1
-            console.log "Usage: steroids data resources:remove <resourceName>"
-            process.exit 1
-
-          providers = new Providers
-          providers.removeResource(otherOptions[0]).fail (error)=>
-            Help.error()
-            console.log error
-
-        else if otherOptions[0] is "manage"
-          data = new Data
-          data.manage()
-
-        else if otherOptions[0] is "scaffold"
-          otherOptions = otherOptions.slice(1)
-          unless otherOptions?.length is 1
-            console.log "Usage: steroids data scaffold <resourceName>"
-            process.exit 1
-
-          providers = new Providers
-          providers.scaffoldResource(otherOptions[0]).fail (error)=>
-            Help.error()
-            console.log error
-
-        else
-          Help.dataUsage()
+          else
+            Help.dataUsage()
 
       when "version"
-        updater = new Updater
-          verbose: false
-
-        updater.check
-          from: "version"
-
-        console.log @version.formattedVersion()
+        steroidsCli.version.run()
 
       when "create"
+        options =
+          targetDirectory: otherOptions[0]
 
-        folder = otherOptions[0]
-
-        unless folder
-
-          console.log "Usage: steroids create <directoryName>"
-
+        unless options.targetDirectory
+          steroidsCli.log "Usage: steroids create <directoryName>"
           process.exit(1)
 
-        ProjectCreator = require("./steroids/ProjectCreator")
-        projectCreator = new ProjectCreator
-          debug: @options.debug
+        fullPath = path.join process.cwd(), options.targetDirectory
+        steroidsCli.debug "Creating a new project in #{chalk.bold fullPath}..."
 
-        projectCreator.generate(folder)
+        if fs.existsSync fullPath
+          Help.error()
+          steroidsCli.log "Directory #{chalk.bold(options.targetDirectory)} already exists. Remove it to continue."
+          process.exit(1)
 
+        prompts = []
+
+        unless argv.type
+          typePrompt =
+            type: "list"
+            name: "type"
+            message: "Do you want to create a Multi-Page or Single-Page Application?"
+            choices: [
+              { name: "Multi-Page Application (Supersonic default)", value: "mpa" }
+              { name: "Single-Page Application (for use with other frameworks)", value: "spa"}
+            ]
+            default: "mpa"
+
+          prompts.push typePrompt
+
+        unless argv.language
+          languagePrompt =
+            type: "list"
+            name: "language"
+            message: "Do you want your project to be generated with CoffeeScript or JavaScript files?"
+            choices: [
+              { name: "CoffeeScript", value: "coffee" }
+              { name: "JavaScript", value: "js"}
+            ]
+            default: "coffee"
+
+          prompts.push languagePrompt
+
+        inquirer = require "inquirer"
+        inquirer.prompt prompts, (answers) =>
+          options.type = argv.type || answers.type
+          options.language = argv.language || answers.language
+
+          ProjectCreator = require("./steroids/ProjectCreator")
+          projectCreator = new ProjectCreator options
+
+          projectCreator.run().then ->
+            projectCreator.update().then ->
+              steroidsCli.log """
+                #{chalk.bold.green('\nSuccesfully created a new Steroids project!')}
+
+                Run #{chalk.bold("cd "+ options.targetDirectory)} and then #{chalk.bold('steroids connect')} to start building your app!
+              """
+            .catch (err) ->
+              steroidsCli.log err.message
+              process.exit 1
 
       when "push"
+        Project = require "./steroids/Project"
         project = new Project
         project.push
           onSuccess: ->
             steroidsCli.debug "steroids make && steroids package ok."
 
       when "make"
+        Project = require "./steroids/Project"
         project = new Project
         project.make()
 
@@ -209,223 +264,58 @@ class Steroids
 
         packager.create()
 
-      when "grunt"
-
-        task = if argv.task
-          argv.task
-        else
-          "default"
-
-        gruntfile = if argv.gruntfile
-          argv.gruntfile
-
-
-        # Grunt steals the whole node process ...
-        Grunt = require("./steroids/Grunt")
-
-        grunt = new Grunt
-        grunt.run( { task: task, gruntfile: gruntfile } )
-
-      when "debug"
-        Help.legacy.debugweinre()
-
-      when "weinre"
-        @port = if argv.port
-          argv.port
-        else
-          31173
-
-        options = {}
-        options.httpPort = @port
-
-        weinre = new Weinre options
-        weinre.run()
-
-        project = new Project
-        project.push
-          onSuccess: () =>
-            url = "http://127.0.0.1:#{weinre.options.httpPort}/client/#anonymous"
-            steroidsCli.debug "pushed, opening browser to #{url}"
-            open url
-
-
       when "simulator"
-        if argv.type
-          Help.legacy.simulatorType()
-          process.exit(1)
-
-        if argv.deviceType == "tizenweb"
-          steroidsCli.platform = "tizen"
-
-          servePort = if argv.port
-            argv.port
-          else
-            4300
-
-          tizenWebSimulator = new TizenWebSimulator servePort
-          tizenWebSimulator.run()
-
-          serve = new Serve servePort
-          serve.start()
-
-        else
-          steroidsCli.simulator.run
-            deviceType: argv.deviceType
-
-      when "test"
-
-        # steroids test karma
-        if otherOptions[0] is "karma"
-          karma = new Karma
-            firstOption: otherOptions[1]
-            webServerPort: argv.port
-            qrcode: argv.qrcode
-            simulator:
-              use: argv.simulator
-              deviceType: argv.deviceType
-
-        else
-          Help.usage()
-          process.exit(1)
+        console.log "see: steroids emulate"
 
       when "connect"
-        updater = new Updater
-        updater.check
-          from: "connect"
 
-        @port = if argv.port
+        Connect = require "./steroids/connect"
+
+        port = if argv.port
           argv.port
         else
           4567
 
-        if argv.serve
-          servePort = if argv.servePort
-            argv.servePort
+        watchExclude = if argv.watchExclude
+          argv.watchExclude.split(",")
+        else
+          []
+
+        watchEnabled = !(argv.watch == false)
+        livereloadEnabled = (argv.livereload == true)
+
+        if argv.livereload == false
+          watchEnabled = false
+
+        showConnectScreen = true
+        if argv['connect'] == false or argv['qrcode'] == false
+          showConnectScreen = false
+
+        @connect = new Connect
+          port: port
+          watch: watchEnabled
+          livereload: livereloadEnabled
+          watchExclude: watchExclude
+          connectScreen: showConnectScreen
+
+        @connect.run()
+        .then =>
+          Help = require "./steroids/Help"
+          Help.connect()
+
+          chalk = require "chalk"
+          console.log "\nHit #{chalk.green("[enter]")} to push updates, type #{chalk.bold("help")} for usage"
+
+          @connect.prompt.connectLoop()
+        .catch (error)=>
+          if error.message.match /Parse error/ # coffee parser errors are of class Error
+            console.log "Error parsing application configuration files: #{error.message}"
+            console.log "Fix the syntax error and re-run the steroids connect command"
           else
-            4000
-
-          serve = new Serve servePort,
-            platform: argv.platform
-            noBrowser: argv.ripple
-
-          serve.start()
-
-        checker = new PortChecker
-          port: @port
-          autorun: true
-          onOpen: ()=>
-            console.log "Error: port #{@port} is already in use. Make sure there is no other program or that 'steroids connect' is not running on this port."
-            process.exit(1)
-
-          onClosed: ()=>
-            project = new Project
-            project.push
-              onFailure: =>
-                steroidsCli.debug "Cannot continue starting server, the push failed."
-              onSuccess: =>
-                BuildServer = require "./steroids/servers/BuildServer"
-
-                Prompt = require("./steroids/Prompt")
-                prompt = new Prompt
-                  context: @
-
-                server = Server.start
-                  port: @port
-                  callback: ()=>
-                    global.steroidsCli.server = server
-
-                    buildServer = new BuildServer
-                                        path: "/"
-                                        port: @port
-
-                    server.mount(buildServer)
-
-                    unless argv.qrcode is false
-                      QRCode = require "./steroids/QRCode"
-                      QRCode.showLocal
-                        port: @port
-
-                      util.log "Waiting for the client to connect, scan the QR code visible in your browser ..."
-
-                    setInterval () ->
-                      activeClients = 0;
-                      needsRefresh = false
-
-                      for ip, client of buildServer.clients
-                        delta = Date.now() - client.lastSeen
-
-                        if (delta > 4000)
-                          needsRefresh = true
-                          delete buildServer.clients[ip]
-                          console.log ""
-                          util.log "Client disconnected: #{client.ipAddress} - #{client.userAgent}"
-                        else if client.new
-                          needsRefresh = true
-                          activeClients++
-                          client.new = false
-
-                          console.log ""
-                          util.log "New client: #{client.ipAddress} - #{client.userAgent}"
-                        else
-                          activeClients++
-
-                      if needsRefresh
-                        util.log "Number of clients connected: #{activeClients}"
-                        prompt.refresh()
-
-                    , 1000
-
-
-                    if argv.watch
-                      steroidsCli.debug "Starting FS watcher"
-                      Watcher = require("./steroids/fs/watcher")
-
-                      pushAndPrompt = =>
-                        console.log ""
-                        util.log "File system change detected, pushing code to connected devices ..."
-
-                        project = new Project
-                        project.push
-                          onSuccess: =>
-                            prompt.refresh()
-                          onFailure: =>
-                            prompt.refresh()
-
-                      if argv.watchExclude?
-                        excludePaths = steroidsCli.config.getCurrent().watch.exclude.concat(argv.watchExclude.split(","))
-                      else
-                        excludePaths = steroidsCli.config.getCurrent().watch.exclude
-
-                      watcher = new Watcher
-                        excludePaths: excludePaths
-                        onCreate: pushAndPrompt
-                        onUpdate: pushAndPrompt
-                        onDelete: (file) =>
-                          steroidsCli.debug "Deleted watched file #{file}"
-
-                      watcher.watch("./app")
-                      watcher.watch("./www")
-                      watcher.watch("./config")
-
-                    prompt.connectLoop()
-
-                    if argv.ripple
-                      setTimeout =>
-                        ripple = new Ripple
-                          servePort: argv.servePort || 4000
-                          port: argv.ripplePort
-
-                        ripple.run()
-                      , 2000
-
-
-
-
-
-      when "serve"
-        Help.legacy.serve()
+            throw error
 
       when "update"
+        Updater = require "./steroids/Updater"
         updater = new Updater
           verbose: false
 
@@ -470,9 +360,7 @@ class Steroids
 
 
       when "login"
-        updater = new Updater
-        updater.check
-          from: "login"
+        Login = require "./steroids/Login"
 
         Help.logo()
 
@@ -480,88 +368,247 @@ class Steroids
           util.log "Already logged in."
           return
 
-        util.log "Starting login process"
-
-        @port = if argv.port
+        port = if argv.port
           argv.port
         else
           13303
 
-        server = Server.start
-          port: @port
-          callback: ()=>
-            login = new Login
-              server: server
-              port: @port
-            login.authorize()
+        login = new Login
+          port: port
+
+        login.run().then () =>
+          Help.loggedIn()
+          process.exit(0)
 
       when "logout"
-        Help.logo()
-
-        unless Login.authTokenExists()
-          util.log "Try logging in before you try logging out."
-          return
-
-        Login.removeAuthToken()
-
-        Help.loggedOut()
-
+        Logout = require "./steroids/logout"
+        logout = new Logout
+        logout.run().then () ->
+          Help.logo()
+          Help.loggedOut()
 
       when "deploy"
-        updater = new Updater
-        updater.check
-          from: "deploy"
+        Deploy = require "./steroids/Deploy"
 
-        Help.logo()
+        deploy = new Deploy()
 
-        unless Login.authTokenExists()
-          util.log "ERROR: no authentication found, run steroids login first."
-          process.exit 1
-
-        unless Login.authTokenExists()
-          util.log "ERROR: Cancelling cloud build due to login failure"
-          process.exit 1
-
-        util.log "Building application locally"
-
-        project = new Project
-        project.make
-          onSuccess: =>
-            project.package
-              onSuccess: =>
-                Deploy = require "./steroids/Deploy"
-                deploy = new Deploy(otherOptions)
-                deploy.uploadToCloud ()=>
-                  # all complete
-                  process.exit 0
-              onFailure: =>
-                console.log "Cannot create package, cloud deploy not possible."
-          onFailure: =>
-            console.log "Cannot build project locally, cloud deploy not possible."
-
-      when "chat"
-        console.log "Chat is deprecated, please visit forums at http://forums.appgyver.com"
+        deploy.run().then () ->
+          steroidsCli.log "Deployment complete"
+          Help.deployCompleted()
 
       when "safari"
-        safariDebug = new SafariDebug
-        if otherOptions[0]
-          safariDebug.open(otherOptions[0])
+        console.log "see: steroids debug"
+
+      when "emulate"
+        PortChecker = require "./steroids/Portchecker"
+        connectServer = new PortChecker
+          port: 4567
+
+        connectServer.open().then ->
+
+          switch otherOptions[0]
+            when "android"
+              Android = require "./steroids/emulate/android"
+              android = new Android()
+              android.run().catch (error) ->
+                Help.error()
+                steroidsCli.log
+                  message: error.message
+
+            when "ios"
+              Simulator = require "./steroids/Simulator"
+              simulator = new Simulator()
+
+              if argv.devices
+                simulator.getDevicesAndSDKs()
+                .then (devices)->
+                  for device in devices
+                    steroidsCli.log "#{device.name}#{chalk.grey('@'+device.sdks)}"
+              else
+                simulator.run(
+                  device: argv.device
+                ).catch (error) ->
+                    Help.error()
+                    steroidsCli.log
+                      message: error.message
+
+            when "genymotion"
+              Genymotion = require "./steroids/emulate/genymotion"
+              genymotion = new Genymotion()
+              genymotion.run().catch (error) ->
+                Help.error()
+                steroidsCli.log
+                  message: error.message
+
+            else
+              Usage = require "./steroids/usage"
+              usage = new Usage
+              usage.emulate()
+        .catch (error) ->
+          Help.error()
+          steroidsCli.log
+            message: "Please run #{chalk.bold('steroids connect')} before running emulators."
+
+      when "debug"
+
+        switch otherOptions[0]
+          when "safari"
+            SafariDebug = require "./steroids/SafariDebug"
+            safariDebug = new SafariDebug
+            location = argv.location
+
+            if location?
+              safariDebug.open(location)
+                .catch (error) ->
+                  Help.error()
+                  steroidsCli.log
+                    message: error.message
+            else
+              safariDebug.listViews().then (views) -> # TODO: Put print logic in SafariDebug?
+                steroidsCli.log
+                  message: chalk.bold "Available views:"
+                  refresh: false
+                steroidsCli.log
+                  message: views.join("\n")
+              .catch (error) ->
+                Help.error()
+                steroidsCli.log
+                  message: error.message
+
+          when "chrome"
+            ChromeDebug = require "./steroids/debug/chrome"
+            chromeDebug = new ChromeDebug
+            chromeDebug.run().then ->
+              steroidsCli.log "Opened chrome://inspect in Google Chrome"
+
+          when "weinre"
+            console.log "Not implemented yet"
+
+          else
+            Usage = require "./steroids/usage"
+            usage = new Usage
+            usage.debug()
+
+      when "log"
+
+        switch otherOptions[0]
+          when "steroids"
+            SteroidsLog = require "./steroids/log/steroids_log"
+            steroidsLog = new SteroidsLog
+            steroidsLog.run()
+
+          when "logcat"
+            LogCat = require "./steroids/log/logcat"
+            logCat = new LogCat
+
+            if argv.tail
+              logCat.run
+                tail: true
+            else
+              logCat.run()
+              .then (logLines) ->
+                for line in logLines
+                  do (line) ->
+                    steroidsCli.log line
+              .catch (error) ->
+                Help.error()
+                steroidsCli.log
+                  message: error.message
+
+          else
+            Usage = require "./steroids/usage"
+            usage = new Usage
+            usage.log()
+
+      when "about"
+        Banner = require("./steroids/banner/banner")
+        Banner.dolan()
+
+      when "__watch"
+
+        Watcher = require "./steroids/fs/watcher"
+        watcher = new Watcher
+          path: otherOptions[0]
+
+        for event in ["change", "add", "unlink", "addDir", "unlinkDir", "error"]
+          do (event) ->
+            watcher.on event, (path, stats) ->
+              console.log event, path, stats
+
+      when "__banner"
+        # devroids __banner steroids --font Graffiti --horizontalLayout 'universal smushing'
+        Banner = require("./steroids/banner/banner")
+        banner = new Banner
+          font: argv.font
+          horizontalLayout: argv.horizontalLayout
+          verticalLayout: argv.verticalLayout
+
+
+
+        if argv.all
+          banner.availableFonts()
+          .then (fonts) ->
+            for font in fonts
+              banner.font = font
+              console.log font
+              console.log banner.makeSync otherOptions.join " "
         else
-          Help.safariListingHeader()
-          safariDebug.listViews()
+          text = banner.makeSync otherOptions.join " "
+
+          colorized = if argv.color
+            chalk[argv.color](text)
+          else
+            text
+
+          if argv.speed
+            Banner.print(colorized, argv.speed)
+          else
+            console.log colorized
 
       else
-        Help.logo() unless argv.noLogo
-        Help.usage()
+        Usage = require "./steroids/usage"
+        usage = new Usage
+          extended: argv.help?
 
+        usage.run()
 
 module.exports =
   run: ->
-    global.steroidsCli = new Steroids
-      debug: argv.debug
-      argv: argv
+    domain = require "domain"
+    d = domain.create()
 
-    steroidsCli.execute()
+    d.on 'error', (err) ->
+
+      if err.name == "PlatformError"
+        steroidsCli.log "Operating system not supported"
+      else
+        console.log "Steroids Error"
+
+        console.log """
+        Debug Log:
+        #{steroidsCli.debugMessages?.join("\n")}
+
+        Error with: steroids #{process.argv[2]}
+
+        #{err.stack}
+
+        Runtime information:
+
+        \tplatform: #{process.platform}\tnode path: #{process.execPath}
+        \tarch: #{process.arch}\t\tnode version: #{process.version}
+
+        \tcwd: #{process.cwd()}
+
+        Please send the above output to contact@appgyver.com
+          (Also if possible, re-run the same command with --debug and please send that output too)
+        """
+
+    d.run ->
+      global.steroidsCli = new Steroids
+        debug: argv.debug
+        argv: argv
+
+      steroidsCli.execute()
 
   Help: Help
   paths: paths

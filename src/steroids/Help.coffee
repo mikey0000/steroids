@@ -6,8 +6,31 @@ chalk = require "chalk"
 
 class Help
 
-  @usage: ->
-    @printBanner(paths.banners.usage, true)
+  @usage =
+    header: ->
+      Help.logo()
+      console.log "\t\t\t\t\t\tv#{steroidsCli.version.getVersion()}\n"
+
+    compact: ->
+      Help.printBanner(paths.banners.usage.compact, true)
+
+    extended: ->
+      Help.printBanner(paths.banners.usage.extended, true)
+
+    footer: ->
+      Help.printBanner(paths.banners.usage.footer, true)
+
+    emulate: ->
+      Help.printBanner(paths.banners.usage.emulate, true)
+
+    create: ->
+      Help.printBanner(paths.banners.usage.create, true)
+
+    debug: ->
+      Help.printBanner(paths.banners.usage.debug, true)
+
+    log: ->
+      Help.printBanner(paths.banners.usage.log, true)
 
   @dataUsage: ->
     @printBanner(paths.banners.dataUsage, true)
@@ -69,7 +92,7 @@ class Help
       You have: AppGyver Scanner for #{platform} v#{opts.currentVersion}
       Latest available is: AppGyver Scanner for #{platform} v#{opts.latestVersion}
 
-      Plese update from #{appStore}.
+      Please update from #{appStore}.
     """
 
   @loggedOut: ->
@@ -90,7 +113,6 @@ class Help
         Usage: #{chalk.green.bold("steroids generate #{name} #{chalk.cyan(generator.usageParams())}")}
 
         #{generator.usage()}
-
         """
       )
 
@@ -141,9 +163,6 @@ class Help
     debugweinre: ->
       Help.printBanner(paths.banners.legacy.debugweinre, true)
 
-  @safariListingHeader: ->
-    @printBanner(paths.banners.safariListingHeader, true)
-
   @resetiOSSim: ->
     @printBanner(paths.banners.resetiOSSim, true)
 
@@ -156,7 +175,7 @@ class Help
     contents = @readContentsSync(filename)
 
     if color
-      colorize.console.log  contents
+      colorize.console.log contents
     else
       console.log contents
 

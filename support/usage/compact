@@ -1,0 +1,22 @@
+#bold[#magenta[Synopsis:]] steroids #bold[command] arguments #cyan[--options]
+
+#bold[#magenta[Available commands:]]
+
+  #bold[create]     Creates a new application from the default template
+  #bold[connect]    Starts development mode
+  #bold[deploy]     Deploys your application to AppGyver Cloud
+
+  #bold[generate]   Runs Steroids² code generators
+  #bold[update]     Updates your dependencies (with bower)
+
+  #bold[login]      Logs you in to AppGyver Cloud
+  #bold[logout]     Logs you out from the AppGyver Cloud
+
+  #bold[log]        See logs
+
+#bold[#magenta[Available when ]connect#magenta[ is running:]] (in another process)
+
+  #bold[emulate]    Starts iOS Simulator or Android Emulator (WIP)
+  #bold[debug]      Chrome Dev Tools (Android) or Safari Remote Web Inspector (OS X only)
+
+  #cyan[--help]     Extended usage information

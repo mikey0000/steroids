@@ -11,6 +11,12 @@ class Sbawned
     if not @options.exitOnError?
       @options.exitOnError = true
 
+    if not @options.appendNode?
+      @options.appendNode = true
+
+    if @options.onExit?
+      @on "exit", @options.onExit
+
     @done = false
 
   onStdoutData: (buffer) =>
@@ -45,10 +51,16 @@ class Sbawned
       if process.platform is "win32"
         originalCmd = @options.cmd
         @options.cmd = process.env.comspec
-        args = ["/c", "node", originalCmd].concat(args)
+
+        if @options.appendNode
+          args = ["/c", "node", originalCmd].concat(args)
+        else
+          args = ["/c", originalCmd].concat(args)
+
         @spawned = spawn @options.cmd, args, { cwd: @options.cwd, stdio: 'inherit' }
       else
         @spawned = spawn @options.cmd, args, { cwd: @options.cwd }
+
     catch e
       console.log "Failed to spawn a process, error: #{e.code}"
 
@@ -59,13 +71,21 @@ class Sbawned
 
       @onExit()
 
+    return unless @spawned
+
     # windows spawn command inherits stdio from current process to get output working
     unless process.platform is "win32"
       @spawned.stdout.on "data", @onStdoutData
       @spawned.stderr.on "data", @onStderrData
+
     @spawned.on "exit", @onExit
     @spawned.on "error", (err)=>
-      console.log err
+      if err.code == "ENOENT"
+        steroidsCli.log "Failed to run: #{@options.cmd} #{args.join(' ')}"
+      else
+        steroidsCli.log "Error: #{err}"
+
+      @onExit()
 
   kill: () =>
     @spawned.kill("SIGKILL")

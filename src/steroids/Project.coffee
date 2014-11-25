@@ -3,15 +3,18 @@ util = require "util"
 paths = require "./paths"
 chalk = require "chalk"
 fs = require "fs"
+path = require "path"
 Help = require "./Help"
 ApplicationConfigUpdater = require "./ApplicationConfigUpdater"
-ConfigXmlValidator = require "./ConfigXmlValidator"
-BowerComponentsValidator = require "./BowerComponentsValidator"
 AppSettings = require "./AppSettings"
+Grunt = require "./Grunt"
+ConfigXmlGenerator = require "./ConfigXmlGenerator"
+ConfigJsonGenerator = require "./ConfigJsonGenerator"
 
 class Project
 
   constructor: (@options={}) ->
+    @config = steroidsCli.config.getCurrent()
 
   initialize: (options={}) =>
     options.onSuccess()
@@ -20,22 +23,20 @@ class Project
     steroidsCli.debug "Starting push"
 
     @make
+      onFailure: options.onFailure
       onSuccess: =>
         @package
           onSuccess: () =>
             options.onSuccess.call() if options.onSuccess?
-      onFailure: options.onFailure
 
   preMake: (options = {}) =>
-    config = steroidsCli.config.getCurrent()
+    if @config.hooks.preMake.cmd and @config.hooks.preMake.args
 
-    if config.hooks.preMake.cmd and config.hooks.preMake.args
-
-      util.log "preMake starting: #{config.hooks.preMake.cmd} with #{config.hooks.preMake.args}"
+      util.log "preMake starting: #{@config.hooks.preMake.cmd} with #{@config.hooks.preMake.args}"
 
       preMakeSbawn = sbawn
-        cmd: config.hooks.preMake.cmd
-        args: config.hooks.preMake.args
+        cmd: @config.hooks.preMake.cmd
+        args: @config.hooks.preMake.args
         stdout: true
         stderr: true
 
@@ -44,7 +45,7 @@ class Project
       preMakeSbawn.on "exit", =>
         errorCode = preMakeSbawn.code
 
-        if errorCode == 137 and config.hooks.preMake.cmd == "grunt"
+        if errorCode == 137 and @config.hooks.preMake.cmd == "grunt"
           util.log "command was grunt build which exists with 137 when success, setting error code to 0"
           errorCode = 0
 
@@ -61,15 +62,13 @@ class Project
 
 
   postMake: (options = {}) =>
-    config = steroidsCli.config.getCurrent()
-
-    if config.hooks.postMake.cmd and config.hooks.postMake.args
+    if @config.hooks.postMake.cmd and @config.hooks.postMake.args
 
       util.log "postMake started"
 
       postMakeSbawn = sbawn
-        cmd: config.hooks.postMake.cmd
-        args: config.hooks.postMake.args
+        cmd: @config.hooks.postMake.cmd
+        args: @config.hooks.postMake.args
         stdout: true
         stderr: true
 
@@ -82,64 +81,41 @@ class Project
 
   makeOnly: (options = {}) => # without hooks
 
-    bowerComponentsValidator = new BowerComponentsValidator
     applicationConfigUpdater = new ApplicationConfigUpdater
-    configXmlValidator = new ConfigXmlValidator
 
-    bowerComponentsValidator.validate().then( =>
-      applicationConfigUpdater.updateTo3_1_9()
+    applicationConfigUpdater.ensureNodeModulesDir().then( =>
 
-    ).then( =>
+      steroidsCli.debug "Running Grunt tasks..."
 
-      configXmlValidator.check("ios")
-
-    ).then( =>
-
-      configXmlValidator.check("android")
-
-    ).then( =>
-
-      applicationConfigUpdater.ensureNodeModulesDir()
-
-    ).then( =>
-
-      steroidsCli.debug "Spawning steroids grunt #{steroidsCli.pathToSelf}"
-
-      gruntArgs = ["grunt"]
-      gruntArgs.push("--no-sass") if steroidsCli.options.argv.sass == false
-
-      gruntSbawn = sbawn
-        cmd: steroidsCli.pathToSelf
-        args: gruntArgs
-        stdout: true
-        stderr: true
-
-      gruntSbawn.on "exit", () =>
-        if gruntSbawn.code == 0
-          options.onSuccess.call() if options.onSuccess?
-        else
-          steroidsCli.debug "grunt spawn exited with code #{gruntSbawn.code}"
-          options.onFailure.call() if options.onFailure?
+      grunt = new Grunt()
+      grunt.run {tasks: ["default"]}, =>
+        unless steroidsCli.options.argv.noSettingsJson == true
+          @createSettingsJson()
+        @createConfigXml()
+        @createConfigJson()
+        options.onSuccess.call() if options.onSuccess?
 
     ).fail (errorMessage)->
       Help.error()
       console.log errorMessage
       process.exit(1)
 
-
-
   make: (options = {}) => # with pre- and post-make hooks
 
     steroidsCli.debug "Making with hooks."
-    appSettings = new AppSettings
+
+    try
+      @config = steroidsCli.config.getCurrent()
+    catch e
+      options.onFailure(e) if options.onFailure?
+      return
 
     @preMake
+      onFailure: options.onFailure
       onSuccess: =>
         @makeOnly
+          onFailure: options.onFailure
           onSuccess: =>
-            unless steroidsCli.options.argv.noSettingsJson == true
-              steroidsCli.debug "Creating dist/__appgyver_settings.json..."
-              appSettings.createJSONFile()
             @postMake options
 
   package: (options = {}) =>
@@ -159,6 +135,23 @@ class Project
         options.onSuccess() if options.onSuccess
       else
         options.onFailure() if options.onFailure
+
+  createSettingsJson: ->
+    appSettings = new AppSettings()
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.appgyverSettings} ..."
+    appSettings.createJSONFile()
+
+  createConfigXml: ->
+    configXmlGenerator = new ConfigXmlGenerator()
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.configIosXml} ..."
+    configXmlGenerator.writeConfigIosXml()
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.configAndroidXml} ..."
+    configXmlGenerator.writeConfigAndroidXml()
+
+  createConfigJson: ->
+    configJsonGenerator = new ConfigJsonGenerator()
+    steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.configJson} ..."
+    configJsonGenerator.writeConfigJson()
 
 
 module.exports = Project

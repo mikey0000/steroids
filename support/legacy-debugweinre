@@ -1,19 +1,18 @@
 
 #red[Sorry]
 
-You tried to launch Weinre with:
+You tried to launch Weinre, which has been deprecated
+and removed from Steroids CLI.
 
-  $ steroids debug
-
-We have changed that. Weinre is now launched with
-
-  $ steroids weinre [--port=<port>]
-
-You should also check out
+You should check out
 
   $ steroids safari
 
-for a better debugger (OS X only)
+for a better debugger (OS X/iOS only), or go to
+
+  https://academy.appgyver.com
+
+for more information on debugging.
 
 Thanks,
   - Matti (matti.paksula@appgyver.com)

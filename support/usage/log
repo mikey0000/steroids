@@ -1,0 +1,11 @@
+#bold[#magenta[Synopsis:]] steroids log #bold[target] #cyan[--options]
+
+  Shows logs
+
+#bold[#magenta[Available modes and options:]]
+
+  #bold[steroids]   Shows all Steroids log messages
+
+  #bold[logcat]     Shows Android log messages for AppGyver Scanner (#yellow[Experimental])
+    #cyan[--tail]
+

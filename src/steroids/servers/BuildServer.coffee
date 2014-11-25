@@ -4,12 +4,19 @@ util = require "util"
 request = require "request"
 semver = require "semver"
 chalk = require "chalk"
+winston = require "winston"
+bodyParser = require "body-parser"
+express = require "express"
+tinylr = require "tiny-lr"
 
 fs = require "fs"
 Paths = require "../paths"
 
 Updater = require "../Updater"
 
+Project = require "../Project"
+Deploy = require "../Deploy"
+Data = require "../Data"
 
 class ClientResolver
 
@@ -38,9 +45,10 @@ class ClientResolver
       osVersion = androidVersionMatch[1] if androidVersionMatch
 
     if ios
-      iosVersionMatch = @request.headers["user-agent"].match(/(iPod|iPad|iPhone) OS ([^\s]*)/)
-      device = iosVersionMatch[1] if iosVersionMatch
-      osVersion = iosVersionMatch[2] if iosVersionMatch
+      iosDeviceMatch = @request.headers["user-agent"].match(/(iPod|iPad|iPhone)/)
+      device = iosDeviceMatch[0] || null
+      iosOsVersionMatch = @request.headers["user-agent"].match(/OS ([^\s]*) like/)
+      osVersion = iosOsVersionMatch[1] || null
 
     return {
       isIOS: ios
@@ -54,12 +62,44 @@ class ClientResolver
 class BuildServer extends Server
 
   constructor: (@options) ->
+    @server = @options.server
     @converter = new Converter Paths.application.configs.application
     @clients = {}
 
+    if !fs.existsSync(Paths.application.logDir)
+      fs.mkdir Paths.application.logDir
+
+    winston.add winston.transports.File, {
+      filename: Paths.application.logFile
+      level: 'debug'
+    }
+    winston.remove winston.transports.Console
+
     super(@options)
 
+    @tinylr = tinylr.middleware(app: @app, server: @server.server)
+
+    @app.use express.static(Paths.connectStaticFiles)
+    @app.use express.static(Paths.application.distDir)
+    @app.use bodyParser.json()
+    @app.use @tinylr.middleware
+
+  triggerLiveReload: ->
+    @tinylr.server.changed
+      body:
+        files: ["dolan.js"]
+
   setRoutes: =>
+
+    helper = (method, path, f) =>
+        @app[method] path, (req, res) =>
+          res.header "Access-Control-Allow-Origin", "*"
+          res.header "Access-Control-Allow-Headers", "Content-Type"
+
+          f(req, res).catch (err) ->
+            res.status(500).json {error: "Internal error"}
+
+
     @app.get "/", (req, res) =>
       res.redirect("/__appgyver/index.html")
 
@@ -67,30 +107,19 @@ class BuildServer extends Server
 
       config = @converter.configToAnkaFormat()
 
-      if @options.karmaPort
-        config.configuration.fullscreen_start_url = "#{req.protocol}://#{req.host}:#{@options.karmaPort}"
-        config.configuration.fullscreen = "true"
+      zipObject =
+        url: "#{req.protocol}://#{req.hostname}:#{@options.port}/appgyver/zips/project.zip"
 
-      config.archives.push {url: "#{req.protocol}://#{req.host}:#{@options.port}/appgyver/zips/project.zip"}
+      config.archives.push zipObject
 
-      request.get { url: "http://127.0.0.1:#{steroidsCli.weinrePort}/target/target-script-min.js#anonymous" }, (err, bettereq, betteres)=>
-        unless err
-          #TODO detect if debugger is online
-          config.configuration.initial_eval_js_string += """
-          window.addEventListener("load", function(){
-            if (!window.AG_DEBUGGER_INJECTED) {
-              e = document.createElement('script');
-              e.setAttribute('src','#{req.protocol}://#{req.host}:#{steroidsCli.weinrePort}/target/target-script-min.js#anonymous');
-              document.getElementsByTagName('body')[0].appendChild(e);
-              window.AG_DEBUGGER_INJECTED = true;
-            }
-          }, false);
-          """
+      if steroidsCli.options.argv.livereload != false
+        config.livereload_host = "#{req.hostname}:#{@options.port}"
+        config.livereload_url = "ws://#{req.hostname}:#{@options.port}/livereload"
 
-        res.json config
+      res.json config
 
     @app.get "/appgyver/zips/project.zip", (req, res)->
-      res.sendfile Paths.temporaryZip
+      res.sendFile Paths.temporaryZip
 
     @app.get "/refresh_client_events?:timestamp", (req, res)=>
       res.header "Access-Control-Allow-Origin", "*"
@@ -117,20 +146,214 @@ class BuildServer extends Server
       res.on "close", ()->
         clearInterval id
 
+    # Used for heartbeat
+    @app.get "/__appgyver/ping", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+      res.status(200).send "Pong!"
+
+    @app.get "/__appgyver/deploy", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      Deploy = require "../Deploy"
+      deploy = new Deploy
+
+      deploy.run().then () ->
+        res.status(200).json deploy.cloudConfig
+      .catch Deploy.DeployError, (error) ->
+        res.status(500).json { error: error.message }
+
+    @app.get "/__appgyver/app_config", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      if fs.existsSync Paths.application.configs.app
+        appConfig = require Paths.application.configs.app
+        res.status(200).json appConfig
+      else
+        error = "Could not find #{Paths.appConfig.configs.app}"
+        res.status(404).json { error: error }
+
+    @app.get "/__appgyver/cloud_config", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      if fs.existsSync Paths.application.configs.cloud
+        cloudConfig = require Paths.application.configs.cloud
+        res.status(200).json cloudConfig
+      else
+        error = "Could not find config/cloud.json. Please run $ steroids deploy."
+
+        res.status(404).json { error: error }
+
+    helper "get", "/__appgyver/data/config", (req, res) =>
+      data = new Data
+      data.getConfig().then (config)->
+        res.json config
+
+    helper "post", "/__appgyver/data/init", (req, res) =>
+      data = new Data
+      data.init().then ->
+        res.status(200).send "Success!"
+      .catch (error) ->
+        res.status(500).json { error: error.message }
+
+    helper "post", "/__appgyver/data/sync", (req, res) =>
+      data = new Data
+      data.sync().then ->
+        res.status(200).send "Success!"
+
+    helper "post", "/__appgyver/generate", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      Generators = require "../Generators"
+
+      opts =
+        name: req.body.name
+        generatorOptions:
+          name: req.body.parameters.name
+          otherOptions: req.body.parameters.options
+
+      unless Generators[opts.name]?
+        error = "No such generator: #{opts.name}"
+        res.status(404).json {error: error}
+        return
+
+      generator = new Generators[opts.name](opts.generatorOptions)
+
+      generator.generate()
+      .then ->
+        res.status(200).send "Success!"
+      .catch (error)->
+        message = "#{error.message}"
+        res.status(404).json {error: message}
+
+    helper "get", "/__appgyver/emulators/:emulator/:action", (req, res) =>
+      emulator = req.param("emulator")
+      action = req.param("action")
+      device = req.query.device
+
+      if emulator == "android"
+        Android = require "../emulate/android"
+        emulate = new Android()
+      else if emulator == "genymotion"
+        Genymotion = require "../emulate/genymotion"
+        emulate = new Genymotion()
+      else if emulator == "simulator"
+        Simulator = require "../Simulator"
+        emulate = new Simulator()
+      else
+        res.status(500).json { error: "Invalid emulator" }
+
+      if emulator is "simulator" and action is "devices"
+        emulate.getDevicesAndSDKs().then (devices) ->
+          res.status(200).json devices
+
+      else if action is "start"
+        emulate.run({ device: device }).then () ->
+          res.status(200).json  { message: "Launched" }
+        .catch (err) ->
+          steroidsCli.log err.message
+          res.status(500).json { error: err.message }
+
+    @app.get "/__appgyver/debug/:tool/:action?/:view?", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      tool = req.param("tool")
+      action = req.param("action")
+      view = req.param("view") ? req.query.url
+
+      if tool is "safari"
+        SafariDebug = require "../SafariDebug"
+        safariDebug = new SafariDebug
+
+        if action is "views"
+          safariDebug.listViews().then (views) ->
+            res.status(200).json views
+          .catch (error) ->
+            res.status(500).json { error: error.message }
+        else if action is "view" and view?
+          safariDebug.open(view).then ->
+            res.status(200).json { message: "Opened view #{view}"}
+          .catch (error) ->
+            res.status(500).json { error: error.message }
+        else
+          res.status(500).json { error: "Invalid request"}
+
+      else if tool is "chrome"
+        ChromeDebug = require "../debug/chrome"
+        chromeDebug = new ChromeDebug
+        chromeDebug.run().then ->
+          res.status(200).json { message: "Chrome Web Inspecter launched"}
+        .catch ->
+          res.status(500).json { error: "Could not launch Chrome Web Inspector" }
+      else
+        res.status(500).json { error: "Invalid request"}
+
     @app.options "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
-      res.end('')
+      res.end ''
+
+    @app.get "/__appgyver/logger", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      options = {
+        from: req.param "from"
+      }
+
+      winston.query options, (err, results) ->
+        if (err)
+          throw err
+
+        res.send results.file
+        res.end ''
 
     @app.post "/__appgyver/logger", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
-      res.end('')
+      res.end ''
 
-      logMessage = req.body
-      console.log "[#{chalk.cyan('steroids logger')}] #{logMessage.date} - #{logMessage.location} - tab: #{logMessage.screen_id}, layer: #{logMessage.layer_id} \n#{logMessage.message}\n"
+      logMsg = req.body
 
+      #unused stuff coming in from Steroids.js:
+      #  .screen_id, .layer_id, .view_id
+
+      clientResolver = new ClientResolver(req)
+      resolvedClient = clientResolver.resolve()
+
+      logLevel = logMsg.level || "info"
+      message = logMsg.message
+      metadata =
+        datetime: logMsg.date
+        view: logMsg.location
+        host: req.headers.host
+        device: resolvedClient.device
+
+      winston.log logLevel, message, metadata
+
+    @app.get "/__appgyver/clients", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      res.send
+        clients: @clients
+
+    @app.get "/__appgyver/access_token", (req, res) =>
+      res.header "Access-Control-Allow-Origin", "*"
+      res.header "Access-Control-Allow-Headers", "Content-Type"
+
+      Login = require "../Login"
+
+      if Login.currentAccessToken()
+        res.status(200).send Login.currentAccessToken()
+      else
+        res.status(404).json {error: "Not authenticated"}
 
     @app.get "/refresh_client?:timestamp", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
@@ -160,6 +383,11 @@ class BuildServer extends Server
           firstSeen: Date.now()
           userAgent: req.headers["user-agent"]
           new: true
+          platform: platform
+          version: resolvedClient.version
+          osVersion: resolvedClient.osVersion
+          device: resolvedClient.device
+          simulator: resolvedClient.isSimulator
         }
 
       client.lastSeen = Date.now()

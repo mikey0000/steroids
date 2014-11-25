@@ -16,7 +16,7 @@ class LoginServer extends Server
         res.status(500).send "FAIL"
 
     @app.get "/__appgyver/login/success", (req, res) =>
-      res.status(200).sendfile(Paths.oauthSuccessHTML)
+      res.status(200).sendFile(Paths.oauthSuccessHTML)
 
 
 module.exports = LoginServer

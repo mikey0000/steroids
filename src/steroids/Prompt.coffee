@@ -1,6 +1,10 @@
 Help = require "./Help"
 paths = require "./paths"
+Grunt = require "./Grunt"
+Project = require "./Project"
+
 chalk = require "chalk"
+
 
 class Prompt
 
@@ -13,23 +17,19 @@ class Prompt
     @prompt.delimiter = " "
 
     @prompt.start();
+    @buildServer = @options.buildServer
 
   refresh: () =>
     process.stdout.write @prompt.message + @prompt.delimiter + chalk.grey("command  ")
 
   cleanUp: () =>
     console.log "Shutting down Steroids ..."
-
-    steroidsCli.simulator.stop()
-
     console.log "... done."
 
-
   connectLoop: =>
-
-    console.log "\nHit #{chalk.green("[enter]")} to push updates, type #{chalk.bold("help")} for usage"
-
     onInput = (err, result) =>
+      skipLoop = false
+
       command = if result? and result.command?
         result.command
       else
@@ -40,80 +40,123 @@ class Prompt
       switch mainCommand
         when "quit", "exit", "q"
           @cleanUp()
-
           console.log "Bye"
-
           process.exit(0)
-        when "", "push", "p"
-          console.log "Updating code on all connected devices ..."
-          Project = require "./Project"
 
+        when "", "push"
           project = new Project
           project.make
             onSuccess: =>
               project.package
                 onSuccess: =>
-                  @refresh()
+                  steroidsCli.log
+                    message: "Restarting all connected devices ..."
+                    refresh: true
 
-        when "d", "debug"
+        when "sd", "safari"
           SafariDebug = require "./SafariDebug"
           safariDebug = new SafariDebug => @connectLoop()
           if commandOptions[0]?
-            safariDebug.open(commandOptions[0])
+            safariDebug.open(commandOptions[0]).catch (error) ->
+              Help.error()
+              steroidsCli.log
+                message: error.message
           else
-            safariDebug.listViews()
+            safariDebug.listViews().then (views) ->
+              steroidsCli.log
+                message: chalk.bold "Available views:"
+                refresh: false
+              steroidsCli.log
+                message: views.join("\n")
+            .catch (error) ->
+              Help.error()
+              steroidsCli.log
+                message: error.message
           return # Exit now and later let the callback passed to SafarDebug's constructor re-enter the loop once its methods exit.
 
+        when "cd", "chrome"
+          ChromeDebug = require "./debug/chrome"
+          chromeDebug = new ChromeDebug
+          chromeDebug.run()
+
+        when "a", "and", "android"
+          Android = require "./emulate/android"
+          android = new Android
+          android.run().catch (error) ->
+            Help.error()
+            steroidsCli.log
+              message: error.message
+
+        when "g", "gen", "genymotion"
+          Genymotion = require "./emulate/genymotion"
+          genymotion = new Genymotion
+
+          device = commandOptions[0] if commandOptions[0]
+
+          genymotion.run(
+            device: device
+          ).catch (error) ->
+            Help.error()
+            steroidsCli.log
+              message: error.message
+
         when "s", "sim", "simulator"
+          Simulator = require "./Simulator"
+          simulator = new Simulator()
 
-          deviceType = if commandOptions[0]
+          device = if commandOptions[0]
             commandOptions[0]
-          else if steroidsCli.options.argv.deviceType
+          else if steroidsCli.options.argv.device
             steroidsCli.options.argv.deviceType
-          else
-            steroidsCli.simulator.DEFAULT_DEVICE_TYPE
 
-          console.log "Starting iOS Simulator of type `#{deviceType}`"
+          simulator.run(
+            device: device
+          ).catch (error) ->
+            Help.error()
+            steroidsCli.log
+              message: error.message
 
-          steroidsCli.simulator.run
-            deviceType: deviceType
-
-        when "qr", "qr-code", "qrcode"
+        when "conn", "c", "qr"
           QRCode = require "./QRCode"
           QRCode.showLocal
-            port: steroidsCli.port
+            port: @buildServer.port
 
         when "e", "edit"
-
-          if process.platform is "win32"
-            console.log "Error: launching text editor via Steroids is not supported on Windows"
+          unless process.env.EDITOR?
+            steroidsCli.log "EDITOR environment variable not set"
           else
-            editorCmd = steroidsCli.config.getCurrent().editor.cmd
-            editorArgs = steroidsCli.config.getCurrent().editor.args
-
-            acualArgs = if editorArgs
-              editorArgs
-            else
-              [paths.applicationDir]
-
-            acualCmd = if editorCmd
-              editorCmd
-            else
-              "subl"
-
             sbawn = require "./sbawn"
-            sbawn
-              cmd: acualCmd
-              args: acualArgs
-              debug: true
-              exitOnError: false
+            editor = sbawn
+              cmd: process.env.EDITOR
+              args: [paths.applicationDir]
 
-        when "help", "?", "usage"
+        when "h", "help", "?", "usage"
           Help.connect()
-        else
-          console.log "Did not recognize input: #{result.command}, type help for usage."
 
-      @connectLoop()
+        when "$", "§"
+          skipLoop = true
+
+          cmd = commandOptions[0]
+          args = commandOptions.splice(1)
+
+          sbawn = require "./sbawn"
+
+          cmd = sbawn
+            cmd: cmd
+            args: args
+            cwd: paths.applicationDir
+            stdout: true
+            stderr: true
+            onExit: =>
+              console.log ""
+              setTimeout =>
+                @connectLoop()
+              , 10
+
+        else
+          steroidsCli.log "Unknown command: #{mainCommand}, did you mean:\n\t$ #{mainCommand} #{commandOptions.join(' ')}"
+      unless skipLoop
+        @connectLoop()
 
     @get
       onInput: onInput

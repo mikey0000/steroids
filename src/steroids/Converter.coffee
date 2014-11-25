@@ -3,14 +3,15 @@ fs = require "fs"
 Paths = require "./paths"
 Config = require "./Config"
 CloudConfig = require "./CloudConfig"
+routingHelpers = require "./routingHelpers"
 
 class Converter
   constructor: (@configPath)->
 
   configToAnkaFormat: ->
 
-    config = new Config()
-    configObject = config.getCurrent()
+    @config = new Config()
+    configObject = @config.getCurrent()
 
     cloudConfig = new CloudConfig().getCurrentSync()
     cloudId = if cloudConfig
@@ -29,74 +30,91 @@ class Converter
     ankaLikeJSON.appearance = @appearanceObject(configObject)
     ankaLikeJSON.preloads = @preloadsObject(configObject)
     ankaLikeJSON.drawers = @drawersObject(configObject)
+    ankaLikeJSON.configuration.extra_response_headers = @extraHeadersObject(configObject)
 
     # runtime crashes with empty initialView object
     initialViewObject = @initialViewObject(configObject)
     if initialViewObject?
       ankaLikeJSON.initialView = initialViewObject
 
+    # supersonic stuff
+    ankaLikeJSON.rootView = @rootViewObject(configObject)
+
     ankaLikeJSON.files = []
     ankaLikeJSON.archives = []
 
-    ankaLikeJSON.bottom_bars = @tabsObject(configObject)
-
-    # legacy stuff
-    ankaLikeJSON.authentication = @legacyAuthenticationObject()
-    ankaLikeJSON.update = @legacyUpdateObject()
-
-    ankaLikeJSON.hosts = @hostsObject(configObject)
+    ankaLikeJSON.bottom_bars = ankaLikeJSON.tabs = @tabsObject(configObject)
 
     return ankaLikeJSON
 
-  tabsObject: (config)->
-    return [] unless config.tabBar.tabs.length
-    return [] if @fullscreen
+  extraHeadersObject: (config) =>
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        config.network?.extraResponseHeaders
+      ->
+        {}
+    )
 
-    tabs = []
-    for configTab, i in config.tabBar.tabs
-      tab =
-        id: configTab.id
-        position: i,
-        title: configTab.title
-        image_path: configTab.icon
-        target_url: configTab.location
+  tabsObject: (config) =>
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        tabs = []
 
-      tabs.push tab
+        if config.structure.tabs?
+          for configTab, i in config.structure.tabs
+            tab =
+              position: i
+              id: configTab.id
+              title: configTab.title
+              image_path: configTab.icon
+              target_url: routingHelpers.parseLocation(configTab.location)
+            tabs.push tab
 
-    return tabs
+        tabs
+      ->
+        tabs = []
 
-  hostsObject: (config)->
-    return [] unless config.hosts.length
+        if config.tabBar.enabled
+          for configTab, i in config.tabBar.tabs
+            tab =
+              position: i
+              id: configTab.id
+              title: configTab.title
+              image_path: configTab.icon
+              target_url: configTab.location
+            tabs.push tab
 
-    hosts = []
-    for configHost in config.hosts
-      host =
-        host: configHost
+        tabs
+    )
 
-      hosts.push host
-
-    return hosts
-
-  configurationObject: (config)->
-
-    if config.statusBar.enabled == false or config.statusBar.enabled == undefined
-      statusBar = "hidden"
-    else
-      statusBar = config.statusBar.style
-
-    if config.tabBar.enabled == true
-      @fullscreen = false
-    else
-      @fullscreen = true
+  configurationObject: (config) =>
+    {statusBar, fullscreen, location} =
+      @config.eitherSupersonicOrLegacy().fold(
+        ->
+          statusBar: "default" # will be overridden by native CSS
+          fullscreen: !(config.structure.tabs?)
+          location: if config.structure.rootView?.location?
+            routingHelpers.parseLocation(config.structure.rootView.location)
+          else
+            ""
+        ->
+          statusBar:
+            if config.statusBar?.enabled == false or config.statusBar?.enabled == undefined
+              "hidden"
+            else
+              config.statusBar.style
+          fullscreen: config.tabBar.enabled == false
+          location: config.location
+      )
 
     return {
+      fullscreen: fullscreen
+      fullscreen_start_url: location
+      status_bar_style: statusBar
       request_user_location: "false"
-      fullscreen: "#{@fullscreen}"
-      fullscreen_start_url: "#{config.location}"
       splashscreen_duration_in_seconds: 0
       client_version: "edge"
-      navigation_bar_style: "#{config.theme}"
-      status_bar_style: statusBar
+      navigation_bar_style: "black"
       initial_eval_js_string: ""
       background_eval_js_string: ""
       wait_for_document_ready_before_open: "true"
@@ -106,80 +124,94 @@ class Converter
     }
 
   appearanceObject: (config)->
-    appearanceObject =
-      nav_bar_portrait_background_image: "#{config.navigationBar.portrait.backgroundImage}"
-      nav_bar_landscape_background_image: "#{config.navigationBar.landscape.backgroundImage}"
-      nav_bar_tint_color: "#{config.navigationBar.tintColor}"
-      nav_bar_title_text_color: "#{config.navigationBar.titleColor}"
-      nav_bar_title_shadow_color: "#{config.navigationBar.titleShadowColor}"
-      nav_bar_button_tint_color: "#{config.navigationBar.buttonTintColor}"
-      nav_bar_button_title_text_color: "#{config.navigationBar.buttonTitleColor}"
-      nav_bar_button_title_shadow_color: "#{config.navigationBar.buttonShadowColor}"
-      tab_bar_background_image: "#{config.tabBar.backgroundImage}"
-      tab_bar_tint_color: "#{config.tabBar.tintColor}"
-      tab_bar_button_title_text_color: "#{config.tabBar.tabTitleColor}"
-      tab_bar_button_title_shadow_color: "#{config.tabBar.tabTitleShadowColor}"
-      tab_bar_selected_icon_tint_color: "#{config.tabBar.selectedTabTintColor}"
-      tab_bar_selected_indicator_background_image: "#{config.tabBar.selectedTabBackgroundImage}"
-      loading_screen_color: "#{config.loadingScreen.tintColor}"
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        null
+      ->
+        appearanceObject =
+          nav_bar_portrait_background_image: "#{config.navigationBar.portrait.backgroundImage}"
+          nav_bar_landscape_background_image: "#{config.navigationBar.landscape.backgroundImage}"
+          nav_bar_tint_color: "#{config.navigationBar.tintColor}"
+          nav_bar_title_text_color: "#{config.navigationBar.titleColor}"
+          nav_bar_title_shadow_color: "#{config.navigationBar.titleShadowColor}"
+          nav_bar_button_tint_color: "#{config.navigationBar.buttonTintColor}"
+          nav_bar_button_title_text_color: "#{config.navigationBar.buttonTitleColor}"
+          nav_bar_button_title_shadow_color: "#{config.navigationBar.buttonShadowColor}"
+          tab_bar_background_image: "#{config.tabBar.backgroundImage}"
+          tab_bar_tint_color: "#{config.tabBar.tintColor}"
+          tab_bar_button_title_text_color: "#{config.tabBar.tabTitleColor}"
+          tab_bar_button_title_shadow_color: "#{config.tabBar.tabTitleShadowColor}"
+          tab_bar_selected_icon_tint_color: "#{config.tabBar.selectedTabTintColor}"
+          tab_bar_selected_indicator_background_image: "#{config.tabBar.selectedTabBackgroundImage}"
+          loading_screen_color: "#{config.loadingScreen.tintColor}"
 
-    # legacy support: bug in 3.1.5 client causes empty strings for these values to crash
-    unless config.navigationBar.borderSize is null or config.navigationBar.borderSize is ""
-      appearanceObject.nav_bar_border_size = "#{config.navigationBar.borderSize}"
+        # legacy support: bug in 3.1.5 client causes empty strings for these values to crash
+        unless config.navigationBar.borderSize is null or config.navigationBar.borderSize is ""
+          appearanceObject.nav_bar_border_size = "#{config.navigationBar.borderSize}"
 
-    unless config.navigationBar.borderColor is null or config.navigationBar.borderColor is ""
-      appearanceObject.nav_bar_border_color = "#{config.navigationBar.borderColor}"
+        unless config.navigationBar.borderColor is null or config.navigationBar.borderColor is ""
+          appearanceObject.nav_bar_border_color = "#{config.navigationBar.borderColor}"
 
-    return appearanceObject
+        appearanceObject
+    )
 
   preloadsObject: (config)->
-    return [] unless config.preloads?.length
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        if config.structure.preloads?
+          preloads = []
 
-    preloads = []
+          for view in config.structure.preloads
+            view.location = routingHelpers.parseLocation(view.location)
+            preloads.push view
 
-    for preloadView in config.preloads
-      preloads.push preloadView
-
-    return preloads
+          preloads
+      ->
+        config.preloads
+    )
 
   drawersObject: (config)->
-    return {} unless config.drawers?
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        if config.structure.drawers?
+          leftDrawer = config.structure.drawers.left
+          rightDrawer = config.structure.drawers.right
 
-    drawersObject = config.drawers
+          for drawer in [leftDrawer, rightDrawer]
+            drawer?.location =
+              routingHelpers.parseLocation(drawer.location)
 
-    # strechDrawer typo fix
-    if drawersObject.options?.stretchDrawer?
-      drawersObject.options.strechDrawer = drawersObject.options.stretchDrawer
-
-    return drawersObject
+          config.structure.drawers
+      ->
+        config.drawers
+    )
 
   initialViewObject: (config)->
-    return config.initialView || null # runtime crashes with empty object
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        initView = config.structure.initialView
+        initView?.location =
+          routingHelpers.parseLocation(initView.location)
+        initView
+      ->
+        config.initialView
+    )
 
   userFilesObject: (config)->
     userFilesObject = []
 
-    for file in config.copyToUserFiles
-      userFilesObject.push file
+    if config.copyToUserFiles?
+      for file in config.copyToUserFiles
+        userFilesObject.push file
 
     return userFilesObject
 
-  legacyAuthenticationObject: ->
-    return {
-      title: "Log in recommended"
-      link_types: [ ]
-      message: "You should login to use Facebook. You can also login later for commenting etc."
-      cancel_button_text: "Back"
-    }
-
-  legacyUpdateObject: ->
-    return {
-      minimum_required_version: "2.0",
-      update_recommendation_url: "http://store.apple.com/",
-      title: "Update found",
-      text: "You should update",
-      current_version: "2.0"
-    }
-
+  rootViewObject: (config)->
+    @config.eitherSupersonicOrLegacy().fold(
+      ->
+        config.structure.rootView
+      ->
+        null
+    )
 
 module.exports = Converter
