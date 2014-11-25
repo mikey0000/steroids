@@ -83,7 +83,7 @@
     "yeoman-generator": "0.17.7",
     "q": "0.9.7",
     "chalk": "0.3.0",
-    "generator-steroids": "git+https://jepjep:e072ec18c4b0a3724637b731e345f2009ffe87f1@github.com/AppGyver/generator-devroids.git#master",
+    "generator-steroids": "AppGyver/generator-steroids.git#next",
     "js-yaml": "3.0.2",
     "express-json": "1.0.0",
     "winston": "0.7.3",
