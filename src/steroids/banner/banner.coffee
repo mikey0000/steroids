@@ -37,6 +37,8 @@ class Banner
             @print("\n\n\n\n\n\n\n\nthank you!\n\n", 100).then =>
               setTimeout =>
                 fs = require "fs"
+                path = require "path"
+
                 dolanPath = path.join __dirname, "..", "..", "..", "support", "dolan"
                 dolan = fs.readFileSync(dolanPath).toString()
 
