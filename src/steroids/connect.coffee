@@ -57,6 +57,7 @@ class Connect
             server: @server
             path: "/"
             port: @port
+            livereload: @livereload
 
           @server.mount(@buildServer)
 

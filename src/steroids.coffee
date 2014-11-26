@@ -281,11 +281,8 @@ class Steroids
         else
           []
 
-        watchEnabled = !(argv.watch == false)
-        livereloadEnabled = (argv.livereload == true)
-
-        if argv.livereload == false
-          watchEnabled = false
+        livereloadEnabled = !!argv.livereload
+        watchEnabled = livereloadEnabled && !!argv.watch
 
         showConnectScreen = true
         if argv['connect'] == false or argv['qrcode'] == false

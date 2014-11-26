@@ -62,6 +62,7 @@ class ClientResolver
 class BuildServer extends Server
 
   constructor: (@options) ->
+    @livereload = @options.livereload
     @server = @options.server
     @converter = new Converter Paths.application.configs.application
     @clients = {}
@@ -112,7 +113,7 @@ class BuildServer extends Server
 
       config.archives.push zipObject
 
-      if steroidsCli.options.argv.livereload != false
+      if @livereload
         config.livereload_host = "#{req.hostname}:#{@options.port}"
         config.livereload_url = "ws://#{req.hostname}:#{@options.port}/livereload"
 
