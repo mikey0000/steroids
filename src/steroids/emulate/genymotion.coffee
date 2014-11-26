@@ -150,7 +150,7 @@ class Genymotion
         stderr: if opts.stderr? then opts.stderr else false
 
       @deviceListSession.on "exit", =>
-        if @deviceListSession.stdout.match "model:#{@vmName}"
+        if @deviceListSession.stdout.match "model:#{@vmName}" or @deviceListSession.stderr.match "model:#{@vmName}"
           steroidsCli.debug "GENYMOTION", "device found"
           resolve()
         else
