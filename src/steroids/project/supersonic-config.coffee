@@ -1,6 +1,6 @@
 _ = require "lodash"
-
 paths = require "../paths"
+features = require '../features'
 
 class SupersonicConfig
 
@@ -30,8 +30,8 @@ class SupersonicConfig
 
     @setDefaults @currentConfig
 
-    # KLUDGE: toggling AutoHideSplashScreen is disabled in supersonic until native gets a smarter autohide
-    @currentConfig.splashscreen = autohide: false
+    if features.project.forceDisableSplashScreenAutohide
+      @currentConfig.splashscreen = autohide: false
 
     @currentConfig
 
