@@ -30,6 +30,9 @@ class SupersonicConfig
 
     @setDefaults @currentConfig
 
+    # KLUDGE: toggling AutoHideSplashScreen is disabled in supersonic until native gets a smarter autohide
+    @currentConfig.splashscreen = autohide: false
+
     @currentConfig
 
   setDefaults: ->
