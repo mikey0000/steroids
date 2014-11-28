@@ -31,7 +31,11 @@ module.exports = class ConfigXmlGenerator
   constructIosXmlFromConfig: (config)->
     root = xmlbuilder.create("widget")
     root.ele "access", origin: "*"
-    allowedNamespaces = ['webView', 'splashscreen']
+
+    allowedNamespaces = [
+      'webView'
+      'splashscreen'
+    ]
     for namespaceName, namespace in config when namespaceName in allowedNamespaces
       for key, value in namespace
         {key, value} = @getLegacyProperty(namespaceName, key, value)
@@ -45,15 +49,18 @@ module.exports = class ConfigXmlGenerator
   constructAndroidXmlFromConfig: (config)->
     root = xmlbuilder.create("widget")
     root.ele "access", origin: "*"
-
-    namespace = "splashscreen"
-    key = "autohide"
-    value = config[namespace][key]
-    {key, value} = @getLegacyProperty(namespace, key, value)
+    
+    # autohide
+    {key, value} = @getLegacyProperty(
+      'splashscreen'
+      'autohide'
+      config['splashscreen']['autohide']
+    )
     root.ele "preference",
       name: key
       value: value
 
+    # fullscreen
     root.ele "preference",
       name: "fullscreen"
       value: "false"
