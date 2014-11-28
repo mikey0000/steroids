@@ -171,9 +171,12 @@ class BuildServer extends Server
 
       if fs.existsSync Paths.application.configs.app
         appConfig = require Paths.application.configs.app
-        res.status(200).json appConfig
+        res.status(200).json {config: appConfig, legacy: false}
+      else if fs.existsSync Paths.application.configs.application
+        applicationConfig = require Paths.application.configs.application
+        res.status(200).json {config: applicationConfig, legacy: true}
       else
-        error = "Could not find #{Paths.appConfig.configs.app}"
+        error = "Could not find #{Paths.application.configs.app} or #{Paths.application.configs.application}"
         res.status(404).json { error: error }
 
     @app.get "/__appgyver/cloud_config", (req, res) =>
