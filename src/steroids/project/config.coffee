@@ -2,9 +2,9 @@ Either = require "data.either"
 fs = require "fs"
 _ = require "lodash"
 
-paths = require "./paths"
-LegacyConfig = require "./LegacyConfig"
-SupersonicConfig = require "./SupersonicConfig"
+paths = require "../paths"
+LegacyConfig = require "./legacy-config"
+SupersonicConfig = require "./supersonic-config"
 
 module.exports = class Config
 

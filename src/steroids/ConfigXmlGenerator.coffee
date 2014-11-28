@@ -3,7 +3,7 @@ xmlbuilder = require "xmlbuilder"
 _ = require "lodash"
 
 paths = require "./paths"
-Config = require "./Config"
+Config = require "./project/config"
 
 module.exports = class ConfigXmlGenerator
 

@@ -1,4 +1,4 @@
-paths = require "./paths"
+paths = require "../paths"
 
 module.exports = class LegacyConfig
 

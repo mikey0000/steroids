@@ -2,7 +2,7 @@ fs = require "fs"
 
 routingHelpers = require "./routingHelpers"
 Paths = require "./paths"
-Config = require "./Config"
+Config = require "./project/config"
 
 class DeployConverter
 

@@ -1,6 +1,6 @@
 _ = require "lodash"
 
-paths = require "./paths"
+paths = require "../paths"
 
 class SupersonicConfig
 
