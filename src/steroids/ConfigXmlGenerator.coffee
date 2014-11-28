@@ -31,22 +31,13 @@ module.exports = class ConfigXmlGenerator
   constructIosXmlFromConfig: (config)->
     root = xmlbuilder.create("widget")
     root.ele "access", origin: "*"
-
-    _.forIn config, (value, key)=>
-      switch key
-        when "webView"
-          namespace = "webView"
-        when "splashscreen"
-          namespace = "splashscreen"
-        else
-          namespace = null
-
-      if namespace?
-        _.forIn config[namespace], (value, key)=>
-          {key, value} = @getLegacyProperty(namespace, key, value)
-          root.ele "preference",
-            name: key
-            value: value
+    allowedNamespaces = ['webView', 'splashscreen']
+    for namespaceName, namespace in config when namespaceName in allowedNamespaces
+      for key, value in namespace
+        {key, value} = @getLegacyProperty(namespaceName, key, value)
+        root.ele "preference",
+          name: key
+          value: value
 
     root.end
       pretty: true
