@@ -13,6 +13,8 @@ class SupersonicConfig
       postMake:
         cmd: null
         args: null
+    splashscreen:
+      autohide: true
 
   constructor: ->
     @appConfigPath = paths.application.configs.app
