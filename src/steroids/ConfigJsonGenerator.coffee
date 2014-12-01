@@ -1,7 +1,7 @@
 fs = require "fs"
 
 paths = require "./paths"
-Config = require "./Config"
+Config = require "./project/config"
 
 module.exports = class ConfigJsonGenerator
 

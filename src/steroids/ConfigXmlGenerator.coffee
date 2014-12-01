@@ -3,7 +3,7 @@ xmlbuilder = require "xmlbuilder"
 _ = require "lodash"
 
 paths = require "./paths"
-Config = require "./Config"
+Config = require "./project/config"
 
 module.exports = class ConfigXmlGenerator
 
@@ -32,21 +32,16 @@ module.exports = class ConfigXmlGenerator
     root = xmlbuilder.create("widget")
     root.ele "access", origin: "*"
 
-    _.forIn config, (value, key)=>
-      switch key
-        when "webView"
-          namespace = "webView"
-        when "splashscreen"
-          namespace = "splashscreen"
-        else
-          namespace = null
-
-      if namespace?
-        _.forIn config[namespace], (value, key)=>
-          {key, value} = @getLegacyProperty(namespace, key, value)
-          root.ele "preference",
-            name: key
-            value: value
+    allowedNamespaces = [
+      'webView'
+      'splashscreen'
+    ]
+    for namespaceName, namespace in config when namespaceName in allowedNamespaces
+      for key, value in namespace
+        {key, value} = @getLegacyProperty(namespaceName, key, value)
+        root.ele "preference",
+          name: key
+          value: value
 
     root.end
       pretty: true
@@ -54,15 +49,18 @@ module.exports = class ConfigXmlGenerator
   constructAndroidXmlFromConfig: (config)->
     root = xmlbuilder.create("widget")
     root.ele "access", origin: "*"
-
-    namespace = "splashscreen"
-    key = "autohide"
-    value = config[namespace][key]
-    {key, value} = @getLegacyProperty(namespace, key, value)
+    
+    # autohide
+    {key, value} = @getLegacyProperty(
+      'splashscreen'
+      'autohide'
+      config['splashscreen']['autohide']
+    )
     root.ele "preference",
       name: key
       value: value
 
+    # fullscreen
     root.ele "preference",
       name: "fullscreen"
       value: "false"

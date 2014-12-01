@@ -1,7 +1,7 @@
 fs = require "fs"
 
 Paths = require "./paths"
-Config = require "./Config"
+Config = require "./project/config"
 CloudConfig = require "./CloudConfig"
 routingHelpers = require "./routingHelpers"
 

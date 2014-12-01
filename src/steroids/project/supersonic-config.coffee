@@ -1,6 +1,6 @@
 _ = require "lodash"
-
-paths = require "./paths"
+paths = require "../paths"
+features = require '../features'
 
 class SupersonicConfig
 
@@ -13,6 +13,8 @@ class SupersonicConfig
       postMake:
         cmd: null
         args: null
+    splashscreen:
+      autohide: true
 
   constructor: ->
     @appConfigPath = paths.application.configs.app
@@ -29,6 +31,9 @@ class SupersonicConfig
     @currentConfig = _.merge appConfig, structureConfig
 
     @setDefaults @currentConfig
+
+    if features.project.forceDisableSplashScreenAutohide
+      @currentConfig.splashscreen = autohide: false
 
     @currentConfig
 

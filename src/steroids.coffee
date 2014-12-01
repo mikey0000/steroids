@@ -31,7 +31,7 @@ class Steroids
 
   constructor: (@options = {}) ->
     Version = require "./steroids/version/version"
-    Config = require "./steroids/Config"
+    Config = require "./steroids/project/config"
 
     @version = new Version
     @pathToSelf = process.argv[1]
