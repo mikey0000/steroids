@@ -36,8 +36,8 @@ module.exports = class ConfigXmlGenerator
       'webView'
       'splashscreen'
     ]
-    for namespaceName, namespace in config when namespaceName in allowedNamespaces
-      for key, value in namespace
+    for namespaceName, namespace of config when namespaceName in allowedNamespaces
+      for key, value of namespace
         {key, value} = @getLegacyProperty(namespaceName, key, value)
         root.ele "preference",
           name: key
