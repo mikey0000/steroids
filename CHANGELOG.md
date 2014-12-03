@@ -1,8 +1,8 @@
 ## 4.0.0 (2014-12-03) – Steroids² CLI
 
-With the Supersonic framework launch, we have redesigned the Steroids tooling with many new features, improvemenets and bugfixes.
+With the Supersonic framework launch, we have redesigned the Steroids tooling with many new features, improvements and bugfixes.
 
-Presenting Steroids² CLI. For full usage of the new commands, run `steroids usage` in Terminal.
+Presenting Steroids² CLI. For full usage of the new commands, run `steroids usage` in terminal.
 
 New feature highlights:
 - Huge speed improvements
@@ -13,7 +13,7 @@ New feature highlights:
   - Logs in connect window. Closes [#50](https://github.com/AppGyver/steroids/issues/50).
   - Initializing and managing Data from the connect window
   - ...and much much more
-- Improved file watcher, now enabled by default. Closes [#44](https://github.com/AppGyver/steroids/issues/44).
+- Improved file watcher, now enabled by default. Closes [#44](https://github.com/AppGyver/steroids/issues/44) and [#287](https://github.com/AppGyver/steroids/issues/287).
 - `steroids create` now creates Supersonic projects. Closes [#108](https://github.com/AppGyver/steroids/issues/108).
   - Possibility to create a project with CoffeeScript instead of JavaScript. Closes [#152](https://github.com/AppGyver/steroids/issues/152).
 - Android emulator (experimental). Closes [#398](https://github.com/AppGyver/steroids/issues/398).
@@ -27,6 +27,7 @@ Also, following minor bugfixes/deprecations are in place:
 - `steroids serve` was removed due to the way the new CLI works, closes [#294](https://github.com/AppGyver/steroids/issues/294)
 - `preMake` and `postMake` hooks deprecated, closes [#45](https://github.com/AppGyver/steroids/issues/45) and [#51](https://github.com/AppGyver/steroids/issues/51).
 - Improved preinstall script. Closes [#59](https://github.com/AppGyver/steroids/issues/59).
+- Weinre removed. Closes [#310](https://github.com/AppGyver/steroids/issues/310).
 
 ### 3.9.1 (2014-11-05)
 Bugfixes:
