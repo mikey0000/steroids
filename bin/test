@@ -65,14 +65,13 @@ elif [ "$MODE" == "release" ]; then
     echo "not deleting"
   fi
 
-  echo "Now running: $ npm install && npm update"
+  echo "Now running: $ npm install"
   echo "ok? (Y/n)"
 
   betterRead INSTALL_OK
 
   if [ "$INSTALL_OK" != "n" ]; then
     npm install
-    npm update
   else
     echo "not installing and updating"
   fi
