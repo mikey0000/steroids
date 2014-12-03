@@ -2,7 +2,7 @@
 
   Disable options wiht #cyan[--no-option] e.g. #cyan[--no-connect]
 
-  #bold[connect]]
+  #bold[connect]
 
     #cyan[--connect]
       Open Steroids Connect screen in a separate browser window. (Default: true)
@@ -15,3 +15,8 @@
 
     #cyan[--watchExclude <matcher>]
       Ignore files from watching. (Default: '')
+
+  #bold[deploy]
+
+    #cyan[--share]
+      Open AppGyver Share page after deployment. (Default: false)
