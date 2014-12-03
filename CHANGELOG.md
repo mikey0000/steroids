@@ -1,23 +1,32 @@
-## 4.0.0 (2014-12-03): Completely renewed Steroids CLI
+## 4.0.0 (2014-12-03) – Steroids² CLI
 
-For full usage of new Steroids CLI, use `steroids usage` in terminal.
+With the Supersonic framework launch, we have redesigned the Steroids tooling with many new features, improvemenets and bugfixes.
 
-Main new features:
-- Completely new connect window
-  - Show connected devices
-  - Open iOS Simulator or Android emulator from connect window
-  - Logs in connect window
+Presenting Steroids² CLI. For full usage of the new commands, run `steroids usage` in Terminal.
+
+New feature highlights:
+- Huge speed improvements
+- Completely redesigned Connect Screen. Closes [#49](https://github.com/AppGyver/steroids/issues/49), [#52](https://github.com/AppGyver/steroids/issues/52), [#68](https://github.com/AppGyver/steroids/issues/68)
+  - Show list of connected devices
+  - Improved iOS Simulator. Closes [#56](https://github.com/AppGyver/steroids/issues/56), [#60](https://github.com/AppGyver/steroids/issues/60), [#326](https://github.com/AppGyver/steroids/issues/326), [#151](https://github.com/AppGyver/steroids/issues/151) and [#57](https://github.com/AppGyver/steroids/issues/57)
+  - Open iOS Simulator or Android emulator from connect window. Closes [#53](https://github.com/AppGyver/steroids/issues/53).
+  - Logs in connect window. Closes [#50](https://github.com/AppGyver/steroids/issues/50).
   - Initializing and managing Data from the connect window
   - ...and much much more
-- Supersonic project creation
-  - Possibility to use CoffeeScript instead of JavaScript in created projects. Closes [#152](https://github.com/AppGyver/steroids/issues/152).
+- Improved file watcher, now enabled by default. Closes [#44](https://github.com/AppGyver/steroids/issues/44).
+- `steroids create` now creates Supersonic projects. Closes [#108](https://github.com/AppGyver/steroids/issues/108).
+  - Possibility to create a project with CoffeeScript instead of JavaScript. Closes [#152](https://github.com/AppGyver/steroids/issues/152).
 - Android emulator (experimental). Closes [#398](https://github.com/AppGyver/steroids/issues/398).
-- Livereload apps to phone without pressing enter in Steroids console (experimental)
+- LiveReload support to update changes without requiring the app to reload itself. Enable by running `steroids connect --livereload`. Experimental.
+- Improved Bower dependency management. Closes [#62](https://github.com/AppGyver/steroids/issues/62).
+- Improved `steroids update`. Closes [#78](https://github.com/AppGyver/steroids/issues/78).
+- Redesigned default Grunt tasks. Closes [#69](https://github.com/AppGyver/steroids/issues/69).
 
-Also the following issues are closed because of the way Steroids CLI has been completely renewed:
-- Trying to run simulator without connect did not give proper error message [#151](https://github.com/AppGyver/steroids/issues/151)
+Also, following minor bugfixes/deprecations are in place:
+- Keyboard config settings removed due to incompability with new keyboard plugin. Closes [#101](https://github.com/AppGyver/steroids/issues/101).
 - `steroids serve` was removed due to the way the new CLI works, closes [#294](https://github.com/AppGyver/steroids/issues/294)
-- 64bit simulator issue is not relevant anymore, closes [#326](https://github.com/AppGyver/steroids/issues/326)
+- `preMake` and `postMake` hooks deprecated, closes [#45](https://github.com/AppGyver/steroids/issues/45) and [#51](https://github.com/AppGyver/steroids/issues/51).
+- Improved preinstall script. Closes [#59](https://github.com/AppGyver/steroids/issues/59).
 
 ### 3.9.1 (2014-11-05)
 Bugfixes:
