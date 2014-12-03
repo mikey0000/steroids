@@ -1,3 +1,24 @@
+## 4.0.0 (2014-12-03): Completely renewed Steroids CLI
+
+For full usage of new Steroids CLI, use `steroids usage` in terminal.
+
+Main new features:
+- Completely new connect window
+  - Show connected devices
+  - Open iOS Simulator or Android emulator from connect window
+  - Logs in connect window
+  - Initializing and managing Data from the connect window
+  - ...and much much more
+- Supersonic project creation
+  - Possibility to use CoffeeScript instead of JavaScript in created projects. Closes [#152](https://github.com/AppGyver/steroids/issues/152).
+- Android emulator (experimental). Closes [#398](https://github.com/AppGyver/steroids/issues/398).
+- Livereload apps to phone without pressing enter in Steroids console (experimental)
+
+Also the following issues are closed because of the way Steroids CLI has been completely renewed:
+- Trying to run simulator without connect did not give proper error message [#151](https://github.com/AppGyver/steroids/issues/151)
+- `steroids serve` was removed due to the way the new CLI works, closes [#294](https://github.com/AppGyver/steroids/issues/294)
+- 64bit simulator issue is not relevant anymore, closes [#326](https://github.com/AppGyver/steroids/issues/326)
+
 ### 3.9.1 (2014-11-05)
 Bugfixes:
 - `steroids create` no longer runs bower from steroids-generator, that caused error if Bower was not globabally installed.
