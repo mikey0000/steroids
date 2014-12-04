@@ -91,7 +91,13 @@ class Converter
     {statusBar, fullscreen, location} =
       @config.eitherSupersonicOrLegacy().fold(
         ->
-          statusBar: "default" # will be overridden by native CSS
+          statusBar:
+            if not config.statusBar?
+              "default"
+            else if config.statusBar?.enabled == false
+              "hidden"
+            else
+              config.statusBar.style || "default"
           fullscreen: !(config.structure.tabs?)
           location: if config.structure.rootView?.location?
             routingHelpers.parseLocation(config.structure.rootView.location)
