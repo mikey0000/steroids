@@ -1,3 +1,7 @@
+## 4.0.1 (2014-12-04)
+
+Fixes a bug where support for the `statusBar` config for iOS was missing from Supersonic projects.
+
 ## 4.0.0 (2014-12-03) – Steroids² CLI
 
 With the Supersonic framework launch, we have redesigned the Steroids tooling with many new features, improvements and bugfixes.
