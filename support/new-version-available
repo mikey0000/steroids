@@ -7,3 +7,6 @@
 
 	$ #bold[npm update steroids -g]
 
+	Remember to also update your projects' dependencies with
+
+	$ #bold[steroids update]
