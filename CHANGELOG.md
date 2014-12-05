@@ -3,6 +3,9 @@
 Features:
  - Version 4.0.3 of iOS Simulator (submitted for App Store approval) that fixes some crashes and blank WebViews.
 
+Bugfixes:
+ - Data Scaffold generator in Connect Screen now generates JavaScript scaffold correctly.
+
 ## 4.0.1 (2014-12-04)
 
 Fixes a bug where support for the `statusBar` config for iOS was missing from Supersonic projects.
