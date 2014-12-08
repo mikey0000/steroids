@@ -36,7 +36,7 @@ New feature highlights:
 
 Also, following minor bugfixes/deprecations are in place:
 - Keyboard config settings removed due to incompability with new keyboard plugin. Closes [#101](https://github.com/AppGyver/steroids/issues/101).
-- `steroids serve` was removed due to the way the new CLI works, closes [#294](https://github.com/AppGyver/steroids/issues/294)
+- `steroids serve` was removed due to the way the new CLI works, closes [#294](https://github.com/AppGyver/steroids/issues/294).
 - `preMake` and `postMake` hooks deprecated, closes [#45](https://github.com/AppGyver/steroids/issues/45) and [#51](https://github.com/AppGyver/steroids/issues/51).
 - Improved preinstall script. Closes [#59](https://github.com/AppGyver/steroids/issues/59).
 - Weinre removed. Closes [#310](https://github.com/AppGyver/steroids/issues/310).
