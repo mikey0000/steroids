@@ -32,7 +32,7 @@ New feature highlights:
 - LiveReload support to update changes without requiring the app to reload itself. Enable by running `steroids connect --livereload`. Experimental.
 - Improved Bower dependency management. Closes [#62](https://github.com/AppGyver/steroids/issues/62).
 - Improved `steroids update`. Closes [#78](https://github.com/AppGyver/steroids/issues/78).
-- Redesigned default Grunt tasks. Closes [#69](https://github.com/AppGyver/steroids/issues/69).
+- Redesigned default Grunt tasks. Closes [#69](https://github.com/AppGyver/steroids/issues/69) and [#222](https://github.com/AppGyver/steroids/issues/222).
 
 Also, following minor bugfixes/deprecations are in place:
 - Keyboard config settings removed due to incompability with new keyboard plugin. Closes [#101](https://github.com/AppGyver/steroids/issues/101).
