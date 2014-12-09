@@ -10,7 +10,7 @@ DeployConverter = require "./DeployConverter"
 
 class Deploy
 
-  DeployError: class DeployError extends steroidsCli.SteroidsError
+  @DeployError: class DeployError extends steroidsCli.SteroidsError
 
   constructor: (@options={}) ->
     @converter = new DeployConverter
