@@ -17,7 +17,7 @@ class Updater
   getFromEndpoint: (endpointURL, onSuccess) ->
     steroidsCli.debug "Updater", "Looking for update: #{endpointURL}"
     request endpointURL, (error, response, body) ->
-      if err? or response.statusCode != 200
+      if err? or response?.statusCode != 200
         steroidsCli.debug "Updater", "updates.appgyver.com not responding"
         return
 
