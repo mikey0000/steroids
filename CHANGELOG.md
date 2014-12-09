@@ -1,3 +1,9 @@
+## 4.0.3 (TODO)
+
+Bugfixes:
+ - Fixed an error when running cloud deploy via the Connect Screen.
+ - Fixed an error when Updater was run without Internet connectivity.
+
 ## 4.0.2 (2014-12-05)
 
 Features:
