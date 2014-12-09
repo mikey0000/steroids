@@ -15,6 +15,7 @@ class SandboxDB
   @SandboxDBError: class SandboxDBError extends steroidsCli.SteroidsError
   @ProvisionError: class ProvisionError extends SandboxDBError
   @WriteFileError: class WriteFileError extends SandboxDBError
+  @ConnectionError: class ConnectionError extends SandboxDBError
 
   providerName: "AppGyver Sandbox Database"
   providerTypeId: 6
@@ -59,7 +60,7 @@ class SandboxDB
         url: "#{sandboxDBBaseURL}/v1/credentials/provision"
       , (err, res, body) =>
         if err?
-          reject new DeployError "Could not connect to Sandbox DB"
+          reject new ConnectionError "Could not connect to Sandbox DB"
         else if res.statusCode == 200 and body.code == 201 # The fuq?
           @fromApiSchemaDict(body.body)
           resolve()
