@@ -1,4 +1,4 @@
-## 4.0.3 (TODO)
+## 4.0.3 (2014-12-11)
 
 Features:
  - Android emulator updated to v4.0.3.
