@@ -1,8 +1,13 @@
 ## 4.0.3 (TODO)
 
+Features:
+ - Android emulator updated to v4.0.3.
+
 Bugfixes:
  - Fixed an error when running cloud deploy via the Connect Screen.
  - Fixed an error when Updater was run without Internet connectivity.
+ - Connect Screen now shows logs for legacy Steroids project too (compatible with `steroids.logger.log`)
+
 
 ## 4.0.2 (2014-12-05)
 
