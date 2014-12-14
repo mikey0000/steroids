@@ -41,9 +41,9 @@ class Genymotion
       genymotionApp = process.env.GENYMOTION_APP ? ""
       genmotionShell = process.env.GENYMOTION_SHELL ? ""
 
-      base = path.join genymotionApp, "bin"
-      player = path.join genymotionApp, "bin", "player"
-      shell = path.join genmotionShell, "bin", "genyshell"
+      base = path.join genymotionApp
+      player = path.join genymotionApp, "player"
+      shell = path.join genmotionShell, "genyshell"
       adb = path.join genymotionApp, "tools", "adb"
 
     else
