@@ -5,16 +5,20 @@ _ = require "lodash"
 paths = require "../paths"
 LegacyConfig = require "./legacy-config"
 SupersonicConfig = require "./supersonic-config"
+CordovaConfig = require "./cordova-config"
 
 module.exports = class Config
 
   constructor: ->
 
   getCurrent: =>
-    config = @eitherSupersonicOrLegacy().fold(
-      -> new SupersonicConfig()
-      -> new LegacyConfig()
-    )
+    if true #TODO Acual check
+      config = new CordovaConfig()
+    else
+      config = @eitherSupersonicOrLegacy().fold(
+        -> new SupersonicConfig()
+        -> new LegacyConfig()
+      )
 
     config.getCurrent()
 

@@ -23,9 +23,11 @@ class Project
     steroidsCli.debug "Starting push"
 
     @make
+      cordova: options.cordova
       onFailure: options.onFailure
       onSuccess: =>
         @package
+          cordova: options.cordova
           onSuccess: () =>
             options.onSuccess.call() if options.onSuccess?
 
@@ -80,25 +82,29 @@ class Project
       options.onSuccess.call() if options.onSuccess?
 
   makeOnly: (options = {}) => # without hooks
+    if options.cordova
+      steroidsCli.debug "Running Grunt tasks for Cordova project..."
+      console.log "TODO: assuming dist/ exists"
+      options.onSuccess.call() if options.onSuccess?
+    else
+      applicationConfigUpdater = new ApplicationConfigUpdater
 
-    applicationConfigUpdater = new ApplicationConfigUpdater
+      applicationConfigUpdater.ensureNodeModulesDir().then( =>
 
-    applicationConfigUpdater.ensureNodeModulesDir().then( =>
+        steroidsCli.debug "Running Grunt tasks..."
 
-      steroidsCli.debug "Running Grunt tasks..."
+        grunt = new Grunt()
+        grunt.run {tasks: ["default"]}, =>
+          unless steroidsCli.options.argv.noSettingsJson == true
+            @createSettingsJson()
+          @createConfigXml()
+          @createConfigJson()
+          options.onSuccess.call() if options.onSuccess?
 
-      grunt = new Grunt()
-      grunt.run {tasks: ["default"]}, =>
-        unless steroidsCli.options.argv.noSettingsJson == true
-          @createSettingsJson()
-        @createConfigXml()
-        @createConfigJson()
-        options.onSuccess.call() if options.onSuccess?
-
-    ).fail (errorMessage)->
-      Help.error()
-      console.log errorMessage
-      process.exit(1)
+      ).fail (errorMessage)->
+        Help.error()
+        console.log errorMessage
+        process.exit(1)
 
   make: (options = {}) => # with pre- and post-make hooks
 
@@ -110,20 +116,28 @@ class Project
       options.onFailure(e) if options.onFailure?
       return
 
-    @preMake
-      onFailure: options.onFailure
-      onSuccess: =>
-        @makeOnly
-          onFailure: options.onFailure
-          onSuccess: =>
-            @postMake options
+    if options.cordova
+      @makeOnly options
+    else
+      @preMake
+        onFailure: options.onFailure
+        onSuccess: =>
+          @makeOnly
+            onFailure: options.onFailure
+            onSuccess: =>
+              @postMake options
 
   package: (options = {}) =>
     steroidsCli.debug "Spawning steroids package"
 
+    args = ["package"]
+
+    if options.cordova
+      args.push "--cordova"
+
     packageSbawn = sbawn
       cmd: steroidsCli.pathToSelf
-      args: ["package"]
+      args: args
       stdout: true
       stderr: true
 

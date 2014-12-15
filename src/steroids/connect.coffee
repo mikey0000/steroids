@@ -2,16 +2,16 @@ class Connect
 
   @ParseError: class ParseError extends steroidsCli.SteroidsError
 
-  constructor:(opts={}) ->
-    @port = opts.port
-    @showConnectScreen = opts.connectScreen
-    @watch = opts.watch
-    @livereload = opts.livereload
-    @watchExclude = opts.watchExclude
+  constructor:(options={}) ->
+    @port = options.port
+    @showConnectScreen = options.connectScreen
+    @watch = options.watch
+    @livereload = options.livereload
+    @watchExclude = options.watchExclude
 
     @prompt = null
 
-  run: (opts={}) =>
+  run: (options={}) =>
     Updater = require "./Updater"
     updater = new Updater
     updater.check
@@ -38,6 +38,7 @@ class Connect
       @project = new Project
 
       @project.push
+        cordova: options.cordova
         onFailure: reject
         onSuccess: =>
           @startServer()
