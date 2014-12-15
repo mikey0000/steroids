@@ -124,7 +124,7 @@ class Steroids
     ]
 
     if command in commands
-      return if @detectSteroidsProject()
+      return if @detectSteroidsProject() or argv.cordova
 
       steroidsCli.log "Error: command '#{command}' requires to be run in a Steroids project directory."
       process.exit(1)
@@ -249,6 +249,7 @@ class Steroids
         Project = require "./steroids/Project"
         project = new Project
         project.push
+          cordova: argv.cordova
           onSuccess: ->
             steroidsCli.debug "steroids make && steroids package ok."
 
@@ -260,7 +261,7 @@ class Steroids
       when "package"
         Packager = require "./steroids/Packager"
 
-        packager = new Packager
+        packager = new Packager(cordova: argv.cordova)
 
         packager.create()
 
@@ -295,7 +296,9 @@ class Steroids
           watchExclude: watchExclude
           connectScreen: showConnectScreen
 
-        @connect.run()
+        @connect.run(
+          cordova: argv.cordova
+        )
         .then =>
           Help = require "./steroids/Help"
           Help.connect()
