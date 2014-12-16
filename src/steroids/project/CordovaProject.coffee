@@ -16,5 +16,6 @@ module.exports = class CordovaProject extends ProjectBase
 
     fse.removeSync paths.cordovaSupport.distDir
     fse.ensureDirSync paths.cordovaSupport.distDir
+    fse.copySync paths.cordovaSupport.iosNativeCss, paths.cordovaSupport.iosNativeCssDist
     fse.copySync paths.application.wwwDir, paths.cordovaSupport.distDir
     fse.copySync paths.cordovaSupport.configXml, paths.cordovaSupport.distConfigXml
