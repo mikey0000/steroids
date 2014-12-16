@@ -58,7 +58,7 @@ class ClientResolver
       device: device
     }
 
-class BuildServer extends Server
+module.exports = class BuildServerBase extends Server
 
   constructor: (@options) ->
     @livereload = @options.livereload
@@ -66,16 +66,11 @@ class BuildServer extends Server
     @converter = new Converter paths.application.configs.application
     @clients = {}
 
-    [logDir, logFile] = if @options.cordova
-      [paths.cordovaSupport.logDir, paths.cordovaSupport.logFile]
-    else
-      [paths.application.logDir, paths.application.logFile]
-
     fse = require "fs-extra"
-    fse.ensureDirSync logDir
+    fse.ensureDirSync @options.logDir
 
     winston.add winston.transports.File, {
-      filename: logFile
+      filename: @options.logFile
       level: 'debug'
     }
 
@@ -86,7 +81,7 @@ class BuildServer extends Server
     @tinylr = tinylr.middleware(app: @app, server: @server.server)
 
     @app.use express.static(paths.connectStaticFiles)
-    @app.use express.static(paths.application.distDir)
+    @app.use express.static(@options.distDir)
     @app.use bodyParser.json()
     @app.use @tinylr.middleware
 
@@ -413,6 +408,3 @@ class BuildServer extends Server
         res.send "true"
       else
         res.send "false"
-
-
-module.exports = BuildServer

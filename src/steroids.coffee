@@ -128,7 +128,7 @@ class Steroids
     ]
 
     if command in commands
-      return if @detectSteroidsProject() or argv.cordova
+      return if @detectSteroidsProject() or @projectType is "cordova"
 
       steroidsCli.log "Error: command '#{command}' requires to be run in a Steroids project directory."
       process.exit(1)
@@ -291,15 +291,12 @@ class Steroids
         if argv['connect'] == false or argv['qrcode'] == false
           showConnectScreen = false
 
-        cordova = argv.cordova
-
         @connect = new Connect
           port: port
           watch: watchEnabled
           livereload: livereloadEnabled
           watchExclude: watchExclude
           connectScreen: showConnectScreen
-          cordova: cordova
 
         @connect.run()
         .then =>
