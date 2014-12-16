@@ -36,7 +36,10 @@ class Steroids
     @version = new Version
     @pathToSelf = process.argv[1]
     @config = new Config
-    @cordova = @options.argv.cordova
+    @projectType = if @options.argv.cordova
+      "cordova"
+    else
+      "steroids"
     @platform = @options.argv.platform || "ios"
 
     @debugEnabled = @options.debug
@@ -247,16 +250,15 @@ class Steroids
               process.exit 1
 
       when "push"
-        Project = require "./steroids/Project"
-        project = new Project
+        ProjectFactory = require "./steroids/project/ProjectFactory"
+        project = ProjectFactory.create()
         project.push
-          cordova: argv.cordova
           onSuccess: ->
             steroidsCli.debug "steroids make && steroids package ok."
 
       when "make"
-        Project = require "./steroids/Project"
-        project = new Project
+        ProjectFactory = require "./steroids/project/ProjectFactory"
+        project = ProjectFactory.create()
         project.make()
 
       when "package"

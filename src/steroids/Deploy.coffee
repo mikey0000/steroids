@@ -24,9 +24,9 @@ class Deploy
       from: "deploy"
 
     new Promise (resolve, reject) =>
-      Project = require "./Project"
+      ProjectFactory = require "./project/ProjectFactory"
+      project = ProjectFactory.create()
 
-      project = new Project
       project.make
           onSuccess: =>
               project.package

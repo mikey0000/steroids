@@ -1,7 +1,6 @@
 Help = require "./Help"
 paths = require "./paths"
 Grunt = require "./Grunt"
-Project = require "./Project"
 
 chalk = require "chalk"
 
@@ -44,7 +43,8 @@ class Prompt
           process.exit(0)
 
         when "", "push"
-          project = new Project
+          ProjectFactory = require "./project/ProjectFactory"
+          project = ProjectFactory.create()
           project.make
             onSuccess: =>
               project.package

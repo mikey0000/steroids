@@ -1,15 +1,15 @@
-sbawn = require "./sbawn"
+sbawn = require "../sbawn"
 util = require "util"
-paths = require "./paths"
+paths = require "../paths"
 chalk = require "chalk"
 fs = require "fs"
 path = require "path"
-Help = require "./Help"
-ApplicationConfigUpdater = require "./ApplicationConfigUpdater"
-AppSettings = require "./AppSettings"
-Grunt = require "./Grunt"
-ConfigXmlGenerator = require "./ConfigXmlGenerator"
-ConfigJsonGenerator = require "./ConfigJsonGenerator"
+Help = require "../Help"
+ApplicationConfigUpdater = require "../ApplicationConfigUpdater"
+AppSettings = require "../AppSettings"
+Grunt = require "../Grunt"
+ConfigXmlGenerator = require "../ConfigXmlGenerator"
+ConfigJsonGenerator = require "../ConfigJsonGenerator"
 
 class Project
 
@@ -23,11 +23,9 @@ class Project
     steroidsCli.debug "Starting push"
 
     @make
-      cordova: options.cordova
       onFailure: options.onFailure
       onSuccess: =>
         @package
-          cordova: options.cordova
           onSuccess: () =>
             options.onSuccess.call() if options.onSuccess?
 
@@ -118,39 +116,25 @@ class Project
       options.onFailure(e) if options.onFailure?
       return
 
-    if options.cordova
-      @makeOnly options
-    else
-      @preMake
-        onFailure: options.onFailure
-        onSuccess: =>
-          @makeOnly
-            onFailure: options.onFailure
-            onSuccess: =>
-              @postMake options
+    @preMake
+      onFailure: options.onFailure
+      onSuccess: =>
+        @makeOnly
+          onFailure: options.onFailure
+          onSuccess: =>
+            @postMake options
 
   package: (options = {}) =>
     steroidsCli.debug "Spawning steroids package"
 
-    args = ["package"]
+    PackagerFactory = require "../packager/PackagerFactory"
+    packager = PackagerFactory.create()
 
-    if options.cordova
-      args.push "--cordova"
-
-    packageSbawn = sbawn
-      cmd: steroidsCli.pathToSelf
-      args: args
-      stdout: true
-      stderr: true
-
-    packageSbawn.on "exit", =>
-
-      steroidsCli.debug "package exited with code #{packageSbawn.code}"
-
-      if packageSbawn.code == 0
-        options.onSuccess() if options.onSuccess
-      else
-        options.onFailure() if options.onFailure
+    packager.create()
+    .then( ->
+      options.onSuccess() if options.onSuccess
+    ).catch ->
+      options.onFailure() if options.onFailure
 
   createSettingsJson: ->
     appSettings = new AppSettings()
@@ -168,14 +152,5 @@ class Project
     configJsonGenerator = new ConfigJsonGenerator()
     steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.configJson} ..."
     configJsonGenerator.writeConfigJson()
-
-  copyCordovaFiles: ->
-    fse = require "fs-extra"
-
-    fse.removeSync paths.cordovaSupport.distDir
-    fse.ensureDirSync paths.cordovaSupport.distDir
-    fse.copySync paths.application.wwwDir, paths.cordovaSupport.distDir
-    fse.copySync paths.cordovaSupport.configXml, paths.cordovaSupport.distConfigXml
-
 
 module.exports = Project
