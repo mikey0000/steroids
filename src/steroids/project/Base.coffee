@@ -11,7 +11,10 @@ Grunt = require "../Grunt"
 ConfigXmlGenerator = require "../ConfigXmlGenerator"
 ConfigJsonGenerator = require "../ConfigJsonGenerator"
 
+class MakeError extends steroidsCli.SteroidsError
+
 module.exports = class ProjectBase
+
 
   constructor: (@options={}) ->
     @config = steroidsCli.config.getCurrent()
@@ -19,15 +22,15 @@ module.exports = class ProjectBase
   initialize: (options={}) =>
     options.onSuccess()
 
-  push: (options = {}) =>
-    steroidsCli.debug "Starting push"
+  push: =>
+    new Promise (resolve, reject) =>
+      steroidsCli.debug "Starting push"
 
-    @make
-      onFailure: options.onFailure
-      onSuccess: =>
-        @package
-          onSuccess: () =>
-            options.onSuccess.call() if options.onSuccess?
+      @make()
+      .then =>
+        @package()
+      .then =>
+        resolve()
 
   preMake: (options = {}) =>
     if @config.hooks.preMake.cmd and @config.hooks.preMake.args
@@ -101,7 +104,7 @@ module.exports = class ProjectBase
           @createConfigJson()
           options.onSuccess.call() if options.onSuccess?
 
-      ).fail (errorMessage)->
+      ).catch (errorMessage)->
         Help.error()
         console.log errorMessage
         process.exit(1)
@@ -110,19 +113,21 @@ module.exports = class ProjectBase
 
     steroidsCli.debug "Making with hooks."
 
-    try
-      @config = steroidsCli.config.getCurrent()
-    catch e
-      options.onFailure(e) if options.onFailure?
-      return
+    new Promise (resolve, reject) =>
 
-    @preMake
-      onFailure: options.onFailure
-      onSuccess: =>
-        @makeOnly
-          onFailure: options.onFailure
-          onSuccess: =>
-            @postMake options
+      try
+        @config = steroidsCli.config.getCurrent()
+      catch e
+        reject new MakeError "Could not get project configuration. Is everything set up right in the config/ folder?"
+
+      @preMake
+        onFailure: reject
+        onSuccess: =>
+          @makeOnly
+            onFailure: reject
+            onSuccess: =>
+              @postMake options
+              resolve()
 
   package: (options = {}) =>
     steroidsCli.debug "Packaging project..."

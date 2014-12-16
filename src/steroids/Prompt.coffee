@@ -45,13 +45,10 @@ class Prompt
         when "", "push"
           ProjectFactory = require "./project/ProjectFactory"
           project = ProjectFactory.create()
-          project.make
-            onSuccess: =>
-              project.package
-                onSuccess: =>
-                  steroidsCli.log
-                    message: "Restarting all connected devices ..."
-                    refresh: true
+          project.push().then =>
+            steroidsCli.log
+              message: "Restarting all connected devices ..."
+              refresh: true
 
         when "sd", "safari"
           SafariDebug = require "./SafariDebug"

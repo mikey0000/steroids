@@ -77,7 +77,7 @@ class SandboxDB
       .then =>
         steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{paths.application.configs.data.sandboxdb} was success"
         resolve()
-      .fail (err)=>
+      .catch (err)=>
         steroidsCli.debug "SANDBOXDB", "Writing configuration to file #{paths.application.configs.data.sandboxdb} was failure", err
         reject new WriteFileError err
 
