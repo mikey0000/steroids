@@ -2,7 +2,7 @@ Zip = require "./fs/zip"
 paths = require "./paths"
 fs = require "fs"
 
-class Packager
+module.exports = class Packager
   constructor: (options={})->
     distDir = if options.cordova
       paths.cordovaSupport.distDir
@@ -25,5 +25,3 @@ class Packager
   zipDistPath: ->
     @zip.create (timestamp) =>
       @latestZipTimestamp = timestamp
-
-module.exports = Packager

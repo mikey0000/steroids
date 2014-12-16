@@ -48,14 +48,14 @@ class Connect
   startServer: ()=>
     return new Promise (resolve, reject) =>
       Server = require "./Server"
-      BuildServer = require "./servers/BuildServer"
+      BuildServerFactory = require "./servers/BuildServerFactory"
 
       @server = Server.start
         port: @port
         callback: ()=>
           global.steroidsCli.server = @server
 
-          @buildServer = new BuildServer
+          @buildServer = BuildServerFactory.create
             server: @server
             path: "/"
             port: @port
