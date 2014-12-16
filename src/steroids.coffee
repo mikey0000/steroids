@@ -262,9 +262,8 @@ class Steroids
         project.make()
 
       when "package"
-        Packager = require "./steroids/Packager"
-
-        packager = new Packager(cordova: argv.cordova)
+        PackagerFactory = require "./steroids/packager/PackagerFactory"
+        packager = PackagerFactory.create()
 
         packager.create()
 
