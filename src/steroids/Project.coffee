@@ -175,7 +175,7 @@ class Project
     fse.removeSync paths.cordovaSupport.distDir
     fse.ensureDirSync paths.cordovaSupport.distDir
     fse.copySync paths.application.wwwDir, paths.cordovaSupport.distDir
-    #fse.copySync paths.cordovaSupport.configXml, paths.cordovaSupport.distDir
+    fse.copySync paths.cordovaSupport.configXml, paths.cordovaSupport.distConfigXml
 
 
 module.exports = Project
