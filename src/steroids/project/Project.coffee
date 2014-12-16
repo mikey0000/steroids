@@ -125,7 +125,7 @@ class Project
             @postMake options
 
   package: (options = {}) =>
-    steroidsCli.debug "Spawning steroids package"
+    steroidsCli.debug "Packaging project..."
 
     PackagerFactory = require "../packager/PackagerFactory"
     packager = PackagerFactory.create()
