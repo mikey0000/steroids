@@ -1,5 +1,3 @@
-Project = require "./Project"
+ProjectBase = require "./Base"
 
-class SteroidsProject extends Project
-
-module.exports = SteroidsProject
+module.exports = class SteroidsProject extends ProjectBase
