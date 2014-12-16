@@ -8,10 +8,11 @@ class Connect
     @watch = options.watch
     @livereload = options.livereload
     @watchExclude = options.watchExclude
+    @cordova = options.cordova
 
     @prompt = null
 
-  run: (options={}) =>
+  run: () =>
     Updater = require "./Updater"
     updater = new Updater
     updater.check
@@ -38,7 +39,7 @@ class Connect
       @project = new Project
 
       @project.push
-        cordova: options.cordova
+        cordova: @cordova
         onFailure: reject
         onSuccess: =>
           @startServer()
@@ -59,6 +60,7 @@ class Connect
             path: "/"
             port: @port
             livereload: @livereload
+            cordova: @cordova
 
           @server.mount(@buildServer)
 
@@ -130,6 +132,7 @@ class Connect
         new Promise (resolve, reject)=>
           steroidsCli.debug "connect", "doMake"
           project.make
+            cordova: @cordova
             onSuccess: =>
               steroidsCli.debug "connect", "doMake succ"
               resolve()
@@ -156,6 +159,7 @@ class Connect
         new Promise (resolve, reject)=>
           steroidsCli.debug "connect", "doFullReload"
           project.package
+            cordova: @cordova
             onSuccess: =>
               steroidsCli.debug "connect", "doFullReload succ"
               canBeLiveReload = true

@@ -1,18 +1,23 @@
 Zip = require "./fs/zip"
-Paths = require "./paths"
+paths = require "./paths"
 fs = require "fs"
 
 class Packager
-  constructor: ()->
-    @zip = new Zip Paths.application.distDir, Paths.temporaryZip
+  constructor: (options={})->
+    distDir = if options.cordova
+      paths.cordovaSupport.distDir
+    else
+      paths.application.distDir
+
+    @zip = new Zip distDir, paths.temporaryZip
 
   create: ->
     unless process.platform is "win32"
       try
-        fd = fs.openSync(Paths.temporaryZip, "w")
+        fd = fs.openSync(paths.temporaryZip, "w")
       catch err
         console.log err.message
-        console.log "Ensure that #{Paths.temporaryZip} is writable"
+        console.log "Ensure that #{paths.temporaryZip} is writable"
         process.exit 1
 
     @zipDistPath()

@@ -97,6 +97,7 @@
     "chokidar": "0.10.3",
     "chrome-cli": "http://appgyver-steroids.s3.amazonaws.com/chrome-cli-1.5.0-AppGyver-p0.tgz",
     "npm": "2.1.7",
-    "figlet": "1.1.0"
+    "figlet": "1.1.0",
+    "fs-extra": "0.13.0"
   }
 }

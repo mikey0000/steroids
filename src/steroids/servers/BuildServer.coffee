@@ -10,7 +10,7 @@ express = require "express"
 tinylr = require "tiny-lr"
 
 fs = require "fs"
-Paths = require "../paths"
+paths = require "../paths"
 
 Updater = require "../Updater"
 
@@ -64,24 +64,30 @@ class BuildServer extends Server
   constructor: (@options) ->
     @livereload = @options.livereload
     @server = @options.server
-    @converter = new Converter Paths.application.configs.application
+    @converter = new Converter paths.application.configs.application
     @clients = {}
 
-    if !fs.existsSync(Paths.application.logDir)
-      fs.mkdir Paths.application.logDir
+    [logDir, logFile] = if @options.cordova
+      [paths.cordovaSupport.logDir, paths.cordovaSupport.logFile]
+    else
+      [paths.application.logDir, paths.application.logFile]
+
+    fse = require "fs-extra"
+    fse.ensureDirSync logDir
 
     winston.add winston.transports.File, {
-      filename: Paths.application.logFile
+      filename: logFile
       level: 'debug'
     }
+
     winston.remove winston.transports.Console
 
     super(@options)
 
     @tinylr = tinylr.middleware(app: @app, server: @server.server)
 
-    @app.use express.static(Paths.connectStaticFiles)
-    @app.use express.static(Paths.application.distDir)
+    @app.use express.static(paths.connectStaticFiles)
+    @app.use express.static(paths.application.distDir)
     @app.use bodyParser.json()
     @app.use @tinylr.middleware
 
@@ -120,7 +126,7 @@ class BuildServer extends Server
       res.json config
 
     @app.get "/appgyver/zips/project.zip", (req, res)->
-      res.sendFile Paths.temporaryZip
+      res.sendFile paths.temporaryZip
 
     @app.get "/refresh_client_events?:timestamp", (req, res)=>
       res.header "Access-Control-Allow-Origin", "*"
@@ -132,8 +138,8 @@ class BuildServer extends Server
 
       id = setInterval ()->
 
-        if fs.existsSync Paths.temporaryZip
-          filestamp = fs.lstatSync(Paths.temporaryZip).mtime.getTime()
+        if fs.existsSync paths.temporaryZip
+          filestamp = fs.lstatSync(paths.temporaryZip).mtime.getTime()
         else
           filestamp = 0
 
@@ -169,22 +175,22 @@ class BuildServer extends Server
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
-      if fs.existsSync Paths.application.configs.app
-        appConfig = require Paths.application.configs.app
+      if fs.existsSync paths.application.configs.app
+        appConfig = require paths.application.configs.app
         res.status(200).json {config: appConfig, legacy: false}
-      else if fs.existsSync Paths.application.configs.application
-        applicationConfig = require Paths.application.configs.application
+      else if fs.existsSync paths.application.configs.application
+        applicationConfig = require paths.application.configs.application
         res.status(200).json {config: applicationConfig, legacy: true}
       else
-        error = "Could not find #{Paths.application.configs.app} or #{Paths.application.configs.application}"
+        error = "Could not find #{paths.application.configs.app} or #{paths.application.configs.application}"
         res.status(404).json { error: error }
 
     @app.get "/__appgyver/cloud_config", (req, res) =>
       res.header "Access-Control-Allow-Origin", "*"
       res.header "Access-Control-Allow-Headers", "Content-Type"
 
-      if fs.existsSync Paths.application.configs.cloud
-        cloudConfig = require Paths.application.configs.cloud
+      if fs.existsSync paths.application.configs.cloud
+        cloudConfig = require paths.application.configs.cloud
         res.status(200).json cloudConfig
       else
         error = "Could not find config/cloud.json. Please run $ steroids deploy."
@@ -399,8 +405,8 @@ class BuildServer extends Server
 
       timestamp = key for key,val of req.query
 
-      if fs.existsSync Paths.temporaryZip
-        filestamp = fs.lstatSync(Paths.temporaryZip).mtime.getTime()
+      if fs.existsSync paths.temporaryZip
+        filestamp = fs.lstatSync(paths.temporaryZip).mtime.getTime()
       else
         filestamp = 0
 

@@ -66,6 +66,12 @@ class Paths
     logDir: path.join @applicationDir, "logs"
     logFile: path.join @applicationDir, "logs", "steroids.log"
 
+  @cordovaSupport:
+    distDir: path.join pathExtra.tempdir(), "steroids", "dist"
+    configXml: path.join @applicationDir, "config.xml"
+    logDir: path.join pathExtra.tempdir(), "steroids", "logs"
+    logFile: path.join pathExtra.tempdir(), "steroids", "logs", "steroids.log"
+
   @application.dist =
     appgyverSettings: path.join @application.distDir, "__appgyver_settings.json"
     configIosXml: path.join @application.distDir, "config.ios.xml"

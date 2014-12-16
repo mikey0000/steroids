@@ -289,16 +289,17 @@ class Steroids
         if argv['connect'] == false or argv['qrcode'] == false
           showConnectScreen = false
 
+        cordova = argv.cordova
+
         @connect = new Connect
           port: port
           watch: watchEnabled
           livereload: livereloadEnabled
           watchExclude: watchExclude
           connectScreen: showConnectScreen
+          cordova: cordova
 
-        @connect.run(
-          cordova: argv.cordova
-        )
+        @connect.run()
         .then =>
           Help = require "./steroids/Help"
           Help.connect()
