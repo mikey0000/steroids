@@ -74,6 +74,7 @@ class Paths
     logFile: path.join pathExtra.tempdir(), "steroids", "logs", "steroids.log"
     iosNativeCss: path.join @npm, "support", "cordova", "native-styles", "ios.css"
     iosNativeCssDist: path.join pathExtra.tempdir(), "steroids", "dist", "native-styles", "ios.css"
+    ionicProject: path.join @applicationDir, "ionic.project"
 
   @application.dist =
     appgyverSettings: path.join @application.distDir, "__appgyver_settings.json"
