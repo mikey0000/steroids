@@ -9,14 +9,13 @@ CordovaConfig = require "./cordova-config"
 
 module.exports = class Config
 
-  constructor: (options={}) ->
-    @cordova = options.cordova
+  constructor: ->
 
   getCurrent: =>
-    if @cordova
-      config = new CordovaConfig()
+    config = if steroidsCli.cordova
+      new CordovaConfig()
     else
-      config = @eitherSupersonicOrLegacy().fold(
+      @eitherSupersonicOrLegacy().fold(
         -> new SupersonicConfig()
         -> new LegacyConfig()
       )

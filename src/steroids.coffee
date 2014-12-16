@@ -36,7 +36,7 @@ class Steroids
     @version = new Version
     @pathToSelf = process.argv[1]
     @config = new Config
-      cordova: @options.argv.cordova
+    @cordova = @options.argv.cordova
     @platform = @options.argv.platform || "ios"
 
     @debugEnabled = @options.debug

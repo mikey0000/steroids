@@ -69,6 +69,7 @@ class Paths
   @cordovaSupport:
     distDir: path.join pathExtra.tempdir(), "steroids", "dist"
     configXml: path.join @applicationDir, "config.xml"
+    distConfigXml: path.join pathExtra.tempdir(), "steroids", "dist", "config.xml"
     logDir: path.join pathExtra.tempdir(), "steroids", "logs"
     logFile: path.join pathExtra.tempdir(), "steroids", "logs", "steroids.log"
 
