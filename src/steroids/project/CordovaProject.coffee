@@ -1,6 +1,6 @@
-Project = require "./Project"
+ProjectBase = require "./Base"
 
-class CordovaProject extends Project
+module.exports = class CordovaProject extends ProjectBase
 
   constructor: ->
     super()
@@ -18,5 +18,3 @@ class CordovaProject extends Project
     fse.ensureDirSync paths.cordovaSupport.distDir
     fse.copySync paths.application.wwwDir, paths.cordovaSupport.distDir
     fse.copySync paths.cordovaSupport.configXml, paths.cordovaSupport.distConfigXml
-
-module.exports = CordovaProject

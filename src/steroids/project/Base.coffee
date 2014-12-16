@@ -11,7 +11,7 @@ Grunt = require "../Grunt"
 ConfigXmlGenerator = require "../ConfigXmlGenerator"
 ConfigJsonGenerator = require "../ConfigJsonGenerator"
 
-class Project
+module.exports = class ProjectBase
 
   constructor: (@options={}) ->
     @config = steroidsCli.config.getCurrent()
@@ -152,5 +152,3 @@ class Project
     configJsonGenerator = new ConfigJsonGenerator()
     steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.configJson} ..."
     configJsonGenerator.writeConfigJson()
-
-module.exports = Project
