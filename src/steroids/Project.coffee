@@ -84,8 +84,10 @@ class Project
   makeOnly: (options = {}) => # without hooks
     if options.cordova
       steroidsCli.debug "Running Grunt tasks for Cordova project..."
-      console.log "TODO: assuming dist/ exists"
-      options.onSuccess.call() if options.onSuccess?
+
+      @copyCordovaFiles()
+
+      options.onSuccess?.call()
     else
       applicationConfigUpdater = new ApplicationConfigUpdater
 
@@ -166,6 +168,14 @@ class Project
     configJsonGenerator = new ConfigJsonGenerator()
     steroidsCli.debug "Creating #{path.relative paths.applicationDir, paths.application.dist.configJson} ..."
     configJsonGenerator.writeConfigJson()
+
+  copyCordovaFiles: ->
+    fse = require "fs-extra"
+
+    fse.removeSync paths.cordovaSupport.distDir
+    fse.ensureDirSync paths.cordovaSupport.distDir
+    fse.copySync paths.application.wwwDir, paths.cordovaSupport.distDir
+    #fse.copySync paths.cordovaSupport.configXml, paths.cordovaSupport.distDir
 
 
 module.exports = Project
