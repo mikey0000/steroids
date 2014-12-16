@@ -252,9 +252,9 @@ class Steroids
       when "push"
         ProjectFactory = require "./steroids/project/ProjectFactory"
         project = ProjectFactory.create()
-        project.push
-          onSuccess: ->
-            steroidsCli.debug "steroids make && steroids package ok."
+        project.push()
+        .then ->
+          steroidsCli.debug "steroids make && steroids package ok."
 
       when "make"
         ProjectFactory = require "./steroids/project/ProjectFactory"

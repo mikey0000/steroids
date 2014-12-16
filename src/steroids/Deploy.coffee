@@ -27,18 +27,12 @@ class Deploy
       ProjectFactory = require "./project/ProjectFactory"
       project = ProjectFactory.create()
 
-      project.make
-          onSuccess: =>
-              project.package
-                onSuccess: =>
-                  @deploy().then =>
-                    resolve()
-                  .catch (error) =>
-                    reject error
-                onFailure: =>
-                  reject new DeployError "package failed"
-            onFailure: =>
-              reject new DeployError "make failed"
+      project.push().then =>
+        @deploy()
+      .then =>
+        resolve()
+      .catch (error) =>
+        reject error
 
   deploy: =>
     new Promise (resolve, reject) =>

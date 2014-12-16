@@ -38,12 +38,12 @@ class Connect
       ProjectFactory = require "./project/ProjectFactory"
       @project = ProjectFactory.create()
 
-      @project.push
-        cordova: @cordova
-        onFailure: reject
-        onSuccess: =>
-          @startServer()
-          .then resolve
+      @project.push().then =>
+        @startServer()
+      .then =>
+        resolve()
+      .catch (error) =>
+        reject error
 
   startServer: ()=>
     return new Promise (resolve, reject) =>
@@ -131,18 +131,16 @@ class Connect
       doMake = =>
         new Promise (resolve, reject)=>
           steroidsCli.debug "connect", "doMake"
-          project.make
-            cordova: @cordova
-            onSuccess: =>
-              steroidsCli.debug "connect", "doMake succ"
-              resolve()
-            onFailure: (error)=>
-              steroidsCli.debug "connect", "doMake fail"
-              if error.message.match /Parse error/ # coffee parser errors are of class Error
-                console.log "Error parsing application configuration files: #{error.message}"
-                reject new ParseError error.message
-              else
-                reject error
+          project.make().then =>
+            steroidsCli.debug "connect", "doMake succ"
+            resolve()
+          .catch (error)=>
+            steroidsCli.debug "connect", "doMake fail"
+            if error.message.match /Parse error/ # coffee parser errors are of class Error
+              console.log "Error parsing application configuration files: #{error.message}"
+              reject new ParseError error.message
+            else
+              reject error
 
       doLiveReload = =>
         new Promise (resolve, reject)=>
@@ -158,13 +156,12 @@ class Connect
       doFullReload = =>
         new Promise (resolve, reject)=>
           steroidsCli.debug "connect", "doFullReload"
-          project.package
-            cordova: @cordova
-            onSuccess: =>
-              steroidsCli.debug "connect", "doFullReload succ"
-              canBeLiveReload = true
-              @prompt.refresh()
-              resolve()
+          project.package()
+          .then =>
+            steroidsCli.debug "connect", "doFullReload succ"
+            canBeLiveReload = true
+            @prompt.refresh()
+            resolve()
 
       maker = =>
         return if isMaking
