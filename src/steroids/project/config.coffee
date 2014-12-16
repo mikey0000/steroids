@@ -9,10 +9,11 @@ CordovaConfig = require "./cordova-config"
 
 module.exports = class Config
 
-  constructor: ->
+  constructor: (options={}) ->
+    @cordova = options.cordova
 
   getCurrent: =>
-    if true #TODO Acual check
+    if @cordova
       config = new CordovaConfig()
     else
       config = @eitherSupersonicOrLegacy().fold(
