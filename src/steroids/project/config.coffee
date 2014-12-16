@@ -12,13 +12,14 @@ module.exports = class Config
   constructor: ->
 
   getCurrent: =>
-    config = if steroidsCli.cordova
-      new CordovaConfig()
-    else
-      @eitherSupersonicOrLegacy().fold(
-        -> new SupersonicConfig()
-        -> new LegacyConfig()
-      )
+    config = switch steroidsCli.projectType
+      when "cordova"
+        new CordovaConfig()
+      else
+        @eitherSupersonicOrLegacy().fold(
+          -> new SupersonicConfig()
+          -> new LegacyConfig()
+        )
 
     config.getCurrent()
 

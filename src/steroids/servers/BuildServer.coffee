@@ -14,7 +14,6 @@ paths = require "../paths"
 
 Updater = require "../Updater"
 
-Project = require "../Project"
 Deploy = require "../Deploy"
 Data = require "../Data"
 

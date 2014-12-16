@@ -35,8 +35,8 @@ class Connect
       .then ->
         steroidsCli.debug "Killed android"
 
-      Project = require "./Project"
-      @project = new Project
+      ProjectFactory = require "./project/ProjectFactory"
+      @project = ProjectFactory.create()
 
       @project.push
         cordova: @cordova
@@ -121,8 +121,8 @@ class Connect
         path: "config"
         ignored: @watchExclude
 
-      Project = require "./Project"
-      project = new Project
+      ProjectFactory = require "./project/ProjectFactory"
+      project = ProjectFactory.create()
 
       canBeLiveReload = true
       shouldMake = false
