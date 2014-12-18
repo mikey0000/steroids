@@ -83,7 +83,7 @@ var checkNPMOwnership = function(done) {
 
   process.stdout.write("Checking $HOME/.npm ownership, making sure that '"+currentUser+"' owns everything ...");
 
-  var cmdToFindFilesNotOwnedByUser = "find $HOME/.npm \! -user $USER -print";
+  var cmdToFindFilesNotOwnedByUser = 'find "$HOME/.npm" \! -user "$USER" -print';
 
   cp.exec(cmdToFindFilesNotOwnedByUser, function(error, stdout, stderr) {
     if (error) {

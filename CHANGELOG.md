@@ -2,6 +2,7 @@
 
 Bugfixes:
  - `steroids-connect` updated to v1.0.31, fixing an issue with data scaffold generator only generating a scaffold for the first of your resources. Closes [#699](https://github.com/AppGyver/steroids/issues/699).
+ - Preinstall script no longer fails if there are spaces in your disk volume name.
 
 ## 4.0.3 (2014-12-11)
 
