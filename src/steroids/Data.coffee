@@ -18,6 +18,15 @@ class Data
 
   init: ->
     return new Promise (resolve, reject) =>
+      Updater = require "./Updater"
+      updater = new Updater
+      updater.check
+        from: "data"
+
+      if steroidsCli.projectType is "cordova"
+        reject new DataError "Data is currently only available for Supersonic projects."
+        return
+
       steroidsCli.debug "DATA", "Initializing data for project"
 
       deploy = new Deploy
