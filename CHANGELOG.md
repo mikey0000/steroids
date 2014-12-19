@@ -1,4 +1,7 @@
-## 4.0.4 (TODO)
+## 4.0.4 (2014-12-19)
+
+Features:
+ - Updated iOS Simulator to v4.0.2.
 
 Bugfixes:
  - `steroids-connect` updated to v1.0.31, fixing an issue with data scaffold generator only generating a scaffold for the first of your resources. Closes [#699](https://github.com/AppGyver/steroids/issues/699).
@@ -16,9 +19,6 @@ Bugfixes:
 
 
 ## 4.0.2 (2014-12-05)
-
-Features:
- - Version 4.0.3 of iOS Simulator (submitted for App Store approval) that fixes some crashes and blank WebViews.
 
 Bugfixes:
  - Data Scaffold generator in Connect Screen now generates JavaScript scaffold correctly.
