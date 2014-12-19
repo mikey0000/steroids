@@ -398,6 +398,10 @@ class Steroids
         deploy.run().then () ->
           steroidsCli.log "Deployment complete"
           Help.deployCompleted()
+        .catch (error)->
+          Help.error()
+          steroidsCli.log error
+
 
       when "safari"
         console.log "see: steroids debug"

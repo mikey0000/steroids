@@ -24,6 +24,10 @@ class Deploy
       from: "deploy"
 
     new Promise (resolve, reject) =>
+      if steroidsCli.projectType is "cordova"
+        reject new DeployError "Cloud deploy is currently available only for Supersonic projects."
+        return
+
       ProjectFactory = require "./project/ProjectFactory"
       project = ProjectFactory.create()
 
