@@ -36,7 +36,7 @@ class Steroids
     @version = new Version
     @pathToSelf = process.argv[1]
     @config = new Config
-    @projectType = if @options.argv.cordova or @isCordovaProject()
+    @projectType = if @options.argv.cordova or @isIonicProject()
       "cordova"
     else
       "steroids"
@@ -47,7 +47,7 @@ class Steroids
 
     @connect = null
 
-  isCordovaProject: ->
+  isIonicProject: ->
     fs.existsSync paths.cordovaSupport.ionicProject
 
   host:

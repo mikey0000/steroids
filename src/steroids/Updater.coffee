@@ -76,8 +76,11 @@ class Updater
     osType = os.type()
     encodedOsType = encodeURIComponent(osType)
     encodedVersion = encodeURIComponent(currentVersion)
+    cordova = steroidsCli.projectType is "cordova"
+    ionic = steroidsCli.isIonicProject()
 
-    endpointURL = "https://updates.appgyver.com/v1/steroids/latest.json?os=#{encodedOsType}&version=#{encodedVersion}&from=#{opts.from}&user_id=#{currentUserId}"
+
+    endpointURL = "https://updates.appgyver.com/v1/steroids/latest.json?os=#{encodedOsType}&version=#{encodedVersion}&from=#{opts.from}&user_id=#{currentUserId}&ionic=#{ionic}&cordova=#{cordova}"
 
     @getFromEndpoint endpointURL, (latestVersion) =>
 
