@@ -76,7 +76,7 @@ class CordovaConfig
 
       location = result?.widget?.content[0]?.$?.src || "index.html"
 
-    location
+    "http://localhost/#{location}"
 
   getCurrent: ->
     return new CordovaConfig
