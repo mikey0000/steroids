@@ -24,9 +24,13 @@ class Deploy
       from: "deploy"
 
     new Promise (resolve, reject) =>
-      if steroidsCli.projectType is "cordova"
-        reject new DeployError "Cloud deploy is currently available only for Supersonic projects."
-        return
+      if steroidsCli.projectType is "cordova" and !@cloudConfig
+        if @options.allowConfigCreation
+          fse = require "fs-extra"
+          fse.ensureDirSync paths.application.configDir
+        else
+          reject new DeployError "To deploy your app to the cloud, you need to allow Steroids CLI to create a config directory to store the app ID and a secure hash. Please run \n\n  steroids deploy --allowConfigCreation\n\nin your project directory to proceed. The config file will be created at config/cloud.json."
+          return
 
       ProjectFactory = require "./project/ProjectFactory"
       project = ProjectFactory.create()

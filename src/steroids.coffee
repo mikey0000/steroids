@@ -393,7 +393,8 @@ class Steroids
       when "deploy"
         Deploy = require "./steroids/Deploy"
 
-        deploy = new Deploy()
+        deploy = new Deploy
+          allowConfigCreation: argv.allowConfigCreation
 
         deploy.run().then () ->
           steroidsCli.log "Deployment complete"
