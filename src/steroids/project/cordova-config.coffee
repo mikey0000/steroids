@@ -13,7 +13,7 @@ class CordovaConfig
 
     @theme = "black"
 
-    @location = "http://localhost/index.html"
+    @location = @getStartLocation()
 
     @preloads = []
     @drawers = {}
@@ -60,6 +60,23 @@ class CordovaConfig
     # Project files that will be copied to a writable UserFiles directory.
     # File is copied only if it doesn't yet exist in the UserFiles directory.
     @copyToUserFiles = []
+
+  getStartLocation: ->
+    xml2js = require "xml2js"
+    fs = require "fs"
+
+    parser = new xml2js.Parser()
+    configXmlData = fs.readFileSync paths.cordovaSupport.configXml
+
+    location = "index.html"
+    parser.parseString configXmlData, (err, result) ->
+      if err
+        location = "index.html"
+        return
+
+      location = result?.widget?.content[0]?.$?.src || "index.html"
+
+    location
 
   getCurrent: ->
     return new CordovaConfig
