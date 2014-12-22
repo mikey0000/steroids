@@ -3,7 +3,7 @@
 Experimental: run `steroids connect` in Cordova projects to test, develop and share your Cordova apps with Steroids Tooling.
 
 Experimental features:
- - You can now run `steroids connect` in Cordova projects. The project files will not be changed – the `dist/` folder is created in a system temp folder. The `www/index.html` file will be used for the initial location. The build process currently doesn't take into account the `merges` or `hooks` folders.
+ - You can now run `steroids connect` in Cordova projects. The project files will not be changed – the `dist/` folder is created in a system temp folder. The initial location will be read from the `<content src="index.html">` tag in `config.xml`.
  - You can now run `steroids deploy` in Cordova projects. The first time you deploy, you must allow Steroids CLI to create a `config/cloud.json` file for you by running `steroids deploy --allowConfigCreation`. Note that any plugins will need to be re-included in the Build Service.
 
 ## 4.0.4 (2014-12-19)
