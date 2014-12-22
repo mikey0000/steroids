@@ -1,4 +1,4 @@
-## 4.0.5 (TODO)
+## 4.0.5 (2014-12-22)
 
 Experimental: run `steroids connect` in Cordova projects to test, develop and share your Cordova apps with Steroids Tooling.
 
