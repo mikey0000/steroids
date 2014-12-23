@@ -1,3 +1,7 @@
+## 4.0.7 (2014-12-23)
+
+4.0.6 rollback reverted, Windows bug detailed in 4.0.6 changelog fixed. `steroids connect` now works in Cordova projects, see 4.0.5 changelog below for details.
+
 ## 4.0.6 (2014-12-22)
 
 Rollbacking 4.0.5 changes due to a bug discovered in Windows 7 that causes the Steroids Development Server to not show up. A fix will be provided with 4.0.7 ASAP.
