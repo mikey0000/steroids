@@ -8,6 +8,13 @@ describe 'packager', ->
 
   describe 'zip', =>
 
+    beforeEach =>
+      @oldDefaultTimeoutInterval = jasmine.getEnv().defaultTimeoutInterval
+      jasmine.getEnv().defaultTimeoutInterval = 20000
+
+    afterEach =>
+      jasmine.getEnv().defaultTimeoutInterval = @oldDefaultTimeoutInterval
+            
     it 'should be created', =>
       runs =>
         @testHelper.runInProject
