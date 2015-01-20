@@ -1,3 +1,8 @@
+## 4.0.8 (TODO)
+
+Bugfixes:
+ - Fixed a bug where a missing `<content>` tag caused Cordova project builds to error out.
+
 ## 4.0.7 (2014-12-23)
 
 4.0.6 rollback reverted, Windows bug detailed in 4.0.6 changelog fixed. `steroids connect` now works in Cordova projects, see 4.0.5 changelog below for details.
