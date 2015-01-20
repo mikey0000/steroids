@@ -52,9 +52,12 @@ class CommandRunner
         @done = true
       , @options.waitsFor
 
-    waitsFor(()=>
-      return @done
-    , "CommandRunner: cmd never exited", @timeout)
+    if @options.allowNeverExit
+      console.log "Allowing #{@cmd} to never exit"
+    else
+      waitsFor(()=>
+        return @done
+      , "CommandRunner: cmd never exited", @timeout)
 
   kill:() =>
     @spawned.kill('SIGKILL')
