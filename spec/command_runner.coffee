@@ -19,9 +19,8 @@ class CommandRunner
 
   run:() =>
     if @options.debug
-      console.log "starting cmd: #{@cmd}"
-      console.log "args: #{@args}"
-      console.log "cwd: #{@cwd}"
+      now = new Date
+      console.log "#{now.toISOString()} - starting cmd: #{@cmd}, args: #{@args}, cwd: #{@cwd}"
 
     @spawned = spawn @cmd, @args, { cwd: @cwd }
 
