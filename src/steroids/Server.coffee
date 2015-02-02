@@ -65,7 +65,6 @@ class Server
     interfaces = os.networkInterfaces()
     addresses = []
     for k of interfaces
-      console.log(k)
       unless k.indexOf("lo") == 0 or k.indexOf("Loopback") == 0
         for k2 of interfaces[k]
           address = interfaces[k][k2]
